@@ -1,12 +1,12 @@
 {
-  "name": "lumen-essence-ai",
+  "name": "lumen-bridge-ai",
   "version": "1.0.0",
-  "description": "Revolutionary multi-agent AI system with self-evolution, dynamic schema negotiation, and autonomous team composition",
+  "description": "Lumen-Bridge AI: An advanced multi-agent AI system with self-evolution capabilities, cryptographic verification, and schema negotiation, built on BSV blockchain technology.",
   "main": "structured-json.js",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node agents-api-server.js"
+    "start": "node server.js"
   },
   "keywords": [
     "ai",

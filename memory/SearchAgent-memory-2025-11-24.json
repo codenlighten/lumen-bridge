@@ -1,0 +1,203 @@
+{
+  "interactions": [
+    {
+      "role": "user",
+      "text": "Analyze this search request and create a search strategy:\n\nUser Query: \"Latest advancements in renewable energy technologies\"\n\nTasks:\n1. Identify what the user is really looking for\n2. List any missing context that would improve results\n3. Generate 1-3 optimized search queries\n4. Decide if search is needed or if you can answer directly",
+      "ts": "2025-11-24T11:24:26.609Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "f34f449e2788a82f11a306db98d1f028ad98a7feafd57f66f73dbd2d8d73e147",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"searchIntent\":\"The user is looking for recent developments and innovations in renewable energy technologies.\",\"missingContext\":[\"Specific types of renewable energy technologies of interest (e.g., solar, wind, bioenergy)\",\"Geographical focus (e.g., global, specific countries or regions)\",\"Time frame for 'latest' (e.g., last year, last six months)\"],\"searchQueries\":[\"latest advancements in solar energy technologies 2023\",\"recent innovations in wind energy technologies 2023\",\"new developments in renewable energy technologies 2023\"],\"needsSearch\":true,\"reasoning\":\"The query is broad and could benefit from more specific parameters to yield more relevant results. A search is needed to gather the latest information.\",\"suggestedFilters\":{\"timeRange\":\"last year\",\"language\":\"English\",\"safeSearch\":true},\"response\":\"\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":true,\"question\":\"What specific types of renewable energy technologies are you most interested in?\",\"_signature\":{\"signature\":\"304402201d822ad3a35799fc236d5a750fa5947b6b9fa401af09a7bd75a236503ed11d6002204e2bba6ce34fa78e05b154cfe0816ac9292f62d599f2d00aee1be35666446197\",\"responseHash\":\"3ca99c1709f4cf3ddd59906ebd5706825f7e4451f6b4253becbc556f04e7f479\",\"address\":\"1FTGipNcPq1BtSNReW6CBfreh4wLGyf3Yo\",\"publicKey\":\"0363671a8dadc2da9b0ee17f7751922aee38fe5b309d815c9ebccfe3f8bfdb7c53\",\"timestamp\":\"2025-11-24T11:24:26.609Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SearchAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":7665,\"usage\":{\"promptTokens\":750,\"completionTokens\":251,\"totalTokens\":1001}}}",
+      "ts": "2025-11-24T11:24:26.613Z",
+      "signature": "304402201d822ad3a35799fc236d5a750fa5947b6b9fa401af09a7bd75a236503ed11d6002204e2bba6ce34fa78e05b154cfe0816ac9292f62d599f2d00aee1be35666446197",
+      "publicKey": "0363671a8dadc2da9b0ee17f7751922aee38fe5b309d815c9ebccfe3f8bfdb7c53",
+      "originalHash": "3ca99c1709f4cf3ddd59906ebd5706825f7e4451f6b4253becbc556f04e7f479",
+      "verified": true,
+      "textHash": "3ca99c1709f4cf3ddd59906ebd5706825f7e4451f6b4253becbc556f04e7f479"
+    },
+    {
+      "role": "user",
+      "text": "Analyze this search request and create a search strategy:\n\nUser Query: \"Latest developments in quantum computing 2024\"\n\nTasks:\n1. Identify what the user is really looking for\n2. List any missing context that would improve results\n3. Generate 1-3 optimized search queries\n4. Decide if search is needed or if you can answer directly",
+      "ts": "2025-11-24T11:25:43.606Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "866b175b7a82f62d234b1f85a45c33da5814b1852db0054a7611a15da3005b91",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"type\":\"object\",\"properties\":{\"searchIntent\":\"The user is looking for the most recent advancements and news in quantum computing for the year 2024.\",\"missingContext\":[\"Specific areas of quantum computing (e.g., hardware, algorithms, applications) the user is interested in.\",\"The user's preferred sources (e.g., academic journals, news articles, blogs).\",\"Whether the user is looking for technical details or general news.\"],\"searchQueries\":[\"latest advancements in quantum computing 2024\",\"quantum computing news 2024\",\"recent developments in quantum technology 2024\"],\"needsSearch\":true,\"reasoning\":\"The query is time-sensitive and specific to the year 2024, which requires current information that may not be readily available without a search.\",\"suggestedFilters\":{\"timeRange\":\"2024\",\"language\":\"English\",\"safeSearch\":true},\"response\":\"\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":true,\"question\":\"What specific aspects of quantum computing are you most interested in?\"},\"_signature\":{\"signature\":\"3045022100d0d2ceedad89f465fd007823eb010badcf8f7d210d67763543ea586bd5a4b0b102200ee5451f5a9692ef35d70049eaa02fbaab8326facef6b544836a84a519f41319\",\"responseHash\":\"0d2120246c18088210474e30c40c51590376fb3b8b366fe7637fa73c42371f03\",\"address\":\"1HPnKqz9obieL7v3BxLGeoKN9WywvPDhsm\",\"publicKey\":\"02d97cdbc5b72936d526dc1b62d77d9bf9050d4842a2527ae67229fe751037f624\",\"timestamp\":\"2025-11-24T11:25:43.606Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SearchAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":6532,\"usage\":{\"promptTokens\":752,\"completionTokens\":268,\"totalTokens\":1020}}}",
+      "ts": "2025-11-24T11:25:43.612Z",
+      "signature": "3045022100d0d2ceedad89f465fd007823eb010badcf8f7d210d67763543ea586bd5a4b0b102200ee5451f5a9692ef35d70049eaa02fbaab8326facef6b544836a84a519f41319",
+      "publicKey": "02d97cdbc5b72936d526dc1b62d77d9bf9050d4842a2527ae67229fe751037f624",
+      "originalHash": "0d2120246c18088210474e30c40c51590376fb3b8b366fe7637fa73c42371f03",
+      "verified": true,
+      "textHash": "0d2120246c18088210474e30c40c51590376fb3b8b366fe7637fa73c42371f03"
+    },
+    {
+      "role": "user",
+      "text": "Analyze this search request and create a search strategy:\n\nUser Query: \"Latest developments in quantum computing 2024\"\n\nTasks:\n1. Identify what the user is really looking for\n2. List any missing context that would improve results\n3. Generate 1-3 optimized search queries\n4. Decide if search is needed or if you can answer directly",
+      "ts": "2025-11-24T11:26:10.040Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "866b175b7a82f62d234b1f85a45c33da5814b1852db0054a7611a15da3005b91",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"searchIntent\":\"To find the most recent updates and advancements in quantum computing for the year 2024.\",\"missingContext\":[\"Specific areas of quantum computing (e.g., hardware, algorithms, applications) the user is interested in.\",\"Whether the user is looking for academic research, industry news, or general articles.\",\"The user's preferred sources or types of publications (e.g., journals, news websites, blogs).\"],\"searchQueries\":[\"latest advancements in quantum computing 2024\",\"quantum computing news 2024\",\"recent research in quantum computing 2024\"],\"needsSearch\":true,\"reasoning\":\"The user is looking for current information that likely requires up-to-date sources, which necessitates a search.\",\"suggestedFilters\":{\"timeRange\":\"2024\",\"language\":\"English\",\"safeSearch\":true},\"response\":\"\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":true,\"question\":\"What specific aspects of quantum computing are you most interested in?\",\"_signature\":{\"signature\":\"30450221008e8f86814af7f5512174ff1c289b067811532e559c01061b5f8a35e36697222f02203177a8cd1ee1a3facd4b7932dcd01d797914a1d05f08a4afc75d1c9538ac191b\",\"responseHash\":\"be0167eb71476f6e57138db5ca741d1281a47eca5c647bcd9936c9f5b0094d4e\",\"address\":\"1Grqr1t4muAQZ6oK92h3h1nZuuFQebLMQB\",\"publicKey\":\"02dadeb8e2e9e96f8e0c0575d6048a079d51054a8bf5bdbf7874163d392c8fb0d7\",\"timestamp\":\"2025-11-24T11:26:10.040Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SearchAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":4958,\"usage\":{\"promptTokens\":752,\"completionTokens\":251,\"totalTokens\":1003}}}",
+      "ts": "2025-11-24T11:26:10.046Z",
+      "signature": "30450221008e8f86814af7f5512174ff1c289b067811532e559c01061b5f8a35e36697222f02203177a8cd1ee1a3facd4b7932dcd01d797914a1d05f08a4afc75d1c9538ac191b",
+      "publicKey": "02dadeb8e2e9e96f8e0c0575d6048a079d51054a8bf5bdbf7874163d392c8fb0d7",
+      "originalHash": "be0167eb71476f6e57138db5ca741d1281a47eca5c647bcd9936c9f5b0094d4e",
+      "verified": true,
+      "textHash": "be0167eb71476f6e57138db5ca741d1281a47eca5c647bcd9936c9f5b0094d4e"
+    },
+    {
+      "role": "user",
+      "text": "Analyze this search request and create a search strategy:\n\nUser Query: \"Bitcoin blockchain latest block height\"\n\nTasks:\n1. Identify what the user is really looking for\n2. List any missing context that would improve results\n3. Generate 1-3 optimized search queries\n4. Decide if search is needed or if you can answer directly",
+      "ts": "2025-11-24T11:26:42.697Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "b214e6c26565594d1e18ded908e0449cc2ce78f6d0f291e1aca3a6ec1d7b88e1",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"response\":\"\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"missingContext\":[],\"type\":\"object\",\"properties\":{\"searchIntent\":\"The user is looking for the current block height of the Bitcoin blockchain.\",\"missingContext\":[\"User's preferred source for blockchain data (e.g., specific websites or APIs)\",\"Whether the user needs historical data or just the latest block height\"],\"searchQueries\":[\"current Bitcoin blockchain block height\",\"latest Bitcoin block height 2023\",\"Bitcoin blockchain explorer latest block\"],\"needsSearch\":true,\"reasoning\":\"The user query is specific but could benefit from additional context regarding preferred data sources or the need for historical data.\"},\"_signature\":{\"signature\":\"3044022019353bd3a1ae035bbbe2073615672d387527140ba918819cce4e167c24ff3029022058d70ab044f2e62c69e1382d89feb994595338b63cab84fc480ed5dd8243bb17\",\"responseHash\":\"424aa2816587fb2ce8f037d7e6baa678571139b5d1bc053bc4b90011525db765\",\"address\":\"15dTPkotFPncxadebNR3UiMB8WXJ9D3d4n\",\"publicKey\":\"020a70129819084c558d06f3ca16ca010f4018545a01ee58cd0a2f816166f99b0e\",\"timestamp\":\"2025-11-24T11:26:42.697Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SearchAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":3361,\"usage\":{\"promptTokens\":749,\"completionTokens\":188,\"totalTokens\":937}}}",
+      "ts": "2025-11-24T11:26:42.702Z",
+      "signature": "3044022019353bd3a1ae035bbbe2073615672d387527140ba918819cce4e167c24ff3029022058d70ab044f2e62c69e1382d89feb994595338b63cab84fc480ed5dd8243bb17",
+      "publicKey": "020a70129819084c558d06f3ca16ca010f4018545a01ee58cd0a2f816166f99b0e",
+      "originalHash": "424aa2816587fb2ce8f037d7e6baa678571139b5d1bc053bc4b90011525db765",
+      "verified": true,
+      "textHash": "424aa2816587fb2ce8f037d7e6baa678571139b5d1bc053bc4b90011525db765"
+    },
+    {
+      "role": "user",
+      "text": "Analyze this search request and create a search strategy:\n\nUser Query: \"best programming language\"\n\nTasks:\n1. Identify what the user is really looking for\n2. List any missing context that would improve results\n3. Generate 1-3 optimized search queries\n4. Decide if search is needed or if you can answer directly",
+      "ts": "2025-11-24T11:26:47.091Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "b48768a23aa40544efb8c608b14813e27a0bb45fb7bbc4b2f79cc2e632eb9772",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"searchIntent\":\"The user is looking for recommendations on the best programming language to learn or use.\",\"missingContext\":[\"The user's purpose for learning a programming language (e.g., web development, data science, mobile app development)\",\"The user's current skill level (e.g., beginner, intermediate, advanced)\",\"Any specific languages the user is already familiar with or interested in.\"],\"searchQueries\":[\"best programming language for beginners\",\"top programming languages in 2024\",\"most popular programming languages for web development\"],\"needsSearch\":true,\"reasoning\":\"The query is broad and lacks specific context, making it necessary to search for tailored recommendations based on various factors.\",\"suggestedFilters\":{\"timeRange\":\"2024\",\"language\":\"English\",\"safeSearch\":true},\"response\":\"\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":true,\"question\":\"What is your primary goal for learning a programming language?\",\"_signature\":{\"signature\":\"304402206d5dbb22a580cdfd46d99045495d84e8905a440bc804b08e9f84cad91185782a022060d2072499b6a0c19c187a9ce5b207f7de09ea2b9a1435e715dd2f07b1a09cd4\",\"responseHash\":\"98a05d5f5a30dd044bbf6c1e401249afa4567288cb7069359bdc933b743f5ab1\",\"address\":\"15dTPkotFPncxadebNR3UiMB8WXJ9D3d4n\",\"publicKey\":\"020a70129819084c558d06f3ca16ca010f4018545a01ee58cd0a2f816166f99b0e\",\"timestamp\":\"2025-11-24T11:26:47.091Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SearchAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":3493,\"usage\":{\"promptTokens\":2899,\"completionTokens\":184,\"totalTokens\":3083}}}",
+      "ts": "2025-11-24T11:26:47.092Z",
+      "signature": "304402206d5dbb22a580cdfd46d99045495d84e8905a440bc804b08e9f84cad91185782a022060d2072499b6a0c19c187a9ce5b207f7de09ea2b9a1435e715dd2f07b1a09cd4",
+      "publicKey": "020a70129819084c558d06f3ca16ca010f4018545a01ee58cd0a2f816166f99b0e",
+      "originalHash": "98a05d5f5a30dd044bbf6c1e401249afa4567288cb7069359bdc933b743f5ab1",
+      "verified": true,
+      "textHash": "98a05d5f5a30dd044bbf6c1e401249afa4567288cb7069359bdc933b743f5ab1"
+    },
+    {
+      "role": "user",
+      "text": "Analyze this search request and create a search strategy:\n\nUser Query: \"Bitcoin blockchain latest block height\"\n\nTasks:\n1. Identify what the user is really looking for\n2. List any missing context that would improve results\n3. Generate 1-3 optimized search queries\n4. Decide if search is needed or if you can answer directly",
+      "ts": "2025-11-24T11:28:07.388Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "b214e6c26565594d1e18ded908e0449cc2ce78f6d0f291e1aca3a6ec1d7b88e1",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"searchIntent\":\"The user is looking for the current block height of the Bitcoin blockchain.\",\"missingContext\":[\"User's preferred source or website for blockchain data\",\"Whether the user needs historical data or just the latest block height\",\"User's familiarity with blockchain terminology\"],\"searchQueries\":[\"current Bitcoin blockchain block height\",\"latest Bitcoin block height 2023\",\"Bitcoin blockchain explorer latest block\"],\"needsSearch\":true,\"reasoning\":\"The user query is specific but does not indicate a preferred source or additional context that could refine the search. Therefore, a search is necessary to find the most accurate and up-to-date information.\",\"suggestedFilters\":{\"timeRange\":\"latest\",\"language\":\"English\",\"safeSearch\":true},\"response\":\"\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"_signature\":{\"signature\":\"3045022100e808e693f7da6dcea41b2391064e9aa9e53747cca1159392a1ee7e1b39df6a1502200bdf0a72543fb7bb82ba56ef57588814ae75b80eae1ad63daac1e85835b3a4ce\",\"responseHash\":\"a302bc29474b3fd00dedcf2be2a7e79724f389061f788d1f27fa6262df4d3a4c\",\"address\":\"12daQJKcYCZ1mNegitFX7HpniCDtCYXSdi\",\"publicKey\":\"0226db437773ae3ce9612da0e3310d2efb10d9f4b3fb31727bd1118d5cb127dcc3\",\"timestamp\":\"2025-11-24T11:28:07.388Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SearchAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":6751,\"usage\":{\"promptTokens\":749,\"completionTokens\":218,\"totalTokens\":967}}}",
+      "ts": "2025-11-24T11:28:07.394Z",
+      "signature": "3045022100e808e693f7da6dcea41b2391064e9aa9e53747cca1159392a1ee7e1b39df6a1502200bdf0a72543fb7bb82ba56ef57588814ae75b80eae1ad63daac1e85835b3a4ce",
+      "publicKey": "0226db437773ae3ce9612da0e3310d2efb10d9f4b3fb31727bd1118d5cb127dcc3",
+      "originalHash": "a302bc29474b3fd00dedcf2be2a7e79724f389061f788d1f27fa6262df4d3a4c",
+      "verified": true,
+      "textHash": "a302bc29474b3fd00dedcf2be2a7e79724f389061f788d1f27fa6262df4d3a4c"
+    },
+    {
+      "role": "user",
+      "text": "Analyze this search request and create a search strategy:\n\nUser Query: \"best programming language\"\n\nTasks:\n1. Identify what the user is really looking for\n2. List any missing context that would improve results\n3. Generate 1-3 optimized search queries\n4. Decide if search is needed or if you can answer directly",
+      "ts": "2025-11-24T11:28:12.967Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "b48768a23aa40544efb8c608b14813e27a0bb45fb7bbc4b2f79cc2e632eb9772",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"searchIntent\":\"The user is looking for recommendations on the best programming language to learn or use.\",\"missingContext\":[\"The user's purpose for learning a programming language (e.g., web development, data science, mobile app development)\",\"The user's current skill level (e.g., beginner, intermediate, advanced)\",\"Any specific languages the user is already familiar with or interested in.\"],\"searchQueries\":[\"best programming language for beginners\",\"top programming languages in 2024\",\"most popular programming languages for web development\"],\"needsSearch\":true,\"reasoning\":\"The query is broad and lacks specific context, making it necessary to search for tailored recommendations based on various factors.\",\"suggestedFilters\":{\"timeRange\":\"2024\",\"language\":\"English\",\"safeSearch\":true},\"response\":\"\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":true,\"question\":\"What is your primary goal for learning a programming language?\",\"_signature\":{\"signature\":\"3045022100dc14467227c9b60bffd25f2d40a39e88891544f1ecf567b313a307b234fa3a3502202c85c931f1465fee4298190c593c4d76f93c8f76496654139cedf2763f7df2ad\",\"responseHash\":\"98a05d5f5a30dd044bbf6c1e401249afa4567288cb7069359bdc933b743f5ab1\",\"address\":\"12daQJKcYCZ1mNegitFX7HpniCDtCYXSdi\",\"publicKey\":\"0226db437773ae3ce9612da0e3310d2efb10d9f4b3fb31727bd1118d5cb127dcc3\",\"timestamp\":\"2025-11-24T11:28:12.967Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SearchAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":4482,\"usage\":{\"promptTokens\":3954,\"completionTokens\":184,\"totalTokens\":4138}}}",
+      "ts": "2025-11-24T11:28:13.019Z",
+      "signature": "3045022100dc14467227c9b60bffd25f2d40a39e88891544f1ecf567b313a307b234fa3a3502202c85c931f1465fee4298190c593c4d76f93c8f76496654139cedf2763f7df2ad",
+      "publicKey": "0226db437773ae3ce9612da0e3310d2efb10d9f4b3fb31727bd1118d5cb127dcc3",
+      "originalHash": "98a05d5f5a30dd044bbf6c1e401249afa4567288cb7069359bdc933b743f5ab1",
+      "verified": true,
+      "textHash": "98a05d5f5a30dd044bbf6c1e401249afa4567288cb7069359bdc933b743f5ab1"
+    },
+    {
+      "role": "user",
+      "text": "Analyze this search request and create a search strategy:\n\nUser Query: \"Bitcoin price today\"\n\nTasks:\n1. Identify what the user is really looking for\n2. List any missing context that would improve results\n3. Generate 1-3 optimized search queries\n4. Decide if search is needed or if you can answer directly",
+      "ts": "2025-11-24T11:36:51.664Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "2ad241e4c9b78cc7ac52a0ac189a709b651934e8aa88965062787a11779a3811",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"searchIntent\":\"The user is looking for the current price of Bitcoin today.\",\"missingContext\":[\"The user's preferred source for cryptocurrency prices (e.g., exchange, financial news site)\",\"Whether the user is looking for the price in a specific currency (e.g., USD, EUR)\",\"If the user needs historical price data or just the current price.\"],\"searchQueries\":[\"current Bitcoin price today\",\"Bitcoin price in USD\",\"live Bitcoin price update\"],\"needsSearch\":true,\"reasoning\":\"The query is straightforward, but a search is necessary to provide the most accurate and up-to-date price information from reliable sources.\",\"suggestedFilters\":{\"timeRange\":\"today\",\"language\":\"English\",\"safeSearch\":true},\"response\":\"\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":true,\"question\":\"What currency do you want the Bitcoin price in?\",\"_signature\":{\"signature\":\"3045022100de0fea9b77d84ff848310780a53622846068bcfb67c7128590961dd14d3007dd022065d57638cdb2f8e34a9514381536df4cfb2b9db24be666226093ef85635cdd08\",\"responseHash\":\"d5d638390ccdd6a9d874ce49ce5b4c7f416b4621abbc2eb5b3bed64cb8ea3865\",\"address\":\"1Fjx2SMRUQgsp2E8wYQE5druLkMeG7fGaw\",\"publicKey\":\"021b77fa5858b4297150a2c4ce4967b34c533b8a37ce60f94b439df7ff1f7b5ec7\",\"timestamp\":\"2025-11-24T11:36:51.664Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SearchAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":4289,\"usage\":{\"promptTokens\":4489,\"completionTokens\":174,\"totalTokens\":4663}}}",
+      "ts": "2025-11-24T11:36:51.671Z",
+      "signature": "3045022100de0fea9b77d84ff848310780a53622846068bcfb67c7128590961dd14d3007dd022065d57638cdb2f8e34a9514381536df4cfb2b9db24be666226093ef85635cdd08",
+      "publicKey": "021b77fa5858b4297150a2c4ce4967b34c533b8a37ce60f94b439df7ff1f7b5ec7",
+      "originalHash": "d5d638390ccdd6a9d874ce49ce5b4c7f416b4621abbc2eb5b3bed64cb8ea3865",
+      "verified": true,
+      "textHash": "d5d638390ccdd6a9d874ce49ce5b4c7f416b4621abbc2eb5b3bed64cb8ea3865"
+    },
+    {
+      "role": "user",
+      "text": "Analyze this search request and create a search strategy:\n\nUser Query: \"Ethereum blockchain transaction fees November 2024\"\n\nTasks:\n1. Identify what the user is really looking for\n2. List any missing context that would improve results\n3. Generate 1-3 optimized search queries\n4. Decide if search is needed or if you can answer directly",
+      "ts": "2025-11-24T11:37:53.329Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "6692947b4e9cddc7bb1c201dde052dc2b607b53613e4337bcf0fb5d348e2714e",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"type\":\"object\",\"properties\":{\"searchIntent\":\"The user is looking for information on Ethereum blockchain transaction fees specifically for November 2024.\",\"missingContext\":[\"Are they looking for historical data or predictions for that time?\",\"Do they want a comparison with previous months or years?\",\"Are they interested in specific types of transactions or general fees?\"],\"searchQueries\":[\"Ethereum blockchain transaction fees November 2024 predictions\",\"Ethereum transaction fees historical data November 2024\",\"Ethereum gas fees trends November 2024\"],\"needsSearch\":true,\"reasoning\":\"The query is specific to a future date, and current data or predictions would require a search to find relevant information.\",\"suggestedFilters\":{\"timeRange\":\"November 2024\",\"language\":\"English\",\"safeSearch\":true}},\"response\":\"\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":true,\"question\":\"What specific information are you looking for regarding Ethereum transaction fees in November 2024?\",\"_signature\":{\"signature\":\"3045022100abd6d79b4e1102f239eeb8193e2effbf3ebb24679b41aa4fa4d0edf388b169a4022078f1f85d7367fb7de4f0753d503121a6e660e8f42221c94f08d0874d6768a0d2\",\"responseHash\":\"81fde4fce3988555c8031d38f16aa38b5e8e64a8b8c9918c24d409ae58fa5291\",\"address\":\"1Kz8je29cGsYrHS3WHd4wBQijzJ1BgZShm\",\"publicKey\":\"02c053c5d84f3b8101528e7e7c3f152d1e6cd6a2f82842441c87b17019a074f8ce\",\"timestamp\":\"2025-11-24T11:37:53.329Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SearchAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":8799,\"usage\":{\"promptTokens\":752,\"completionTokens\":255,\"totalTokens\":1007}}}",
+      "ts": "2025-11-24T11:37:53.338Z",
+      "signature": "3045022100abd6d79b4e1102f239eeb8193e2effbf3ebb24679b41aa4fa4d0edf388b169a4022078f1f85d7367fb7de4f0753d503121a6e660e8f42221c94f08d0874d6768a0d2",
+      "publicKey": "02c053c5d84f3b8101528e7e7c3f152d1e6cd6a2f82842441c87b17019a074f8ce",
+      "originalHash": "81fde4fce3988555c8031d38f16aa38b5e8e64a8b8c9918c24d409ae58fa5291",
+      "verified": true,
+      "textHash": "81fde4fce3988555c8031d38f16aa38b5e8e64a8b8c9918c24d409ae58fa5291"
+    },
+    {
+      "role": "user",
+      "text": "Analyze this search request and create a search strategy:\n\nUser Query: \"Ethereum blockchain transaction fees November 2024\"\n\nTasks:\n1. Identify what the user is really looking for\n2. List any missing context that would improve results\n3. Generate 1-3 optimized search queries\n4. Decide if search is needed or if you can answer directly",
+      "ts": "2025-11-24T11:43:56.292Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "6692947b4e9cddc7bb1c201dde052dc2b607b53613e4337bcf0fb5d348e2714e",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"type\":\"object\",\"properties\":{\"searchIntent\":\"The user is looking for information on Ethereum blockchain transaction fees specifically for November 2024.\",\"missingContext\":[\"Are they looking for historical data or projected fees?\",\"Do they need information on specific types of transactions (e.g., standard, smart contract)?\",\"Are they interested in comparisons with other blockchains or just Ethereum?\"],\"searchQueries\":[\"Ethereum blockchain transaction fees November 2024 forecast\",\"Ethereum transaction fees historical data November 2024\",\"Ethereum gas fees November 2024 analysis\"],\"needsSearch\":true,\"reasoning\":\"The query is specific to a future date, and current data or projections may not be readily available without conducting a search.\",\"suggestedFilters\":{\"timeRange\":\"November 2024\",\"language\":\"English\",\"safeSearch\":true}},\"response\":\"\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"_signature\":{\"signature\":\"304402205490f0a33414c8555b2fb5d3cd3ba12dd1907229ca65491c257b9dd8db14517502202d242818fadf9d639cb775512c6a4689c15453637a2390755a4f6d13f875777c\",\"responseHash\":\"d25d683f199f1a98a4a77a1d2696856b2998b0f49c20a8ad867b8692be719861\",\"address\":\"1GSBfDEhNTyQjr2cC4xSP5tqbW8wAZPFAE\",\"publicKey\":\"03e8420c2ca8751856fafe7bd1b5457878308c873145d50783aae402ae2032c949\",\"timestamp\":\"2025-11-24T11:43:56.292Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SearchAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":4966,\"usage\":{\"promptTokens\":752,\"completionTokens\":246,\"totalTokens\":998}}}",
+      "ts": "2025-11-24T11:43:56.299Z",
+      "signature": "304402205490f0a33414c8555b2fb5d3cd3ba12dd1907229ca65491c257b9dd8db14517502202d242818fadf9d639cb775512c6a4689c15453637a2390755a4f6d13f875777c",
+      "publicKey": "03e8420c2ca8751856fafe7bd1b5457878308c873145d50783aae402ae2032c949",
+      "originalHash": "d25d683f199f1a98a4a77a1d2696856b2998b0f49c20a8ad867b8692be719861",
+      "verified": true,
+      "textHash": "d25d683f199f1a98a4a77a1d2696856b2998b0f49c20a8ad867b8692be719861"
+    }
+  ],
+  "summaries": [],
+  "totalCount": 20,
+  "lastUpdated": "2025-11-24T11:43:56.305Z",
+  "metadata": {
+    "ownerName": "SearchAgent",
+    "maxInteractions": 42,
+    "maxSummaries": 5,
+    "tokenLimit": 100000
+  }
+}

@@ -1,13 +1,13 @@
 # 🌉 Lumen Bridge - Self-Aware Agent Platform
 
-**A revolutionary self-evolving AI agent system with cryptographic signatures and the Future Self Bridge architecture**
+**A revolutionary self-evolving AI agent system with cryptographic signatures, the Future Self Bridge architecture, and Synthetic Dev Teams**
 
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 
 ## 🎯 What is Lumen Bridge?
 
-Lumen Bridge is a **self-aware, self-evolving agent platform** that implements the revolutionary "Future Self Bridge" pattern. Unlike traditional AI systems that simply respond to prompts, Lumen Bridge agents:
+Lumen Bridge is a **self-aware, self-evolving agent platform** that implements the revolutionary "Future Self Bridge" pattern and extends it to **"Future Team Bridge"** - where AI agents work as coordinated development teams. Unlike traditional AI systems that simply respond to prompts, Lumen Bridge agents:
 
 - **Plan their own response structures** (current self)
 - **Execute with schema-driven precision** (future self)
@@ -15,6 +15,7 @@ Lumen Bridge is a **self-aware, self-evolving agent platform** that implements t
 - **Sign all responses cryptographically** (BSV-ECDSA-DER)
 - **Learn from interaction history** (memory)
 - **Evolve their schemas over time** (self-improvement)
+- **🆕 Work as synthetic dev teams in parallel** (distributed cognition)
 
 ## 🏗️ Architecture: The Future Self Bridge
 
@@ -65,6 +66,32 @@ Lumen Bridge is a **self-aware, self-evolving agent platform** that implements t
 4. **CodeGenerator** - Multi-language code generation from natural language
 5. **SchemaAgent** - JSON Schema generation from natural language descriptions
 6. **ToolRouterAgent** - Intelligent routing to the best agent for each task
+7. **🆕 ProjectPlannerAgent** - Architect brain that creates contracts and decomposes projects
+8. **🆕 CodeWorkerAgent** - Individual developer that executes task tickets in parallel
+9. **🆕 SyntheticDevTeam** - CTO orchestrator that manages entire development teams
+
+### 🤖 Synthetic Dev Team (NEW!)
+
+**The Future Team Bridge** - AI agents working as coordinated development teams:
+
+- **ProjectPlannerAgent** creates cryptographically-signed project contracts and BoxSpecs
+- **Multiple CodeWorkerAgents** execute in parallel (like real developers)
+- **IntegrationAgent** verifies schemas align and contracts are satisfied
+- **SyntheticDevTeam orchestrator** manages the entire operation
+
+```javascript
+import SyntheticDevTeam from './utilities/SyntheticDevTeam.js';
+
+const team = new SyntheticDevTeam();
+const deliverable = await team.buildProject({
+  projectSpec: "Build Express REST API with Jest testing",
+  featureSpec: "User CRUD endpoints with validation"
+});
+
+// 6 files generated, 487 lines of code, 31 tests passing, ready to deploy!
+```
+
+**[Read full documentation →](./SYNTHETIC-DEV-TEAM.md)**
 
 ### 🔐 Cryptographic Foundation
 

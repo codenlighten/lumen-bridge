@@ -1,0 +1,51 @@
+{
+  "interactions": [
+    {
+      "role": "user",
+      "text": "Should this query use web search? \"Bitcoin price today\"",
+      "ts": "2025-11-24T11:36:46.946Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "c50bde63608d421b984554db2eab4f610e36a4ca645087f309e7b668359cf5b7",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"needsSearch\":true,\"reasoning\":\"The price of Bitcoin fluctuates frequently and requires current data to provide an accurate answer.\",\"searchQuery\":\"current Bitcoin price\",\"response\":\"\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"missingContext\":[],\"_signature\":{\"signature\":\"30440220795702a52413fc6545080b05e4177d41392497d75803d1471a9c36f2c2d895ae02205a368b2a5c5b555a4fbbbb50ef2f7d716643fe3bf75b58f51667abd24a772843\",\"responseHash\":\"bfaffde29cc3a721c9658d2fedfb355c02b5579a51d72a992620757527b68ad5\",\"address\":\"1Gi8XHnFfNWnrbAt6obYRzQBt1BHV96iQh\",\"publicKey\":\"03cbffdbe02659498cf96b2a8f2c83be2b4e1f013fd943c1e406f16f9b59446c10\",\"timestamp\":\"2025-11-24T11:36:46.946Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SimpleRouter\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":1964,\"usage\":{\"promptTokens\":422,\"completionTokens\":58,\"totalTokens\":480}}}",
+      "ts": "2025-11-24T11:36:46.950Z",
+      "signature": "30440220795702a52413fc6545080b05e4177d41392497d75803d1471a9c36f2c2d895ae02205a368b2a5c5b555a4fbbbb50ef2f7d716643fe3bf75b58f51667abd24a772843",
+      "publicKey": "03cbffdbe02659498cf96b2a8f2c83be2b4e1f013fd943c1e406f16f9b59446c10",
+      "originalHash": "bfaffde29cc3a721c9658d2fedfb355c02b5579a51d72a992620757527b68ad5",
+      "verified": true,
+      "textHash": "bfaffde29cc3a721c9658d2fedfb355c02b5579a51d72a992620757527b68ad5"
+    },
+    {
+      "role": "user",
+      "text": "Should this query use web search? \"What is JavaScript?\"",
+      "ts": "2025-11-24T11:36:55.812Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "a534dc9aa07dff0d5f85889f5502caeb99c5b83d3cf9491c0ac6f21d475ed59e",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"needsSearch\":false,\"reasoning\":\"The question about JavaScript is a general knowledge question that can be answered without needing current data.\",\"searchQuery\":\"\",\"response\":\"JavaScript is a high-level, dynamic, untyped, and interpreted programming language, commonly used for web development to create interactive effects within web browsers.\",\"includesCode\":true,\"code\":\"// Example of a simple JavaScript function\\nfunction greet(name) {\\n    return 'Hello, ' + name + '!';\\n}\\nconsole.log(greet('World'));\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"missingContext\":[],\"_signature\":{\"signature\":\"3045022100a984507f6934a648153691debcc318a3d653ed823ce89f09132dcd2e3845bd99022075c380b299e9639fcdd712ec9e98635b1b63cb73fa192d49c54bce4b399bf393\",\"responseHash\":\"413cab700821842e1966576a7018a6a4d17e8b1ed721a00612e2e14b90fa0a8e\",\"address\":\"1Gi8XHnFfNWnrbAt6obYRzQBt1BHV96iQh\",\"publicKey\":\"03cbffdbe02659498cf96b2a8f2c83be2b4e1f013fd943c1e406f16f9b59446c10\",\"timestamp\":\"2025-11-24T11:36:55.812Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SimpleRouter\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":3391,\"usage\":{\"promptTokens\":780,\"completionTokens\":124,\"totalTokens\":904}}}",
+      "ts": "2025-11-24T11:36:55.818Z",
+      "signature": "3045022100a984507f6934a648153691debcc318a3d653ed823ce89f09132dcd2e3845bd99022075c380b299e9639fcdd712ec9e98635b1b63cb73fa192d49c54bce4b399bf393",
+      "publicKey": "03cbffdbe02659498cf96b2a8f2c83be2b4e1f013fd943c1e406f16f9b59446c10",
+      "originalHash": "413cab700821842e1966576a7018a6a4d17e8b1ed721a00612e2e14b90fa0a8e",
+      "verified": true,
+      "textHash": "413cab700821842e1966576a7018a6a4d17e8b1ed721a00612e2e14b90fa0a8e"
+    }
+  ],
+  "summaries": [],
+  "totalCount": 4,
+  "lastUpdated": "2025-11-24T11:36:55.822Z",
+  "metadata": {
+    "ownerName": "SimpleRouter",
+    "maxInteractions": 42,
+    "maxSummaries": 5,
+    "tokenLimit": 100000
+  }
+}
