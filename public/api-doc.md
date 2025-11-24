@@ -1,6 +1,6 @@
 # Lumen Bridge API Documentation
 
-**Base URL**: `https://lumenbridge.codenlighten.org`  
+**Base URL**: `https://lumenbridge.xyz`  
 **Version**: 1.0.0  
 **Authentication**: None required (public API)
 
