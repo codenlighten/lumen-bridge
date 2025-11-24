@@ -1,0 +1,39 @@
+{
+  "name": "lumen-essence-ai",
+  "version": "1.0.0",
+  "description": "Revolutionary multi-agent AI system with self-evolution, dynamic schema negotiation, and autonomous team composition",
+  "main": "structured-json.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node agents-api-server.js"
+  },
+  "keywords": [
+    "ai",
+    "multi-agent",
+    "self-evolution",
+    "machine-learning",
+    "autonomous-agents",
+    "cryptographic-verification",
+    "schema-negotiation",
+    "bsv"
+  ],
+  "author": "Gregory Ward (CodenLighten) - Chief Development Officer & Co-Founder, SmartLedger.Technology & Codenlighten.org",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codenlighten/Lumen_Essence_AI.git"
+  },
+  "homepage": "https://github.com/codenlighten/Lumen_Essence_AI#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "gpt-tokenizer": "^3.4.0",
+    "helmet": "^8.1.0",
+    "mongodb": "^7.0.0",
+    "nodemailer": "^7.0.10",
+    "openai": "^6.9.1",
+    "smartledger-bsv": "^3.4.0"
+  }
+}
