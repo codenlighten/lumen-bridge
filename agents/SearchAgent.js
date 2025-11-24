@@ -93,16 +93,26 @@ Tasks:
       return {
         action: 'answer_directly',
         answer: strategy.response,
+        finalAnswer: strategy.response,
+        results: [],
+        query: userQuery,
+        missingContext: [],
         strategy
       };
     }
 
     // If missing context, ask user
     if (strategy.missingContext && strategy.missingContext.length > 0) {
+      const questionText = `I need more information to search effectively: ${strategy.missingContext.join('; ')}`;
       return {
         action: 'ask_user',
+        question: questionText,
         missingContext: strategy.missingContext,
         suggestedQueries: strategy.searchQueries,
+        answer: null,
+        finalAnswer: null,
+        results: [],
+        query: userQuery,
         strategy
       };
     }
@@ -119,6 +129,10 @@ Tasks:
       return {
         action: 'no_results',
         query: searchQuery,
+        answer: null,
+        finalAnswer: `No search results found for "${searchQuery}". Try refining your query or providing more context.`,
+        results: [],
+        missingContext: [],
         strategy
       };
     }
@@ -170,7 +184,11 @@ Task: Create a structured analysis of these results.`,
     return {
       action: 'search_completed',
       query: searchQuery,
+      results: rawResults,
       rawResults: rawResults,
+      answer: analysis.summary,
+      finalAnswer: analysis.finalAnswer || analysis.summary,
+      missingContext: [],
       analysis: analysis,
       strategy: strategy,
       _signature: analysis._signature
