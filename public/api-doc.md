@@ -11,16 +11,24 @@
 1. [Overview](#overview)
 2. [Common Response Structure](#common-response-structure)
 3. [Cryptographic Signatures](#cryptographic-signatures)
-4. [Endpoints](#endpoints)
+4. [System Agent Endpoints](#system-agent-endpoints)
    - [SearchAgent](#1-searchagent)
    - [TerminalAgent](#2-terminalagent)
    - [CodeGenerator](#3-codegenerator)
    - [SchemaAgent](#4-schemaagent)
    - [ToolRouterAgent](#5-toolrouteragent)
    - [Schema Registry](#6-schema-registry)
-5. [Error Handling](#error-handling)
-6. [Rate Limits](#rate-limits)
-7. [Examples](#examples)
+5. [User Agent Management](#user-agent-management)
+   - [Register Agent](#7-register-user-agent)
+   - [Update Agent](#8-update-user-agent)
+   - [Delete Agent](#9-delete-user-agent)
+   - [Get My Agents](#10-get-my-agents)
+   - [Get Specific Agent](#11-get-specific-agent)
+   - [Invoke User Agent](#12-invoke-user-agent)
+   - [Admin View All](#13-admin-view-all-agents)
+6. [Error Handling](#error-handling)
+7. [Rate Limits](#rate-limits)
+8. [Examples](#examples)
 
 ---
 
@@ -86,7 +94,7 @@ Every response includes a verifiable BSV-ECDSA-DER signature:
 
 ---
 
-## Endpoints
+## System Agent Endpoints
 
 ### 1. SearchAgent
 
@@ -421,6 +429,323 @@ curl https://lumenbridge.codenlighten.org/api/schema/userProfileSchema
 
 ---
 
+## User Agent Management
+
+**Create and manage custom AI agents with your own prompts and behaviors**
+
+Lumen Bridge now supports user-created agents alongside system agents. Users can register custom agents with specialized prompts, invoke them via API, and manage them with full CRUD operations.
+
+### Key Features
+
+- 🔐 **User Isolation**: Users only see their own agents
+- 👑 **Admin Access**: Admins can view all registered agents
+- 💾 **Persistence**: All agents stored in MongoDB
+- 🎯 **Custom Prompts**: Define specialized agent behaviors
+- 🔄 **Full CRUD**: Create, read, update, delete operations
+
+---
+
+### 7. Register User Agent
+
+**POST** `/api/agents/register`
+
+Create a new custom agent with specialized behavior.
+
+**Request Body**:
+```json
+{
+  "userId": "user-alice",
+  "name": "TravelAdvisor",
+  "description": "Helps plan travel itineraries and suggests destinations",
+  "prompt": "You are a professional travel advisor AI. Help users plan amazing trips, suggest destinations, provide travel tips, and create detailed itineraries. Be enthusiastic and knowledgeable about world destinations.",
+  "metadata": {
+    "category": "travel",
+    "version": "1.0",
+    "features": ["itinerary-planning", "destination-suggestions"]
+  }
+}
+```
+
+**Required Fields**:
+- `userId` (string): User identifier
+- `name` (string): Agent name (unique per user)
+- `prompt` (string): System prompt defining agent behavior
+
+**Optional Fields**:
+- `description` (string): Agent description
+- `metadata` (object): Custom metadata for organization
+- `schema` (object): Custom JSON schema (auto-generated if not provided)
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "Agent 'TravelAdvisor' registered successfully",
+  "agent": {
+    "userId": "user-alice",
+    "name": "TravelAdvisor",
+    "normalizedName": "traveladvisor",
+    "description": "Helps plan travel itineraries...",
+    "prompt": "You are a professional travel advisor AI...",
+    "metadata": {
+      "category": "travel",
+      "version": "1.0"
+    },
+    "type": "user-created",
+    "createdAt": "2025-11-24T07:39:21.000Z",
+    "updatedAt": "2025-11-24T07:39:21.000Z"
+  },
+  "timestamp": "2025-11-24T07:39:21.000Z"
+}
+```
+
+**Errors**:
+- `400`: Missing required fields (userId, name, prompt)
+- `400`: Duplicate agent name (same user)
+- `400`: Conflicts with system agent name
+
+---
+
+### 8. Update User Agent
+
+**PUT** `/api/agents/update`
+
+Update an existing user agent.
+
+**Request Body**:
+```json
+{
+  "userId": "user-alice",
+  "agentName": "TravelAdvisor",
+  "updates": {
+    "description": "Advanced travel planning with budget optimization",
+    "prompt": "Updated system prompt...",
+    "metadata": {
+      "version": "2.0",
+      "features": ["budget-optimization", "multi-city", "itinerary-planning"]
+    }
+  }
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "Agent 'TravelAdvisor' updated successfully",
+  "agent": {
+    "userId": "user-alice",
+    "name": "TravelAdvisor",
+    "description": "Advanced travel planning...",
+    "updatedAt": "2025-11-24T07:45:00.000Z"
+  },
+  "timestamp": "2025-11-24T07:45:00.000Z"
+}
+```
+
+---
+
+### 9. Delete User Agent
+
+**DELETE** `/api/agents/delete`
+
+Delete a user agent.
+
+**Request Body**:
+```json
+{
+  "userId": "user-alice",
+  "agentName": "TravelAdvisor"
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "Agent 'TravelAdvisor' deleted successfully",
+  "timestamp": "2025-11-24T07:50:00.000Z"
+}
+```
+
+**Errors**:
+- `404`: Agent not found
+- `400`: Missing required fields
+
+---
+
+### 10. Get My Agents
+
+**GET** `/api/agents/my-agents/:userId`
+
+Retrieve all agents for a specific user.
+
+**Example**: `GET /api/agents/my-agents/user-alice`
+
+**Response**:
+```json
+{
+  "success": true,
+  "userId": "user-alice",
+  "count": 2,
+  "agents": [
+    {
+      "name": "TravelAdvisor",
+      "description": "Advanced travel planning with budget optimization",
+      "metadata": {
+        "category": "travel",
+        "version": "2.0"
+      },
+      "createdAt": "2025-11-24T07:39:21.000Z",
+      "updatedAt": "2025-11-24T07:45:00.000Z"
+    },
+    {
+      "name": "RecipeChef",
+      "description": "Creates recipes and cooking instructions",
+      "metadata": {
+        "category": "cooking",
+        "version": "1.0"
+      },
+      "createdAt": "2025-11-24T07:40:15.000Z",
+      "updatedAt": "2025-11-24T07:40:15.000Z"
+    }
+  ],
+  "timestamp": "2025-11-24T08:00:00.000Z"
+}
+```
+
+---
+
+### 11. Get Specific Agent
+
+**GET** `/api/agents/my-agents/:userId/:agentName`
+
+Retrieve a specific user agent.
+
+**Example**: `GET /api/agents/my-agents/user-alice/TravelAdvisor`
+
+**Response**:
+```json
+{
+  "success": true,
+  "agent": {
+    "userId": "user-alice",
+    "name": "TravelAdvisor",
+    "normalizedName": "traveladvisor",
+    "description": "Advanced travel planning with budget optimization",
+    "prompt": "You are a professional travel advisor AI...",
+    "metadata": {
+      "category": "travel",
+      "version": "2.0",
+      "features": ["budget-optimization", "multi-city"]
+    },
+    "type": "user-created",
+    "createdAt": "2025-11-24T07:39:21.000Z",
+    "updatedAt": "2025-11-24T07:45:00.000Z"
+  },
+  "timestamp": "2025-11-24T08:05:00.000Z"
+}
+```
+
+**Errors**:
+- `404`: Agent not found for user
+
+---
+
+### 12. Invoke User Agent
+
+**POST** `/api/agents/invoke-user-agent`
+
+Execute a user agent with custom context.
+
+**Request Body**:
+```json
+{
+  "userId": "user-alice",
+  "agentName": "TravelAdvisor",
+  "context": {
+    "userPrompt": "Suggest a 3-day itinerary for Tokyo with a budget of $1000",
+    "preferences": {
+      "interests": ["food", "culture", "technology"],
+      "accommodation": "mid-range"
+    }
+  }
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "result": {
+    "agentName": "TravelAdvisor",
+    "userId": "user-alice",
+    "response": "Absolutely! Tokyo is an incredible city...\n\nDay 1: Arrival & Shibuya\n- Morning: Arrive at Narita...\n- Budget: $280\n\nDay 2: Traditional Tokyo...\n- Budget: $320\n\nDay 3: Tech & Pop Culture...\n- Budget: $310\n\nTotal: $910 (under budget!)",
+    "timestamp": "2025-11-24T08:10:30.000Z"
+  },
+  "timestamp": "2025-11-24T08:10:30.000Z"
+}
+```
+
+**Errors**:
+- `400`: Missing required fields (userId, agentName, context)
+- `400`: Agent not found
+- `500`: OpenAI API error
+
+---
+
+### 13. Admin View All Agents
+
+**GET** `/api/admin/agents?adminKey=YOUR_ADMIN_KEY`
+
+View all registered user agents (admin only).
+
+**Query Parameters**:
+- `adminKey` (required): Admin authentication key
+
+**Response**:
+```json
+{
+  "success": true,
+  "stats": {
+    "uniqueAgents": 5,
+    "totalAliases": 17,
+    "userAgents": 3,
+    "totalUserAgents": 5
+  },
+  "count": 5,
+  "agents": [
+    {
+      "userId": "user-alice",
+      "name": "TravelAdvisor",
+      "description": "Advanced travel planning...",
+      "createdAt": "2025-11-24T07:39:21.000Z",
+      "updatedAt": "2025-11-24T07:45:00.000Z"
+    },
+    {
+      "userId": "user-alice",
+      "name": "RecipeChef",
+      "description": "Creates recipes...",
+      "createdAt": "2025-11-24T07:40:15.000Z"
+    },
+    {
+      "userId": "user-bob",
+      "name": "FitnessCoach",
+      "description": "Workout plans...",
+      "createdAt": "2025-11-24T07:42:00.000Z"
+    }
+  ],
+  "timestamp": "2025-11-24T08:15:00.000Z"
+}
+```
+
+**Errors**:
+- `403`: Invalid or missing admin key
+
+**Security Note**: Set `ADMIN_KEY` in your environment variables. Never expose this key publicly.
+
+---
+
 ## Error Handling
 
 All endpoints use consistent error responses:
@@ -505,14 +830,73 @@ console.log(`Routed to: ${data.routing.selectedAgent}`);
 console.log(`Confidence: ${data.routing.confidence}`);
 ```
 
+### Example 4: Register a Custom Agent
+
+```javascript
+const response = await fetch('https://lumenbridge.codenlighten.org/api/agents/register', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    userId: 'user-alice',
+    name: 'CodeReviewer',
+    description: 'Reviews code for best practices and security',
+    prompt: 'You are a senior code reviewer with expertise in security, performance, and best practices. Review code thoroughly and provide actionable feedback.'
+  })
+});
+
+const data = await response.json();
+console.log('Agent registered:', data.agent.name);
+```
+
+### Example 5: Invoke a Custom Agent
+
+```javascript
+const response = await fetch('https://lumenbridge.codenlighten.org/api/agents/invoke-user-agent', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    userId: 'user-alice',
+    agentName: 'CodeReviewer',
+    context: {
+      userPrompt: 'Review this function: function getData() { return fetch("/api/users").then(r => r.json()) }'
+    }
+  })
+});
+
+const data = await response.json();
+console.log('Review:', data.result.response);
+```
+
+### Example 6: Get My Agents
+
+```javascript
+const response = await fetch('https://lumenbridge.codenlighten.org/api/agents/my-agents/user-alice');
+const data = await response.json();
+
+console.log(`You have ${data.count} agents:`);
+data.agents.forEach(agent => {
+  console.log(`- ${agent.name}: ${agent.description}`);
+});
+```
+});
+
+const data = await response.json();
+console.log(`Routed to: ${data.routing.selectedAgent}`);
+console.log(`Confidence: ${data.routing.confidence}`);
+```
+
 ---
 
 ## Support
 
 - **GitHub**: [github.com/codenlighten/lumen-bridge](https://github.com/codenlighten/lumen-bridge)
 - **Documentation**: [Full docs and examples](https://github.com/codenlighten/lumen-bridge/tree/main/docs)
+- **User Agents Guide**: [USER-AGENTS.md](https://github.com/codenlighten/lumen-bridge/blob/main/USER-AGENTS.md)
+- **API Documentation**: This document
 
 ---
 
-**Built with ❤️ by the Lumen Bridge Team**  
+**Built with ❤️ by Gregory Ward (CodenLighten)**  
 🌉 Self-aware AI agents that build the future
+
+**Last Updated**: November 24, 2025
