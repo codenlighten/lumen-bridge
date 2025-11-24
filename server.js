@@ -33,6 +33,8 @@ import SchemaAgent from './agents/SchemaGenerator.js';
 // Import utilities
 import { SchemaRegistry } from './utilities/SchemaRegistry.js';
 import { MemoryManager } from './utilities/MemoryManager.js';
+import { agentRegistry } from './utilities/AgentRegistry.js';
+import { dbService } from './utilities/MongoDBService.js';
 
 dotenv.config();
 
@@ -57,6 +59,13 @@ const agents = {
 
 // Initialize schema registry
 const schemaRegistry = new SchemaRegistry();
+
+// Initialize database connection and load user agents
+(async () => {
+  await dbService.connect();
+  await agentRegistry.loadUserAgentsFromDB();
+  console.log('   ✅ User agents loaded from database');
+})();
 
 // ============================================================================
 // HEALTH & INFO
@@ -727,6 +736,281 @@ app.post('/api/custom-agent', async (req, res) => {
 });
 
 // ============================================================================
+// USER AGENT MANAGEMENT
+// ============================================================================
+
+/**
+ * POST /api/agents/register
+ * Register a new user-created agent
+ * 
+ * Body:
+ * {
+ *   "userId": "user123",
+ *   "name": "MyCustomAgent",
+ *   "description": "My custom agent for X",
+ *   "prompt": "You are a helpful assistant specialized in X...",
+ *   "metadata": { ... }
+ * }
+ */
+app.post('/api/agents/register', async (req, res) => {
+  try {
+    const { userId, name, description, prompt, schema, metadata } = req.body;
+
+    if (!userId || !name) {
+      return res.status(400).json({
+        error: 'userId and name are required'
+      });
+    }
+
+    if (!prompt) {
+      return res.status(400).json({
+        error: 'prompt is required - this defines how your agent behaves'
+      });
+    }
+
+    const registeredAgent = await agentRegistry.registerUserAgent(userId, {
+      name,
+      description,
+      prompt,
+      schema,
+      metadata
+    });
+
+    res.json({
+      success: true,
+      message: `Agent '${name}' registered successfully`,
+      agent: registeredAgent,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(400).json({
+      error: error.message,
+      service: 'AgentRegistration'
+    });
+  }
+});
+
+/**
+ * PUT /api/agents/update
+ * Update an existing user-created agent
+ * 
+ * Body:
+ * {
+ *   "userId": "user123",
+ *   "agentName": "MyCustomAgent",
+ *   "updates": {
+ *     "description": "Updated description",
+ *     "prompt": "Updated prompt...",
+ *     "metadata": { ... }
+ *   }
+ * }
+ */
+app.put('/api/agents/update', async (req, res) => {
+  try {
+    const { userId, agentName, updates } = req.body;
+
+    if (!userId || !agentName || !updates) {
+      return res.status(400).json({
+        error: 'userId, agentName, and updates are required'
+      });
+    }
+
+    const updatedAgent = await agentRegistry.updateUserAgent(userId, agentName, updates);
+
+    res.json({
+      success: true,
+      message: `Agent '${agentName}' updated successfully`,
+      agent: updatedAgent,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(400).json({
+      error: error.message,
+      service: 'AgentUpdate'
+    });
+  }
+});
+
+/**
+ * DELETE /api/agents/delete
+ * Delete a user-created agent
+ * 
+ * Body:
+ * {
+ *   "userId": "user123",
+ *   "agentName": "MyCustomAgent"
+ * }
+ */
+app.delete('/api/agents/delete', async (req, res) => {
+  try {
+    const { userId, agentName } = req.body;
+
+    if (!userId || !agentName) {
+      return res.status(400).json({
+        error: 'userId and agentName are required'
+      });
+    }
+
+    const deleted = await agentRegistry.deleteUserAgent(userId, agentName);
+
+    if (!deleted) {
+      return res.status(404).json({
+        error: `Agent '${agentName}' not found`,
+        service: 'AgentDeletion'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: `Agent '${agentName}' deleted successfully`,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(400).json({
+      error: error.message,
+      service: 'AgentDeletion'
+    });
+  }
+});
+
+/**
+ * GET /api/agents/my-agents/:userId
+ * Get all agents for a specific user
+ */
+app.get('/api/agents/my-agents/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    if (!userId) {
+      return res.status(400).json({
+        error: 'userId is required'
+      });
+    }
+
+    const userAgents = agentRegistry.getUserAgents(userId);
+
+    res.json({
+      success: true,
+      userId,
+      count: userAgents.length,
+      agents: userAgents,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: error.message,
+      service: 'UserAgentRetrieval'
+    });
+  }
+});
+
+/**
+ * GET /api/agents/my-agents/:userId/:agentName
+ * Get a specific user agent
+ */
+app.get('/api/agents/my-agents/:userId/:agentName', async (req, res) => {
+  try {
+    const { userId, agentName } = req.params;
+
+    const agent = agentRegistry.getUserAgent(userId, agentName);
+
+    if (!agent) {
+      return res.status(404).json({
+        error: `Agent '${agentName}' not found for user ${userId}`,
+        service: 'UserAgentRetrieval'
+      });
+    }
+
+    res.json({
+      success: true,
+      agent,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: error.message,
+      service: 'UserAgentRetrieval'
+    });
+  }
+});
+
+/**
+ * POST /api/agents/invoke-user-agent
+ * Invoke a user-created agent
+ * 
+ * Body:
+ * {
+ *   "userId": "user123",
+ *   "agentName": "MyCustomAgent",
+ *   "context": {
+ *     "userPrompt": "What can you help me with?",
+ *     ...additional context
+ *   }
+ * }
+ */
+app.post('/api/agents/invoke-user-agent', async (req, res) => {
+  try {
+    const { userId, agentName, context } = req.body;
+
+    if (!userId || !agentName || !context) {
+      return res.status(400).json({
+        error: 'userId, agentName, and context are required'
+      });
+    }
+
+    const result = await agentRegistry.invokeUserAgent(userId, agentName, context);
+
+    res.json({
+      success: true,
+      result,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(400).json({
+      error: error.message,
+      service: 'UserAgentInvocation'
+    });
+  }
+});
+
+/**
+ * GET /api/admin/agents
+ * Get all user-created agents (admin only)
+ * 
+ * Query params:
+ * - adminKey: Secret admin key for authentication
+ */
+app.get('/api/admin/agents', async (req, res) => {
+  try {
+    const { adminKey } = req.query;
+
+    // Simple admin key check (in production, use proper auth)
+    if (adminKey !== process.env.ADMIN_KEY) {
+      return res.status(403).json({
+        error: 'Forbidden: Invalid admin credentials',
+        service: 'AdminAgentRetrieval'
+      });
+    }
+
+    const allUserAgents = agentRegistry.getAllUserAgents();
+    const stats = agentRegistry.getStats();
+
+    res.json({
+      success: true,
+      stats,
+      count: allUserAgents.length,
+      agents: allUserAgents,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: error.message,
+      service: 'AdminAgentRetrieval'
+    });
+  }
+});
+
+// ============================================================================
 // START SERVER
 // ============================================================================
 
@@ -743,6 +1027,13 @@ app.listen(PORT, () => {
   console.log(`   • IntelligentRouter: http://localhost:${PORT}/api/router`);
   console.log(`   • SchemaRegistry: http://localhost:${PORT}/api/schema`);
   console.log(`   • CustomAgents: http://localhost:${PORT}/api/custom-agent`);
+  console.log('\n👤 User Agent Management:');
+  console.log(`   • Register Agent: POST http://localhost:${PORT}/api/agents/register`);
+  console.log(`   • Update Agent: PUT http://localhost:${PORT}/api/agents/update`);
+  console.log(`   • Delete Agent: DELETE http://localhost:${PORT}/api/agents/delete`);
+  console.log(`   • My Agents: GET http://localhost:${PORT}/api/agents/my-agents/:userId`);
+  console.log(`   • Invoke User Agent: POST http://localhost:${PORT}/api/agents/invoke-user-agent`);
+  console.log(`   • Admin View All: GET http://localhost:${PORT}/api/admin/agents?adminKey=XXX`);
   console.log(`\n📖 Documentation: http://localhost:${PORT}/api/docs`);
   console.log('\n🎯 Use Cases:');
   console.log('   1. Build AI chat applications');

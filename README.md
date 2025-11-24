@@ -70,6 +70,42 @@ Lumen Bridge is a **self-aware, self-evolving agent platform** that implements t
 8. **🆕 CodeWorkerAgent** - Individual developer that executes task tickets in parallel
 9. **🆕 SyntheticDevTeam** - CTO orchestrator that manages entire development teams
 
+### 🎭 User-Created Agents (NEW!)
+
+**Build Your Own Custom Agents** - Register, manage, and invoke specialized agents:
+
+- **Create custom agents** with your own system prompts and behavior
+- **Private agent storage** - each user sees only their own agents
+- **Admin oversight** - admins can view all registered user agents
+- **Full CRUD operations** - register, retrieve, update, delete
+- **MongoDB persistence** - agents persist across server restarts
+- **Conflict protection** - user agents can't override system agents
+
+```javascript
+// Register your custom agent
+await fetch('/api/agents/register', {
+  method: 'POST',
+  body: JSON.stringify({
+    userId: 'user-alice',
+    name: 'TravelAdvisor',
+    description: 'Expert travel planning assistant',
+    prompt: 'You are a professional travel advisor specializing in...'
+  })
+});
+
+// Invoke your agent
+const result = await fetch('/api/agents/invoke-user-agent', {
+  method: 'POST',
+  body: JSON.stringify({
+    userId: 'user-alice',
+    agentName: 'TravelAdvisor',
+    context: { userPrompt: 'Plan a 3-day Tokyo itinerary' }
+  })
+});
+```
+
+**[Read full documentation →](./USER-AGENTS.md)**
+
 ### 🤖 Synthetic Dev Team (NEW!)
 
 **The Future Team Bridge** - AI agents working as coordinated development teams:
