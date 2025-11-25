@@ -1260,6 +1260,7 @@ app.listen(PORT, () => {
   console.log(`   • TerminalAgent: http://localhost:${PORT}/api/agents/terminal`);
   console.log(`   • CodeGenerator: http://localhost:${PORT}/api/agents/code`);
   console.log(`   • SchemaAgent: http://localhost:${PORT}/api/agents/schema`);
+  console.log(`   • SchemaMediatorAgent: http://localhost:${PORT}/api/schema/translate`);
   console.log(`   • IntelligentRouter: http://localhost:${PORT}/api/router`);
   console.log(`   • SchemaRegistry: http://localhost:${PORT}/api/schema`);
   console.log(`   • CustomAgents: http://localhost:${PORT}/api/custom-agent`);
