@@ -51,6 +51,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
+// Optional signature verification middleware (all requests, still allows through)
+app.use(SignatureVerifier.middleware());
+
 // Initialize agents (singleton instances)
 const agents = {
 	search: new SearchAgent({ maxResults: 10 }),
