@@ -29,6 +29,7 @@ import SearchAgent from './agents/SearchAgent.js';
 import TerminalAgent from './agents/TerminalAgent.js';
 import CodeGenerator from './agents/CodeGenerator.js';
 import SchemaAgent from './agents/SchemaGenerator.js';
+import { SchemaMediatorAgent } from './agents/SchemaMediatorAgent.js';
 
 // Import utilities
 import { SchemaRegistry } from './utilities/SchemaRegistry.js';
@@ -54,7 +55,8 @@ const agents = {
   search: new SearchAgent({ maxResults: 10 }),
   terminal: new TerminalAgent('API-Terminal'),
   code: new CodeGenerator('API-CodeGen'),
-  schema: new SchemaAgent()
+  schema: new SchemaAgent(),
+  schemaMediator: new SchemaMediatorAgent({ cacheMaxSize: 100, cacheTTL: 3600000 })
 };
 
 // Initialize schema registry
@@ -692,6 +694,240 @@ app.get('/api/schema', (req, res) => {
     res.status(500).json({
       error: error.message,
       service: 'SchemaRegistry'
+    });
+  }
+});
+
+// ============================================================================
+// SCHEMA MEDIATOR API - Universal Schema Translation
+// ============================================================================
+
+/**
+ * Translate data from one schema to another
+ * POST /api/schema/translate
+ * 
+ * Body:
+ * {
+ *   data: { ... },              // Source data to transform
+ *   sourceSchema: { ... },      // JSON Schema of source
+ *   targetSchema: { ... },      // JSON Schema of target
+ *   sourceSchemaName: "string", // Name for caching (optional)
+ *   targetSchemaName: "string", // Name for caching (optional)
+ *   context: { ... },           // Mapping hints, rules (optional)
+ *   enforceValidation: boolean  // Throw on validation failure (optional)
+ * }
+ */
+app.post('/api/schema/translate', async (req, res) => {
+  try {
+    const {
+      data,
+      sourceSchema,
+      targetSchema,
+      sourceSchemaName,
+      targetSchemaName,
+      context,
+      enforceValidation
+    } = req.body;
+
+    if (!data || !sourceSchema || !targetSchema) {
+      return res.status(400).json({
+        error: 'data, sourceSchema, and targetSchema are required'
+      });
+    }
+
+    const result = await agents.schemaMediator.translate({
+      data,
+      sourceSchema,
+      targetSchema,
+      sourceSchemaName,
+      targetSchemaName,
+      context,
+      enforceValidation
+    });
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      service: 'SchemaMediatorAgent'
+    });
+  }
+});
+
+/**
+ * Infer a schema from example data
+ * POST /api/schema/infer
+ * 
+ * Body:
+ * {
+ *   data: { ... },              // Example data
+ *   schemaName: "string"        // Optional name for the schema
+ * }
+ */
+app.post('/api/schema/infer', async (req, res) => {
+  try {
+    const { data, schemaName } = req.body;
+
+    if (!data) {
+      return res.status(400).json({
+        error: 'data is required'
+      });
+    }
+
+    const result = await agents.schemaMediator.inferSchema(data, schemaName);
+
+    res.json({
+      success: true,
+      ...result,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      service: 'SchemaMediatorAgent'
+    });
+  }
+});
+
+/**
+ * Create bidirectional mapping between two schemas
+ * POST /api/schema/mapping/bidirectional
+ * 
+ * Body:
+ * {
+ *   schemaA: { ... },          // First schema
+ *   schemaB: { ... },          // Second schema
+ *   schemaNameA: "string",     // Name for schema A (optional)
+ *   schemaNameB: "string"      // Name for schema B (optional)
+ * }
+ */
+app.post('/api/schema/mapping/bidirectional', async (req, res) => {
+  try {
+    const { schemaA, schemaB, schemaNameA, schemaNameB } = req.body;
+
+    if (!schemaA || !schemaB) {
+      return res.status(400).json({
+        error: 'schemaA and schemaB are required'
+      });
+    }
+
+    const result = await agents.schemaMediator.createBidirectionalMapping(
+      schemaA,
+      schemaB,
+      schemaNameA,
+      schemaNameB
+    );
+
+    res.json({
+      success: true,
+      forward: result.forward,
+      reverse: result.reverse,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      service: 'SchemaMediatorAgent'
+    });
+  }
+});
+
+/**
+ * Retry translation with additional context
+ * POST /api/schema/translate/retry
+ * 
+ * Body:
+ * {
+ *   data: { ... },
+ *   sourceSchema: { ... },
+ *   targetSchema: { ... },
+ *   sourceSchemaName: "string",
+ *   targetSchemaName: "string",
+ *   previousMissingContext: [...],
+ *   additionalContext: { ... }
+ * }
+ */
+app.post('/api/schema/translate/retry', async (req, res) => {
+  try {
+    const {
+      data,
+      sourceSchema,
+      targetSchema,
+      sourceSchemaName,
+      targetSchemaName,
+      previousMissingContext,
+      additionalContext
+    } = req.body;
+
+    if (!data || !sourceSchema || !targetSchema) {
+      return res.status(400).json({
+        error: 'data, sourceSchema, and targetSchema are required'
+      });
+    }
+
+    const result = await agents.schemaMediator.retryWithContext({
+      data,
+      sourceSchema,
+      targetSchema,
+      sourceSchemaName,
+      targetSchemaName,
+      previousMissingContext,
+      additionalContext
+    });
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      service: 'SchemaMediatorAgent'
+    });
+  }
+});
+
+/**
+ * Get Schema Mediator statistics
+ * GET /api/schema/mediator/stats
+ */
+app.get('/api/schema/mediator/stats', (req, res) => {
+  try {
+    const stats = agents.schemaMediator.getStats();
+
+    res.json({
+      success: true,
+      stats,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      service: 'SchemaMediatorAgent'
+    });
+  }
+});
+
+/**
+ * Clear Schema Mediator cache
+ * POST /api/schema/mediator/cache/clear
+ */
+app.post('/api/schema/mediator/cache/clear', (req, res) => {
+  try {
+    agents.schemaMediator.clearCache();
+
+    res.json({
+      success: true,
+      message: 'Cache cleared successfully',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      service: 'SchemaMediatorAgent'
     });
   }
 });

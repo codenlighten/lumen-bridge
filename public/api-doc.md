@@ -18,14 +18,15 @@
    - [SchemaAgent](#4-schemaagent)
    - [ToolRouterAgent](#5-toolrouteragent)
    - [Schema Registry](#6-schema-registry)
+   - [Schema Mediator](#7-schema-mediator)
 5. [User Agent Management](#user-agent-management)
-   - [Register Agent](#7-register-user-agent)
-   - [Update Agent](#8-update-user-agent)
-   - [Delete Agent](#9-delete-user-agent)
-   - [Get My Agents](#10-get-my-agents)
-   - [Get Specific Agent](#11-get-specific-agent)
-   - [Invoke User Agent](#12-invoke-user-agent)
-   - [Admin View All](#13-admin-view-all-agents)
+   - [Register Agent](#8-register-user-agent)
+   - [Update Agent](#9-update-user-agent)
+   - [Delete Agent](#10-delete-user-agent)
+   - [Get My Agents](#11-get-my-agents)
+   - [Get Specific Agent](#12-get-specific-agent)
+   - [Invoke User Agent](#13-invoke-user-agent)
+   - [Admin View All](#14-admin-view-all-agents)
 6. [Error Handling](#error-handling)
 7. [Rate Limits](#rate-limits)
 8. [Examples](#examples)
@@ -429,6 +430,249 @@ curl https://lumenbridge.codenlighten.org/api/schema/userProfileSchema
 
 ---
 
+### 7. Schema Mediator
+
+**Universal schema translation with AI-powered field mapping**
+
+The Schema Mediator Agent translates data between any two schemas using AI to intelligently map fields, combine/split values, and handle format conversions.
+
+#### POST `/api/schema/translate`
+
+Translate data from one schema format to another.
+
+**Request Body**:
+```json
+{
+  "data": {
+    "FirstName": "Jane",
+    "LastName": "Smith",
+    "Email": "jane@example.com",
+    "Status__c": "Active"
+  },
+  "sourceSchema": {
+    "type": "object",
+    "properties": {
+      "FirstName": { "type": "string" },
+      "LastName": { "type": "string" },
+      "Email": { "type": "string" },
+      "Status__c": { "type": "string", "enum": ["Active", "Inactive"] }
+    }
+  },
+  "targetSchema": {
+    "type": "object",
+    "properties": {
+      "fullName": { "type": "string" },
+      "email": { "type": "string" },
+      "status": { "type": "string", "enum": ["A", "I"] }
+    }
+  },
+  "sourceSchemaName": "SalesforceContact",
+  "targetSchemaName": "InternalUser",
+  "context": {
+    "mappingHints": {
+      "Status__c to status": "Map Active→A, Inactive→I"
+    }
+  },
+  "enforceValidation": false
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "transformedData": {
+    "fullName": "Jane Smith",
+    "email": "jane@example.com",
+    "status": "A"
+  },
+  "mapping": {
+    "fieldMappings": [
+      {
+        "targetField": "fullName",
+        "sourceFields": ["FirstName", "LastName"],
+        "transformationType": "combine",
+        "transformationRule": "concatenate with space"
+      },
+      {
+        "targetField": "status",
+        "sourceFields": ["Status__c"],
+        "transformationType": "convert",
+        "transformationRule": "Active→A, Inactive→I"
+      }
+    ],
+    "reasoning": "Combined first and last names, converted status codes",
+    "confidence": 0.95
+  },
+  "missingContext": [],
+  "validation": {
+    "valid": true,
+    "errors": [],
+    "warnings": []
+  },
+  "_metadata": {
+    "sourceSchemaName": "SalesforceContact",
+    "targetSchemaName": "InternalUser",
+    "timestamp": "2025-11-25T12:00:00.000Z",
+    "cacheHit": false
+  }
+}
+```
+
+**Example**:
+```bash
+curl -X POST https://lumenbridge.codenlighten.org/api/schema/translate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "data": {"FirstName": "John", "LastName": "Doe", "Email": "john@example.com"},
+    "sourceSchema": {...},
+    "targetSchema": {...}
+  }'
+```
+
+---
+
+#### POST `/api/schema/infer`
+
+Infer a JSON Schema from example data.
+
+**Request Body**:
+```json
+{
+  "data": {
+    "id": 123,
+    "name": "Product A",
+    "price": 29.99,
+    "inStock": true,
+    "tags": ["electronics", "sale"]
+  },
+  "schemaName": "ProductSchema"
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "id": { "type": "integer", "description": "Unique identifier" },
+      "name": { "type": "string", "description": "Product name" },
+      "price": { "type": "number", "description": "Product price" },
+      "inStock": { "type": "boolean", "description": "Availability status" },
+      "tags": { 
+        "type": "array", 
+        "items": { "type": "string" },
+        "description": "Product tags"
+      }
+    },
+    "required": ["id", "name", "price", "inStock"]
+  },
+  "confidence": 0.95,
+  "assumptions": [
+    "Assumed 'id' should be required based on naming convention",
+    "Inferred array item type from first element"
+  ]
+}
+```
+
+---
+
+#### POST `/api/schema/mapping/bidirectional`
+
+Create a bidirectional mapping between two schemas for translation in both directions.
+
+**Request Body**:
+```json
+{
+  "schemaA": { "type": "object", "properties": {...} },
+  "schemaB": { "type": "object", "properties": {...} },
+  "schemaNameA": "SalesforceContact",
+  "schemaNameB": "InternalUser"
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "forward": {
+    "fieldMappings": [...],
+    "reasoning": "..."
+  },
+  "reverse": {
+    "fieldMappings": [...],
+    "reasoning": "..."
+  }
+}
+```
+
+---
+
+#### POST `/api/schema/translate/retry`
+
+Retry a translation with additional context when the initial attempt identified missing information.
+
+**Request Body**:
+```json
+{
+  "data": {...},
+  "sourceSchema": {...},
+  "targetSchema": {...},
+  "sourceSchemaName": "SchemaA",
+  "targetSchemaName": "SchemaB",
+  "previousMissingContext": [
+    "Status code mapping rules",
+    "Date format preference"
+  ],
+  "additionalContext": {
+    "statusMapping": "Active→A, Inactive→I",
+    "dateFormat": "ISO-8601"
+  }
+}
+```
+
+---
+
+#### GET `/api/schema/mediator/stats`
+
+Get Schema Mediator performance statistics.
+
+**Response**:
+```json
+{
+  "success": true,
+  "stats": {
+    "translations": 42,
+    "cacheHits": 21,
+    "cachedMappings": 15,
+    "errors": 2,
+    "validationFailures": 1,
+    "cacheSize": 15,
+    "cacheHitRate": "50.0%",
+    "errorRate": "4.8%",
+    "validationFailureRate": "2.4%"
+  }
+}
+```
+
+---
+
+#### POST `/api/schema/mediator/cache/clear`
+
+Clear the Schema Mediator's mapping cache.
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "Cache cleared successfully"
+}
+```
+
+---
+
 ## User Agent Management
 
 **Create and manage custom AI agents with your own prompts and behaviors**
@@ -445,7 +689,7 @@ Lumen Bridge now supports user-created agents alongside system agents. Users can
 
 ---
 
-### 7. Register User Agent
+### 8. Register User Agent
 
 **POST** `/api/agents/register`
 
@@ -506,7 +750,7 @@ Create a new custom agent with specialized behavior.
 
 ---
 
-### 8. Update User Agent
+### 9. Update User Agent
 
 **PUT** `/api/agents/update`
 
@@ -545,7 +789,7 @@ Update an existing user agent.
 
 ---
 
-### 9. Delete User Agent
+### 10. Delete User Agent
 
 **DELETE** `/api/agents/delete`
 
@@ -574,7 +818,7 @@ Delete a user agent.
 
 ---
 
-### 10. Get My Agents
+### 11. Get My Agents
 
 **GET** `/api/agents/my-agents/:userId`
 
@@ -616,7 +860,7 @@ Retrieve all agents for a specific user.
 
 ---
 
-### 11. Get Specific Agent
+### 12. Get Specific Agent
 
 **GET** `/api/agents/my-agents/:userId/:agentName`
 
@@ -652,7 +896,7 @@ Retrieve a specific user agent.
 
 ---
 
-### 12. Invoke User Agent
+### 13. Invoke User Agent
 
 **POST** `/api/agents/invoke-user-agent`
 
@@ -694,7 +938,7 @@ Execute a user agent with custom context.
 
 ---
 
-### 13. Admin View All Agents
+### 14. Admin View All Agents
 
 **GET** `/api/admin/agents?adminKey=YOUR_ADMIN_KEY`
 
@@ -877,6 +1121,76 @@ console.log(`You have ${data.count} agents:`);
 data.agents.forEach(agent => {
   console.log(`- ${agent.name}: ${agent.description}`);
 });
+```
+
+### Example 7: Translate Data Between Schemas
+
+```javascript
+// Translate Salesforce contact to internal user format
+const response = await fetch('https://lumenbridge.codenlighten.org/api/schema/translate', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    data: {
+      FirstName: "Jane",
+      LastName: "Smith",
+      Email: "jane@example.com",
+      Status__c: "Active"
+    },
+    sourceSchema: {
+      type: "object",
+      properties: {
+        FirstName: { type: "string" },
+        LastName: { type: "string" },
+        Email: { type: "string" },
+        Status__c: { type: "string", enum: ["Active", "Inactive"] }
+      }
+    },
+    targetSchema: {
+      type: "object",
+      properties: {
+        fullName: { type: "string" },
+        email: { type: "string" },
+        status: { type: "string", enum: ["A", "I"] }
+      }
+    },
+    sourceSchemaName: "SalesforceContact",
+    targetSchemaName: "InternalUser",
+    context: {
+      mappingHints: {
+        "Status__c to status": "Map Active→A, Inactive→I"
+      }
+    }
+  })
+});
+
+const data = await response.json();
+console.log('Transformed:', data.transformedData);
+// Output: { fullName: "Jane Smith", email: "jane@example.com", status: "A" }
+console.log('Cache Hit:', data._metadata.cacheHit);
+```
+
+### Example 8: Infer Schema from Data
+
+```javascript
+const response = await fetch('https://lumenbridge.codenlighten.org/api/schema/infer', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    data: {
+      orderId: 12345,
+      customer: "John Doe",
+      total: 199.99,
+      isPaid: true,
+      items: ["Widget A", "Widget B"]
+    },
+    schemaName: "OrderSchema"
+  })
+});
+
+const data = await response.json();
+console.log('Inferred Schema:', data.schema);
+console.log('Confidence:', data.confidence);
 ```
 });
 

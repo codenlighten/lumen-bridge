@@ -65,10 +65,11 @@ Lumen Bridge is a **self-aware, self-evolving agent platform** that implements t
 3. **TerminalAgent** - Safe terminal command generation with risk assessment
 4. **CodeGenerator** - Multi-language code generation from natural language
 5. **SchemaAgent** - JSON Schema generation from natural language descriptions
-6. **ToolRouterAgent** - Intelligent routing to the best agent for each task
-7. **🆕 ProjectPlannerAgent** - Architect brain that creates contracts and decomposes projects
-8. **🆕 CodeWorkerAgent** - Individual developer that executes task tickets in parallel
-9. **🆕 SyntheticDevTeam** - CTO orchestrator that manages entire development teams
+6. **SchemaMediatorAgent** - Universal schema translator with AI-powered field mapping
+7. **ToolRouterAgent** - Intelligent routing to the best agent for each task
+8. **🆕 ProjectPlannerAgent** - Architect brain that creates contracts and decomposes projects
+9. **🆕 CodeWorkerAgent** - Individual developer that executes task tickets in parallel
+10. **🆕 SyntheticDevTeam** - CTO orchestrator that manages entire development teams
 
 ### 🎭 User-Created Agents (NEW!)
 
@@ -128,6 +129,18 @@ const deliverable = await team.buildProject({
 ```
 
 **[Read full documentation →](./SYNTHETIC-DEV-TEAM.md)**
+
+### 🔄 Universal Schema Translation
+
+**Schema Mediator** - Enterprise integration without custom code:
+- **AI-Powered Mapping** - Automatically figures out field relationships
+- **Intelligent Transformations** - Combine, split, convert, default values
+- **LRU Caching** - Reuses mapping strategies for performance
+- **Bidirectional Support** - Translate A→B and B→A seamlessly
+- **Missing Context Detection** - Identifies what info is needed for perfect translation
+- **Enterprise Ready** - Salesforce↔SAP, Legacy↔Modern APIs with zero adapters
+
+**Value Proposition**: Traditional integration costs $12k-50k per connection and weeks of dev time. Schema Mediator does it in minutes for $0 maintenance.
 
 ### 🔐 Cryptographic Foundation
 
@@ -241,6 +254,38 @@ curl -X POST http://localhost:3000/api/agents/schema \
   }'
 ```
 
+#### SchemaMediatorAgent - Universal Schema Translation
+```bash
+# Translate data between any two schemas
+curl -X POST http://localhost:3000/api/schema/translate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "data": {"FirstName": "Jane", "LastName": "Smith", "Email": "jane@example.com"},
+    "sourceSchema": {...},
+    "targetSchema": {...},
+    "sourceSchemaName": "SalesforceContact",
+    "targetSchemaName": "InternalUser"
+  }'
+
+# Infer schema from example data
+curl -X POST http://localhost:3000/api/schema/infer \
+  -H "Content-Type: application/json" \
+  -d '{
+    "data": {"id": 123, "name": "Product", "price": 29.99}
+  }'
+
+# Get translation statistics
+curl http://localhost:3000/api/schema/mediator/stats
+```
+
+**Key Features:**
+- AI-powered field mapping (combine, split, convert, default)
+- Intelligent caching with LRU eviction
+- Bidirectional schema translation
+- Missing context detection & retry
+- Validation enforcement
+- Enterprise integration made simple (Salesforce ↔ SAP, Legacy ↔ Modern APIs)
+
 ### Intelligent Router (Auto-Select Best Agent)
 
 ```bash
@@ -333,6 +378,40 @@ const result = await schemaGen.generateSchema({
 console.log(result.generatedSchema);
 console.log(result.designRationale);
 ```
+
+### 5. Enterprise Integration (Schema Translation)
+
+```javascript
+import { SchemaMediatorAgent } from './agents/SchemaMediatorAgent.js';
+
+const mediator = new SchemaMediatorAgent();
+
+// Translate Salesforce data to internal format - ZERO custom code
+const result = await mediator.translate({
+  data: {
+    FirstName: "Jane",
+    LastName: "Smith", 
+    Email: "jane@example.com",
+    Status__c: "Active"
+  },
+  sourceSchema: salesforceContactSchema,
+  targetSchema: internalUserSchema,
+  sourceSchemaName: 'SalesforceContact',
+  targetSchemaName: 'InternalUser'
+});
+
+console.log(result.transformedData);
+// { fullName: "Jane Smith", email: "jane@example.com", status: "A" }
+
+// AI figured out:
+// - Combine FirstName + LastName → fullName
+// - Convert Status__c "Active" → status "A"
+// - Direct map Email → email
+
+console.log(`Cache hit rate: ${mediator.getStats().cacheHitRate}`);
+```
+
+**Value**: Traditional integration costs $12k-50k per connection. Schema Mediator does it in minutes for free.
 
 ## 🧪 Testing
 

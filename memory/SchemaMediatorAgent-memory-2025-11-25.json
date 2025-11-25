@@ -1,0 +1,317 @@
+{
+  "interactions": [
+    {
+      "role": "user",
+      "text": "You are planning how to transform data from SOURCE schema to TARGET schema.\n\nSOURCE SCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"FirstName\": {\n      \"type\": \"string\"\n    },\n    \"LastName\": {\n      \"type\": \"string\"\n    },\n    \"Email\": {\n      \"type\": \"string\"\n    },\n    \"Phone\": {\n      \"type\": \"string\"\n    },\n    \"Status__c\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"Active\",\n        \"Inactive\",\n        \"Pending\"\n      ]\n    },\n    \"AccountId\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"FirstName\",\n    \"LastName\",\n    \"Email\"\n  ]\n}\n\nTARGET SCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"fullName\": {\n      \"type\": \"string\"\n    },\n    \"email\": {\n      \"type\": \"string\"\n    },\n    \"phoneNumber\": {\n      \"type\": \"string\"\n    },\n    \"status\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"A\",\n        \"I\",\n        \"P\"\n      ]\n    },\n    \"companyId\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"fullName\",\n    \"email\",\n    \"status\"\n  ]\n}\n\n\nMAPPING HINTS:\n{\n  \"Status__c to status\": \"Map Active→A, Inactive→I, Pending→P\"\n}\n\nCreate a mapping strategy that specifies:\n1. For each TARGET field, which SOURCE field(s) to use\n2. What transformation type: direct, combine, split, convert, or default\n3. Any conversion rules (e.g., \"Active\" → \"A\")\n4. Default values for fields with no source\n5. What context is missing for a perfect mapping",
+      "ts": "2025-11-25T16:44:50.080Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "45565bd49c9896205b14a4f247e57d985587d9c446a0468ca6f1466270b5ae35",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"fieldMappings\":[{\"targetField\":\"fullName\",\"sourceFields\":[\"FirstName\",\"LastName\"],\"transformationType\":\"combine\",\"transformationRule\":\"concatenate with space\",\"defaultValue\":\"\"},{\"targetField\":\"email\",\"sourceFields\":[\"Email\"],\"transformationType\":\"direct\",\"transformationRule\":\"\",\"defaultValue\":\"\"},{\"targetField\":\"phoneNumber\",\"sourceFields\":[\"Phone\"],\"transformationType\":\"direct\",\"transformationRule\":\"\",\"defaultValue\":\"\"},{\"targetField\":\"status\",\"sourceFields\":[\"Status__c\"],\"transformationType\":\"convert\",\"transformationRule\":\"map Active→A, Inactive→I, Pending→P\",\"defaultValue\":\"P\"},{\"targetField\":\"companyId\",\"sourceFields\":[\"AccountId\"],\"transformationType\":\"direct\",\"transformationRule\":\"\",\"defaultValue\":\"\"}],\"reasoning\":\"The mappings are designed to ensure that all required fields in the target schema are populated using the available fields in the source schema. Combining FirstName and LastName into fullName provides a complete representation of the user's name. The status field is converted to a shorter representation as specified, and defaults are provided where necessary.\",\"confidence\":0.9,\"missingContext\":[],\"response\":\"Mapping strategy created successfully.\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"_signature\":{\"signature\":\"304402204fd8967b40cef92e84389ba19e5b31fd3ee84b0b350df46bb87e56decdface74022010923fe06d22e26dbfc8f9e7a7b8550644ea83d19c9ac3097137f4d37374b9b5\",\"responseHash\":\"3068348ffb2141c5d56d82867fc33e881721d04e3372971bd0798139846332c6\",\"address\":\"14toPEr2eHqkuRqh2zcqg4tgCkXWtpd8t5\",\"publicKey\":\"0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6\",\"timestamp\":\"2025-11-25T16:44:50.079Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SchemaMediatorAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":9310,\"usage\":{\"promptTokens\":1398,\"completionTokens\":376,\"totalTokens\":1774}}}",
+      "ts": "2025-11-25T16:44:50.094Z",
+      "signature": "304402204fd8967b40cef92e84389ba19e5b31fd3ee84b0b350df46bb87e56decdface74022010923fe06d22e26dbfc8f9e7a7b8550644ea83d19c9ac3097137f4d37374b9b5",
+      "publicKey": "0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6",
+      "originalHash": "3068348ffb2141c5d56d82867fc33e881721d04e3372971bd0798139846332c6",
+      "verified": true,
+      "textHash": "3068348ffb2141c5d56d82867fc33e881721d04e3372971bd0798139846332c6"
+    },
+    {
+      "role": "user",
+      "text": "Transform this SOURCE data using the MAPPING STRATEGY to produce TARGET data.\n\nSOURCE DATA:\n{\n  \"FirstName\": \"Jane\",\n  \"LastName\": \"Smith\",\n  \"Email\": \"jane.smith@example.com\",\n  \"Phone\": \"+1-555-0123\",\n  \"Status__c\": \"Active\",\n  \"AccountId\": \"ACC-12345\"\n}\n\nMAPPING STRATEGY:\n[\n  {\n    \"targetField\": \"fullName\",\n    \"sourceFields\": [\n      \"FirstName\",\n      \"LastName\"\n    ],\n    \"transformationType\": \"combine\",\n    \"transformationRule\": \"concatenate with space\",\n    \"defaultValue\": \"\"\n  },\n  {\n    \"targetField\": \"email\",\n    \"sourceFields\": [\n      \"Email\"\n    ],\n    \"transformationType\": \"direct\",\n    \"transformationRule\": \"\",\n    \"defaultValue\": \"\"\n  },\n  {\n    \"targetField\": \"phoneNumber\",\n    \"sourceFields\": [\n      \"Phone\"\n    ],\n    \"transformationType\": \"direct\",\n    \"transformationRule\": \"\",\n    \"defaultValue\": \"\"\n  },\n  {\n    \"targetField\": \"status\",\n    \"sourceFields\": [\n      \"Status__c\"\n    ],\n    \"transformationType\": \"convert\",\n    \"transformationRule\": \"map Active→A, Inactive→I, Pending→P\",\n    \"defaultValue\": \"P\"\n  },\n  {\n    \"targetField\": \"companyId\",\n    \"sourceFields\": [\n      \"AccountId\"\n    ],\n    \"transformationType\": \"direct\",\n    \"transformationRule\": \"\",\n    \"defaultValue\": \"\"\n  }\n]\n\nApply each mapping rule precisely:\n- direct: copy field as-is\n- combine: merge multiple fields (follow the rule)\n- split: break one field into multiple\n- convert: apply value transformation (follow the rule)\n- default: use the default value\n\nProduce the complete transformed object.",
+      "ts": "2025-11-25T16:44:54.783Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "a205e523224803ebd1d429e92efdf249adfe66812989976661ef012a2ea643da",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"transformedData\":{\"fullName\":\"Jane Smith\",\"email\":\"jane.smith@example.com\",\"phoneNumber\":\"+1-555-0123\",\"status\":\"A\",\"companyId\":\"ACC-12345\"},\"appliedMappings\":[{\"targetField\":\"fullName\",\"success\":true,\"usedDefault\":false},{\"targetField\":\"email\",\"success\":true,\"usedDefault\":false},{\"targetField\":\"phoneNumber\",\"success\":true,\"usedDefault\":false},{\"targetField\":\"status\",\"success\":true,\"usedDefault\":false},{\"targetField\":\"companyId\",\"success\":true,\"usedDefault\":false}],\"missingContext\":[],\"response\":\"Transformation completed successfully.\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"_signature\":{\"signature\":\"3044022063b3bf6ff3f50ba830ef1563ffaacb3b7d5eff60b87dd030895cf34c66ddfad302206326d7ac1cc38c37d60961c691281123fd9d230bc707ae8ff5aac6085d52690b\",\"responseHash\":\"e4f004182b8db8bcb31a54be3609d38497ebe5580234fe610408d01655e61b5b\",\"address\":\"14toPEr2eHqkuRqh2zcqg4tgCkXWtpd8t5\",\"publicKey\":\"0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6\",\"timestamp\":\"2025-11-25T16:44:54.783Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SchemaMediatorAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":4095,\"usage\":{\"promptTokens\":2045,\"completionTokens\":153,\"totalTokens\":2198}}}",
+      "ts": "2025-11-25T16:44:54.786Z",
+      "signature": "3044022063b3bf6ff3f50ba830ef1563ffaacb3b7d5eff60b87dd030895cf34c66ddfad302206326d7ac1cc38c37d60961c691281123fd9d230bc707ae8ff5aac6085d52690b",
+      "publicKey": "0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6",
+      "originalHash": "e4f004182b8db8bcb31a54be3609d38497ebe5580234fe610408d01655e61b5b",
+      "verified": true,
+      "textHash": "e4f004182b8db8bcb31a54be3609d38497ebe5580234fe610408d01655e61b5b"
+    },
+    {
+      "role": "user",
+      "text": "Validate that this DATA matches this SCHEMA:\n\nDATA:\n{\n  \"fullName\": \"Jane Smith\",\n  \"email\": \"jane.smith@example.com\",\n  \"phoneNumber\": \"+1-555-0123\",\n  \"status\": \"A\",\n  \"companyId\": \"ACC-12345\"\n}\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"fullName\": {\n      \"type\": \"string\"\n    },\n    \"email\": {\n      \"type\": \"string\"\n    },\n    \"phoneNumber\": {\n      \"type\": \"string\"\n    },\n    \"status\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"A\",\n        \"I\",\n        \"P\"\n      ]\n    },\n    \"companyId\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"fullName\",\n    \"email\",\n    \"status\"\n  ]\n}\n\nCheck:\n- All required fields are present\n- All fields match the expected type\n- Enum values are valid\n- Nested objects match nested schemas",
+      "ts": "2025-11-25T16:45:00.522Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "7989710bcd26b40fa4368b1f8a342955649301708f117d3533f6c6d6b900ac5e",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"valid\":true,\"errors\":[],\"warnings\":[],\"response\":\"Validation completed successfully. The data matches the schema.\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"missingContext\":[],\"_signature\":{\"signature\":\"3045022100b63c78e671ea5efabde8d32c8f266891e4d1705637e536ff3b5e02cd2e56ba720220298c88f4ddd5ca72db932fdd182bdb1a9052c8255d4dd9c5c9ea35af7f132ccc\",\"responseHash\":\"b033bf546b3cfb31a5979abd34dd719a32049cf55b7675aba3f99c8c35d6d447\",\"address\":\"14toPEr2eHqkuRqh2zcqg4tgCkXWtpd8t5\",\"publicKey\":\"0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6\",\"timestamp\":\"2025-11-25T16:45:00.522Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SchemaMediatorAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":2042,\"usage\":{\"promptTokens\":2602,\"completionTokens\":46,\"totalTokens\":2648}}}",
+      "ts": "2025-11-25T16:45:00.540Z",
+      "signature": "3045022100b63c78e671ea5efabde8d32c8f266891e4d1705637e536ff3b5e02cd2e56ba720220298c88f4ddd5ca72db932fdd182bdb1a9052c8255d4dd9c5c9ea35af7f132ccc",
+      "publicKey": "0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6",
+      "originalHash": "b033bf546b3cfb31a5979abd34dd719a32049cf55b7675aba3f99c8c35d6d447",
+      "verified": true,
+      "textHash": "b033bf546b3cfb31a5979abd34dd719a32049cf55b7675aba3f99c8c35d6d447"
+    },
+    {
+      "role": "user",
+      "text": "Transform this SOURCE data using the MAPPING STRATEGY to produce TARGET data.\n\nSOURCE DATA:\n{\n  \"FirstName\": \"John\",\n  \"LastName\": \"Doe\",\n  \"Email\": \"john.doe@example.com\",\n  \"Phone\": \"+1-555-9999\",\n  \"Status__c\": \"Inactive\",\n  \"AccountId\": \"ACC-67890\"\n}\n\nMAPPING STRATEGY:\n[\n  {\n    \"targetField\": \"fullName\",\n    \"sourceFields\": [\n      \"FirstName\",\n      \"LastName\"\n    ],\n    \"transformationType\": \"combine\",\n    \"transformationRule\": \"concatenate with space\",\n    \"defaultValue\": \"\"\n  },\n  {\n    \"targetField\": \"email\",\n    \"sourceFields\": [\n      \"Email\"\n    ],\n    \"transformationType\": \"direct\",\n    \"transformationRule\": \"\",\n    \"defaultValue\": \"\"\n  },\n  {\n    \"targetField\": \"phoneNumber\",\n    \"sourceFields\": [\n      \"Phone\"\n    ],\n    \"transformationType\": \"direct\",\n    \"transformationRule\": \"\",\n    \"defaultValue\": \"\"\n  },\n  {\n    \"targetField\": \"status\",\n    \"sourceFields\": [\n      \"Status__c\"\n    ],\n    \"transformationType\": \"convert\",\n    \"transformationRule\": \"map Active→A, Inactive→I, Pending→P\",\n    \"defaultValue\": \"P\"\n  },\n  {\n    \"targetField\": \"companyId\",\n    \"sourceFields\": [\n      \"AccountId\"\n    ],\n    \"transformationType\": \"direct\",\n    \"transformationRule\": \"\",\n    \"defaultValue\": \"\"\n  }\n]\n\nApply each mapping rule precisely:\n- direct: copy field as-is\n- combine: merge multiple fields (follow the rule)\n- split: break one field into multiple\n- convert: apply value transformation (follow the rule)\n- default: use the default value\n\nProduce the complete transformed object.",
+      "ts": "2025-11-25T16:45:04.453Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "5fea65c3458cb73f09b0be2c371851cd1b64004fa354aa65c9c67024cac3ac99",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"transformedData\":{\"fullName\":\"John Doe\",\"email\":\"john.doe@example.com\",\"phoneNumber\":\"+1-555-9999\",\"status\":\"I\",\"companyId\":\"ACC-67890\"},\"appliedMappings\":[{\"targetField\":\"fullName\",\"success\":true,\"usedDefault\":false},{\"targetField\":\"email\",\"success\":true,\"usedDefault\":false},{\"targetField\":\"phoneNumber\",\"success\":true,\"usedDefault\":false},{\"targetField\":\"status\",\"success\":true,\"usedDefault\":false},{\"targetField\":\"companyId\",\"success\":true,\"usedDefault\":false}],\"missingContext\":[],\"response\":\"Transformation completed successfully.\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"_signature\":{\"signature\":\"3044022033c4073741a0f05a433694d7946b8a406dc32b05749b758d7a6531d43cdf0167022048311efc1621618b62a78e097fd52e799edcb42dc47b9e00ab41d1fe08d1cdde\",\"responseHash\":\"347fd6dec03905e34ec0d41437038bfdeced0f9112e0bf43a46d8bd8f426164f\",\"address\":\"14toPEr2eHqkuRqh2zcqg4tgCkXWtpd8t5\",\"publicKey\":\"0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6\",\"timestamp\":\"2025-11-25T16:45:04.453Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SchemaMediatorAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":3688,\"usage\":{\"promptTokens\":3463,\"completionTokens\":152,\"totalTokens\":3615}}}",
+      "ts": "2025-11-25T16:45:04.459Z",
+      "signature": "3044022033c4073741a0f05a433694d7946b8a406dc32b05749b758d7a6531d43cdf0167022048311efc1621618b62a78e097fd52e799edcb42dc47b9e00ab41d1fe08d1cdde",
+      "publicKey": "0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6",
+      "originalHash": "347fd6dec03905e34ec0d41437038bfdeced0f9112e0bf43a46d8bd8f426164f",
+      "verified": true,
+      "textHash": "347fd6dec03905e34ec0d41437038bfdeced0f9112e0bf43a46d8bd8f426164f"
+    },
+    {
+      "role": "user",
+      "text": "Validate that this DATA matches this SCHEMA:\n\nDATA:\n{\n  \"fullName\": \"John Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phoneNumber\": \"+1-555-9999\",\n  \"status\": \"I\",\n  \"companyId\": \"ACC-67890\"\n}\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"fullName\": {\n      \"type\": \"string\"\n    },\n    \"email\": {\n      \"type\": \"string\"\n    },\n    \"phoneNumber\": {\n      \"type\": \"string\"\n    },\n    \"status\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"A\",\n        \"I\",\n        \"P\"\n      ]\n    },\n    \"companyId\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"fullName\",\n    \"email\",\n    \"status\"\n  ]\n}\n\nCheck:\n- All required fields are present\n- All fields match the expected type\n- Enum values are valid\n- Nested objects match nested schemas",
+      "ts": "2025-11-25T16:55:10.009Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "eb52f086611436c6e98258535f4d6227a0827e4a52387108546501c9da6b3c98",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"valid\":true,\"errors\":[],\"warnings\":[],\"response\":\"Validation completed successfully. The data matches the schema.\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"missingContext\":[],\"_signature\":{\"signature\":\"3045022100b63c78e671ea5efabde8d32c8f266891e4d1705637e536ff3b5e02cd2e56ba720220298c88f4ddd5ca72db932fdd182bdb1a9052c8255d4dd9c5c9ea35af7f132ccc\",\"responseHash\":\"b033bf546b3cfb31a5979abd34dd719a32049cf55b7675aba3f99c8c35d6d447\",\"address\":\"14toPEr2eHqkuRqh2zcqg4tgCkXWtpd8t5\",\"publicKey\":\"0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6\",\"timestamp\":\"2025-11-25T16:55:10.008Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SchemaMediatorAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":604770,\"usage\":{\"promptTokens\":4021,\"completionTokens\":46,\"totalTokens\":4067}}}",
+      "ts": "2025-11-25T16:55:10.013Z",
+      "signature": "3045022100b63c78e671ea5efabde8d32c8f266891e4d1705637e536ff3b5e02cd2e56ba720220298c88f4ddd5ca72db932fdd182bdb1a9052c8255d4dd9c5c9ea35af7f132ccc",
+      "publicKey": "0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6",
+      "originalHash": "b033bf546b3cfb31a5979abd34dd719a32049cf55b7675aba3f99c8c35d6d447",
+      "verified": true,
+      "textHash": "b033bf546b3cfb31a5979abd34dd719a32049cf55b7675aba3f99c8c35d6d447"
+    },
+    {
+      "role": "user",
+      "text": "Analyze this data and generate a JSON Schema that describes its structure:\n\n{\n  \"id\": 123,\n  \"name\": \"Product A\",\n  \"price\": 29.99,\n  \"inStock\": true,\n  \"tags\": [\n    \"electronics\",\n    \"sale\"\n  ]\n}\n\nGenerate a complete JSON Schema with:\n- type, properties, required fields\n- appropriate data types (string, number, boolean, object, array)\n- descriptions for each field based on the data",
+      "ts": "2025-11-25T16:55:15.125Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "662fdc5e4f64f6ba81996f6b3a8a3fd366b6a7176e765a7b80c45ea371159663",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"schema\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\",\"description\":\"Unique identifier for the product.\"},\"name\":{\"type\":\"string\",\"description\":\"Name of the product.\"},\"price\":{\"type\":\"number\",\"description\":\"Price of the product.\"},\"inStock\":{\"type\":\"boolean\",\"description\":\"Availability status of the product.\"},\"tags\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"description\":\"List of tags associated with the product.\"}},\"required\":[\"id\",\"name\",\"price\",\"inStock\"]},\"confidence\":0.95,\"assumptions\":[\"The 'id' field is an integer based on the provided data.\",\"The 'name' field is a string as it represents a product name.\",\"The 'price' field is a number indicating the product's cost.\",\"The 'inStock' field is a boolean indicating availability.\",\"The 'tags' field is an array of strings representing product categories.\"],\"response\":\"JSON Schema generated successfully.\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"missingContext\":[],\"_signature\":{\"signature\":\"30450221008f14ccf85b60f8598e6da76c0d0cc668f2cf3677783a02d8f45b82c51a75944a022034f39e2bd100a6c631f5f78e917b616dd7760e3e25428f4d04c77ab76df6a774\",\"responseHash\":\"f5ef0849423a8db977d8d35a70eb08ef7cbdaa8491415f140cfbad50df2164b4\",\"address\":\"14toPEr2eHqkuRqh2zcqg4tgCkXWtpd8t5\",\"publicKey\":\"0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6\",\"timestamp\":\"2025-11-25T16:55:15.125Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SchemaMediatorAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":4509,\"usage\":{\"promptTokens\":4529,\"completionTokens\":215,\"totalTokens\":4744}}}",
+      "ts": "2025-11-25T16:55:15.131Z",
+      "signature": "30450221008f14ccf85b60f8598e6da76c0d0cc668f2cf3677783a02d8f45b82c51a75944a022034f39e2bd100a6c631f5f78e917b616dd7760e3e25428f4d04c77ab76df6a774",
+      "publicKey": "0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6",
+      "originalHash": "f5ef0849423a8db977d8d35a70eb08ef7cbdaa8491415f140cfbad50df2164b4",
+      "verified": true,
+      "textHash": "f5ef0849423a8db977d8d35a70eb08ef7cbdaa8491415f140cfbad50df2164b4"
+    },
+    {
+      "role": "user",
+      "text": "You are planning how to transform data from SOURCE schema to TARGET schema.\n\nSOURCE SCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"fullName\": {\n      \"type\": \"string\"\n    },\n    \"email\": {\n      \"type\": \"string\"\n    },\n    \"phoneNumber\": {\n      \"type\": \"string\"\n    },\n    \"status\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"A\",\n        \"I\",\n        \"P\"\n      ]\n    },\n    \"companyId\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"fullName\",\n    \"email\",\n    \"status\"\n  ]\n}\n\nTARGET SCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"FirstName\": {\n      \"type\": \"string\"\n    },\n    \"LastName\": {\n      \"type\": \"string\"\n    },\n    \"Email\": {\n      \"type\": \"string\"\n    },\n    \"Phone\": {\n      \"type\": \"string\"\n    },\n    \"Status__c\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"Active\",\n        \"Inactive\",\n        \"Pending\"\n      ]\n    },\n    \"AccountId\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"FirstName\",\n    \"LastName\",\n    \"Email\"\n  ]\n}\n\n\n\nCreate a mapping strategy that specifies:\n1. For each TARGET field, which SOURCE field(s) to use\n2. What transformation type: direct, combine, split, convert, or default\n3. Any conversion rules (e.g., \"Active\" → \"A\")\n4. Default values for fields with no source\n5. What context is missing for a perfect mapping",
+      "ts": "2025-11-25T16:55:25.372Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "9497b4478108d701030d501e8a1eda22f976aeb0a5cbbfe896b59d0378f782fc",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"fieldMappings\":[{\"targetField\":\"FirstName\",\"sourceFields\":[\"fullName\"],\"transformationType\":\"split\",\"transformationRule\":\"split fullName into FirstName and LastName\",\"defaultValue\":\"\"},{\"targetField\":\"LastName\",\"sourceFields\":[\"fullName\"],\"transformationType\":\"split\",\"transformationRule\":\"split fullName into FirstName and LastName\",\"defaultValue\":\"\"},{\"targetField\":\"Email\",\"sourceFields\":[\"email\"],\"transformationType\":\"direct\",\"transformationRule\":\"\",\"defaultValue\":\"\"},{\"targetField\":\"Phone\",\"sourceFields\":[\"phoneNumber\"],\"transformationType\":\"direct\",\"transformationRule\":\"\",\"defaultValue\":\"\"},{\"targetField\":\"Status__c\",\"sourceFields\":[\"status\"],\"transformationType\":\"convert\",\"transformationRule\":\"map A→Active, I→Inactive, P→Pending\",\"defaultValue\":\"Pending\"},{\"targetField\":\"AccountId\",\"sourceFields\":[\"companyId\"],\"transformationType\":\"direct\",\"transformationRule\":\"\",\"defaultValue\":\"\"}],\"reasoning\":\"The mappings are designed to ensure that all required fields in the target schema are populated using the available fields in the source schema. The fullName field is split into FirstName and LastName, while the status field is converted to match the target's enumeration. Direct mappings are used for email, phoneNumber, and companyId, ensuring a straightforward transformation.\",\"confidence\":0.85,\"missingContext\":[\"Clarification on how to split fullName into FirstName and LastName (e.g., is there a specific delimiter?)\"],\"response\":\"Mapping strategy created successfully.\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"_signature\":{\"signature\":\"304402206e0236bfdbed687d7b16df8a301b86b6ae40cefe9a34bc64c920f5943357965d02201a682c7133ac931c02348c0df9567e928d0ca08e4e881e1a0e6a98e50dc50f4a\",\"responseHash\":\"67d2041f5e05fa737f9bcbb9525d19150941441986869eef3d66646fc681e25b\",\"address\":\"14toPEr2eHqkuRqh2zcqg4tgCkXWtpd8t5\",\"publicKey\":\"0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6\",\"timestamp\":\"2025-11-25T16:55:25.372Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SchemaMediatorAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":9508,\"usage\":{\"promptTokens\":5777,\"completionTokens\":340,\"totalTokens\":6117}}}",
+      "ts": "2025-11-25T16:55:25.379Z",
+      "signature": "304402206e0236bfdbed687d7b16df8a301b86b6ae40cefe9a34bc64c920f5943357965d02201a682c7133ac931c02348c0df9567e928d0ca08e4e881e1a0e6a98e50dc50f4a",
+      "publicKey": "0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6",
+      "originalHash": "67d2041f5e05fa737f9bcbb9525d19150941441986869eef3d66646fc681e25b",
+      "verified": true,
+      "textHash": "67d2041f5e05fa737f9bcbb9525d19150941441986869eef3d66646fc681e25b"
+    },
+    {
+      "role": "user",
+      "text": "Transform this SOURCE data using the MAPPING STRATEGY to produce TARGET data.\n\nSOURCE DATA:\n{\n  \"FirstName\": \"Bob\"\n}\n\nMAPPING STRATEGY:\n[\n  {\n    \"targetField\": \"fullName\",\n    \"sourceFields\": [\n      \"FirstName\",\n      \"LastName\"\n    ],\n    \"transformationType\": \"combine\",\n    \"transformationRule\": \"concatenate with space\",\n    \"defaultValue\": \"\"\n  },\n  {\n    \"targetField\": \"email\",\n    \"sourceFields\": [\n      \"Email\"\n    ],\n    \"transformationType\": \"direct\",\n    \"transformationRule\": \"\",\n    \"defaultValue\": \"\"\n  },\n  {\n    \"targetField\": \"phoneNumber\",\n    \"sourceFields\": [\n      \"Phone\"\n    ],\n    \"transformationType\": \"direct\",\n    \"transformationRule\": \"\",\n    \"defaultValue\": \"\"\n  },\n  {\n    \"targetField\": \"status\",\n    \"sourceFields\": [\n      \"Status__c\"\n    ],\n    \"transformationType\": \"convert\",\n    \"transformationRule\": \"map Active→A, Inactive→I, Pending→P\",\n    \"defaultValue\": \"P\"\n  },\n  {\n    \"targetField\": \"companyId\",\n    \"sourceFields\": [\n      \"AccountId\"\n    ],\n    \"transformationType\": \"direct\",\n    \"transformationRule\": \"\",\n    \"defaultValue\": \"\"\n  }\n]\n\nApply each mapping rule precisely:\n- direct: copy field as-is\n- combine: merge multiple fields (follow the rule)\n- split: break one field into multiple\n- convert: apply value transformation (follow the rule)\n- default: use the default value\n\nProduce the complete transformed object.",
+      "ts": "2025-11-25T16:55:31.319Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "7737599018599cb26a53531f966c0ca44e38780f3681d5bc4a7bbcf0c643bda7",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"transformedData\":{\"fullName\":\"\",\"email\":\"\",\"phoneNumber\":\"\",\"status\":\"P\",\"companyId\":\"\"},\"appliedMappings\":[{\"targetField\":\"fullName\",\"success\":false,\"usedDefault\":true},{\"targetField\":\"email\",\"success\":false,\"usedDefault\":true},{\"targetField\":\"phoneNumber\",\"success\":false,\"usedDefault\":true},{\"targetField\":\"status\",\"success\":true,\"usedDefault\":false},{\"targetField\":\"companyId\",\"success\":false,\"usedDefault\":true}],\"missingContext\":[\"LastName is required to combine with FirstName for fullName.\",\"Email is required for the email field.\",\"Phone is required for the phoneNumber field.\",\"companyId is required for the companyId field.\"],\"response\":\"Transformation completed with missing fields.\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"_signature\":{\"signature\":\"304402206ccfa5df8073e77901453d433943d40d47502abca8caa89b32b0253af3ee060b022066dfdc89ad743a3b34b8171bdd62affd0f35c6faf545d937f5add57085c43597\",\"responseHash\":\"66099a2758a4a1178e65f8ae34c0ab16fc413297d84f4ff3b3e4aca72418c970\",\"address\":\"14toPEr2eHqkuRqh2zcqg4tgCkXWtpd8t5\",\"publicKey\":\"0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6\",\"timestamp\":\"2025-11-25T16:55:31.319Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SchemaMediatorAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":5523,\"usage\":{\"promptTokens\":6447,\"completionTokens\":174,\"totalTokens\":6621}}}",
+      "ts": "2025-11-25T16:55:31.330Z",
+      "signature": "304402206ccfa5df8073e77901453d433943d40d47502abca8caa89b32b0253af3ee060b022066dfdc89ad743a3b34b8171bdd62affd0f35c6faf545d937f5add57085c43597",
+      "publicKey": "0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6",
+      "originalHash": "66099a2758a4a1178e65f8ae34c0ab16fc413297d84f4ff3b3e4aca72418c970",
+      "verified": true,
+      "textHash": "66099a2758a4a1178e65f8ae34c0ab16fc413297d84f4ff3b3e4aca72418c970"
+    },
+    {
+      "role": "user",
+      "text": "Validate that this DATA matches this SCHEMA:\n\nDATA:\n{\n  \"fullName\": \"\",\n  \"email\": \"\",\n  \"phoneNumber\": \"\",\n  \"status\": \"P\",\n  \"companyId\": \"\"\n}\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"fullName\": {\n      \"type\": \"string\"\n    },\n    \"email\": {\n      \"type\": \"string\"\n    },\n    \"phoneNumber\": {\n      \"type\": \"string\"\n    },\n    \"status\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"A\",\n        \"I\",\n        \"P\"\n      ]\n    },\n    \"companyId\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"fullName\",\n    \"email\",\n    \"status\"\n  ]\n}\n\nCheck:\n- All required fields are present\n- All fields match the expected type\n- Enum values are valid\n- Nested objects match nested schemas",
+      "ts": "2025-11-25T16:55:41.746Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "f1d2251034680a359101c862e5f289a575be14c4badce3a98707b44d94852a1a",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"valid\":false,\"errors\":[\"fullName is required and cannot be an empty string.\",\"email is required and cannot be an empty string.\"],\"warnings\":[],\"response\":\"Validation failed. The data does not match the schema due to missing required fields.\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"missingContext\":[],\"_signature\":{\"signature\":\"3045022100c69488b9a2b4786f300bafcb75cb4997b184179a8140ebe32c130a4fcbf283e702205f2bf606b75a032a4bd300536333b2982ee65b70ccaf05853eb6cc695be71dc8\",\"responseHash\":\"cba3c0b2c37a15071cd877e3e8fa310b272e427a677f2e709caa8bbb8eb9b1d8\",\"address\":\"14toPEr2eHqkuRqh2zcqg4tgCkXWtpd8t5\",\"publicKey\":\"0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6\",\"timestamp\":\"2025-11-25T16:55:41.746Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SchemaMediatorAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":9627,\"usage\":{\"promptTokens\":7005,\"completionTokens\":363,\"totalTokens\":7368}}}",
+      "ts": "2025-11-25T16:55:41.752Z",
+      "signature": "3045022100c69488b9a2b4786f300bafcb75cb4997b184179a8140ebe32c130a4fcbf283e702205f2bf606b75a032a4bd300536333b2982ee65b70ccaf05853eb6cc695be71dc8",
+      "publicKey": "0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6",
+      "originalHash": "cba3c0b2c37a15071cd877e3e8fa310b272e427a677f2e709caa8bbb8eb9b1d8",
+      "verified": true,
+      "textHash": "cba3c0b2c37a15071cd877e3e8fa310b272e427a677f2e709caa8bbb8eb9b1d8"
+    },
+    {
+      "role": "user",
+      "text": "You are planning how to transform data from SOURCE schema to TARGET schema.\n\nSOURCE SCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"FirstName\": {\n      \"type\": \"string\"\n    },\n    \"LastName\": {\n      \"type\": \"string\"\n    },\n    \"Email\": {\n      \"type\": \"string\"\n    },\n    \"Phone\": {\n      \"type\": \"string\"\n    },\n    \"Status__c\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"Active\",\n        \"Inactive\",\n        \"Pending\"\n      ]\n    },\n    \"AccountId\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"FirstName\",\n    \"LastName\",\n    \"Email\"\n  ]\n}\n\nTARGET SCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"fullName\": {\n      \"type\": \"string\"\n    },\n    \"email\": {\n      \"type\": \"string\"\n    },\n    \"phoneNumber\": {\n      \"type\": \"string\"\n    },\n    \"status\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"A\",\n        \"I\",\n        \"P\"\n      ]\n    },\n    \"companyId\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"fullName\",\n    \"email\",\n    \"status\"\n  ]\n}\n\n\n\nCreate a mapping strategy that specifies:\n1. For each TARGET field, which SOURCE field(s) to use\n2. What transformation type: direct, combine, split, convert, or default\n3. Any conversion rules (e.g., \"Active\" → \"A\")\n4. Default values for fields with no source\n5. What context is missing for a perfect mapping",
+      "ts": "2025-11-25T16:55:49.603Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "cc7511d67a10250804f8601713a4e1cc35fd6a68706fe66a212811642057e06e",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"fieldMappings\":[{\"targetField\":\"fullName\",\"sourceFields\":[\"FirstName\",\"LastName\"],\"transformationType\":\"combine\",\"transformationRule\":\"concatenate with space\",\"defaultValue\":\"\"},{\"targetField\":\"email\",\"sourceFields\":[\"Email\"],\"transformationType\":\"direct\",\"transformationRule\":\"\",\"defaultValue\":\"\"},{\"targetField\":\"phoneNumber\",\"sourceFields\":[\"Phone\"],\"transformationType\":\"direct\",\"transformationRule\":\"\",\"defaultValue\":\"\"},{\"targetField\":\"status\",\"sourceFields\":[\"Status__c\"],\"transformationType\":\"convert\",\"transformationRule\":\"map Active→A, Inactive→I, Pending→P\",\"defaultValue\":\"P\"},{\"targetField\":\"companyId\",\"sourceFields\":[\"AccountId\"],\"transformationType\":\"direct\",\"transformationRule\":\"\",\"defaultValue\":\"\"}],\"reasoning\":\"The mappings are designed to ensure that all required fields in the target schema are populated using the available fields in the source schema. Combining FirstName and LastName into fullName provides a complete representation of the user's name. The status field is converted to a shorter representation as specified, and defaults are provided where necessary.\",\"confidence\":0.9,\"missingContext\":[],\"response\":\"Mapping strategy created successfully.\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"_signature\":{\"signature\":\"304402204fd8967b40cef92e84389ba19e5b31fd3ee84b0b350df46bb87e56decdface74022010923fe06d22e26dbfc8f9e7a7b8550644ea83d19c9ac3097137f4d37374b9b5\",\"responseHash\":\"3068348ffb2141c5d56d82867fc33e881721d04e3372971bd0798139846332c6\",\"address\":\"14toPEr2eHqkuRqh2zcqg4tgCkXWtpd8t5\",\"publicKey\":\"0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6\",\"timestamp\":\"2025-11-25T16:55:49.603Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SchemaMediatorAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":7031,\"usage\":{\"promptTokens\":8172,\"completionTokens\":270,\"totalTokens\":8442}}}",
+      "ts": "2025-11-25T16:55:49.611Z",
+      "signature": "304402204fd8967b40cef92e84389ba19e5b31fd3ee84b0b350df46bb87e56decdface74022010923fe06d22e26dbfc8f9e7a7b8550644ea83d19c9ac3097137f4d37374b9b5",
+      "publicKey": "0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6",
+      "originalHash": "3068348ffb2141c5d56d82867fc33e881721d04e3372971bd0798139846332c6",
+      "verified": true,
+      "textHash": "3068348ffb2141c5d56d82867fc33e881721d04e3372971bd0798139846332c6"
+    },
+    {
+      "role": "user",
+      "text": "Transform this SOURCE data using the MAPPING STRATEGY to produce TARGET data.\n\nSOURCE DATA:\n{\n  \"FirstName\": \"Jane\",\n  \"LastName\": \"Smith\",\n  \"Email\": \"jane.smith@example.com\",\n  \"Phone\": \"+1-555-0123\",\n  \"Status__c\": \"Active\",\n  \"AccountId\": \"ACC-12345\"\n}\n\nMAPPING STRATEGY:\n[\n  {\n    \"targetField\": \"fullName\",\n    \"sourceFields\": [\n      \"FirstName\",\n      \"LastName\"\n    ],\n    \"transformationType\": \"combine\",\n    \"transformationRule\": \"concatenate with space\",\n    \"defaultValue\": \"\"\n  },\n  {\n    \"targetField\": \"email\",\n    \"sourceFields\": [\n      \"Email\"\n    ],\n    \"transformationType\": \"direct\",\n    \"transformationRule\": \"\",\n    \"defaultValue\": \"\"\n  },\n  {\n    \"targetField\": \"phoneNumber\",\n    \"sourceFields\": [\n      \"Phone\"\n    ],\n    \"transformationType\": \"direct\",\n    \"transformationRule\": \"\",\n    \"defaultValue\": \"\"\n  },\n  {\n    \"targetField\": \"status\",\n    \"sourceFields\": [\n      \"Status__c\"\n    ],\n    \"transformationType\": \"convert\",\n    \"transformationRule\": \"map Active→A, Inactive→I, Pending→P\",\n    \"defaultValue\": \"P\"\n  },\n  {\n    \"targetField\": \"companyId\",\n    \"sourceFields\": [\n      \"AccountId\"\n    ],\n    \"transformationType\": \"direct\",\n    \"transformationRule\": \"\",\n    \"defaultValue\": \"\"\n  }\n]\n\nApply each mapping rule precisely:\n- direct: copy field as-is\n- combine: merge multiple fields (follow the rule)\n- split: break one field into multiple\n- convert: apply value transformation (follow the rule)\n- default: use the default value\n\nProduce the complete transformed object.",
+      "ts": "2025-11-25T16:55:53.974Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "a205e523224803ebd1d429e92efdf249adfe66812989976661ef012a2ea643da",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"transformedData\":{\"fullName\":\"Jane Smith\",\"email\":\"jane.smith@example.com\",\"phoneNumber\":\"+1-555-0123\",\"status\":\"A\",\"companyId\":\"ACC-12345\"},\"appliedMappings\":[{\"targetField\":\"fullName\",\"success\":true,\"usedDefault\":false},{\"targetField\":\"email\",\"success\":true,\"usedDefault\":false},{\"targetField\":\"phoneNumber\",\"success\":true,\"usedDefault\":false},{\"targetField\":\"status\",\"success\":true,\"usedDefault\":false},{\"targetField\":\"companyId\",\"success\":true,\"usedDefault\":false}],\"missingContext\":[],\"response\":\"Transformation completed successfully.\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"_signature\":{\"signature\":\"3044022063b3bf6ff3f50ba830ef1563ffaacb3b7d5eff60b87dd030895cf34c66ddfad302206326d7ac1cc38c37d60961c691281123fd9d230bc707ae8ff5aac6085d52690b\",\"responseHash\":\"e4f004182b8db8bcb31a54be3609d38497ebe5580234fe610408d01655e61b5b\",\"address\":\"14toPEr2eHqkuRqh2zcqg4tgCkXWtpd8t5\",\"publicKey\":\"0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6\",\"timestamp\":\"2025-11-25T16:55:53.974Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SchemaMediatorAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":3814,\"usage\":{\"promptTokens\":8819,\"completionTokens\":153,\"totalTokens\":8972}}}",
+      "ts": "2025-11-25T16:55:54.008Z",
+      "signature": "3044022063b3bf6ff3f50ba830ef1563ffaacb3b7d5eff60b87dd030895cf34c66ddfad302206326d7ac1cc38c37d60961c691281123fd9d230bc707ae8ff5aac6085d52690b",
+      "publicKey": "0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6",
+      "originalHash": "e4f004182b8db8bcb31a54be3609d38497ebe5580234fe610408d01655e61b5b",
+      "verified": true,
+      "textHash": "e4f004182b8db8bcb31a54be3609d38497ebe5580234fe610408d01655e61b5b"
+    },
+    {
+      "role": "user",
+      "text": "Validate that this DATA matches this SCHEMA:\n\nDATA:\n{\n  \"fullName\": \"Jane Smith\",\n  \"email\": \"jane.smith@example.com\",\n  \"phoneNumber\": \"+1-555-0123\",\n  \"status\": \"A\",\n  \"companyId\": \"ACC-12345\"\n}\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"fullName\": {\n      \"type\": \"string\"\n    },\n    \"email\": {\n      \"type\": \"string\"\n    },\n    \"phoneNumber\": {\n      \"type\": \"string\"\n    },\n    \"status\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"A\",\n        \"I\",\n        \"P\"\n      ]\n    },\n    \"companyId\": {\n      \"type\": \"string\"\n    }\n  },\n  \"required\": [\n    \"fullName\",\n    \"email\",\n    \"status\"\n  ]\n}\n\nCheck:\n- All required fields are present\n- All fields match the expected type\n- Enum values are valid\n- Nested objects match nested schemas",
+      "ts": "2025-11-25T16:56:00.799Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "7989710bcd26b40fa4368b1f8a342955649301708f117d3533f6c6d6b900ac5e",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"valid\":true,\"errors\":[],\"warnings\":[],\"response\":\"Validation completed successfully. The data matches the schema.\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"missingContext\":[],\"_signature\":{\"signature\":\"3045022100c71a2a7cbfd11ac649e5774bbd26e01b30f59456bfb30033b30db38213efd37d022025aac8d1ba53873a8a00b62c8b189f5ffafd0e2fbebc008eaf43cc91d5530b50\",\"responseHash\":\"5ac13de59c51e2ef3ff5580ba924030df91b9847051861a7e4fdb61749fabef4\",\"address\":\"14toPEr2eHqkuRqh2zcqg4tgCkXWtpd8t5\",\"publicKey\":\"0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6\",\"timestamp\":\"2025-11-25T16:56:00.799Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SchemaMediatorAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":6445,\"usage\":{\"promptTokens\":9376,\"completionTokens\":334,\"totalTokens\":9710}}}",
+      "ts": "2025-11-25T16:56:00.810Z",
+      "signature": "3045022100c71a2a7cbfd11ac649e5774bbd26e01b30f59456bfb30033b30db38213efd37d022025aac8d1ba53873a8a00b62c8b189f5ffafd0e2fbebc008eaf43cc91d5530b50",
+      "publicKey": "0387c1d2dfb7378f8bdc3654a2cf13fa177713f2fde1ad4e758d0179ad165083d6",
+      "originalHash": "5ac13de59c51e2ef3ff5580ba924030df91b9847051861a7e4fdb61749fabef4",
+      "verified": true,
+      "textHash": "5ac13de59c51e2ef3ff5580ba924030df91b9847051861a7e4fdb61749fabef4"
+    },
+    {
+      "role": "user",
+      "text": "You are planning how to transform data from SOURCE schema to TARGET schema.\n\nSOURCE SCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"FirstName\": {\n      \"type\": \"string\"\n    },\n    \"LastName\": {\n      \"type\": \"string\"\n    },\n    \"Email\": {\n      \"type\": \"string\"\n    },\n    \"Phone\": {\n      \"type\": \"string\"\n    },\n    \"Status__c\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"Active\",\n        \"Inactive\",\n        \"Pending\"\n      ]\n    }\n  },\n  \"required\": [\n    \"FirstName\",\n    \"LastName\",\n    \"Email\"\n  ]\n}\n\nTARGET SCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"fullName\": {\n      \"type\": \"string\"\n    },\n    \"email\": {\n      \"type\": \"string\"\n    },\n    \"phoneNumber\": {\n      \"type\": \"string\"\n    },\n    \"status\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"A\",\n        \"I\",\n        \"P\"\n      ]\n    }\n  },\n  \"required\": [\n    \"fullName\",\n    \"email\",\n    \"status\"\n  ]\n}\n\n\nMAPPING HINTS:\n{\n  \"Status__c to status\": \"Map Active→A, Inactive→I, Pending→P\"\n}\n\nCreate a mapping strategy that specifies:\n1. For each TARGET field, which SOURCE field(s) to use\n2. What transformation type: direct, combine, split, convert, or default\n3. Any conversion rules (e.g., \"Active\" → \"A\")\n4. Default values for fields with no source\n5. What context is missing for a perfect mapping",
+      "ts": "2025-11-25T17:03:25.229Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "371fa63228f4a72849964e97604e9c508cdbb30c7e6031af1e83671d85daf346",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"fieldMappings\":[{\"targetField\":\"fullName\",\"sourceFields\":[\"FirstName\",\"LastName\"],\"transformationType\":\"combine\",\"transformationRule\":\"concatenate with space\",\"defaultValue\":\"\"},{\"targetField\":\"email\",\"sourceFields\":[\"Email\"],\"transformationType\":\"direct\",\"transformationRule\":\"\",\"defaultValue\":\"\"},{\"targetField\":\"phoneNumber\",\"sourceFields\":[\"Phone\"],\"transformationType\":\"direct\",\"transformationRule\":\"\",\"defaultValue\":\"\"},{\"targetField\":\"status\",\"sourceFields\":[\"Status__c\"],\"transformationType\":\"convert\",\"transformationRule\":\"map Active→A, Inactive→I, Pending→P\",\"defaultValue\":\"P\"}],\"reasoning\":\"The mappings are designed to ensure that all required fields in the target schema are populated using the available fields in the source schema. Combining FirstName and LastName into fullName provides a complete representation of the user's name. The status field is converted to a shorter representation as specified, and defaults are provided where necessary.\",\"confidence\":0.95,\"missingContext\":[],\"response\":\"Mapping strategy created successfully.\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"_signature\":{\"signature\":\"304402205f88165cc617784fe734f98266a502e99e8ff4404748871ced89c40aa400328e022024cd51b3b6d87a97f68c6d35bcb35df9a1731ce2f88ef30e70199872af281856\",\"responseHash\":\"8bfc5d986e66ddf7ab0819fdf8c4784555f80012a9fc04084906a840a3568065\",\"address\":\"1CekyXPwPzR8X7L8XXiW7Bkpn5PWDhgVLV\",\"publicKey\":\"0398ef4a9fb486dfe071825290b42c51baeed80931e6d9cc7c7ac747a93d20f1c0\",\"timestamp\":\"2025-11-25T17:03:25.229Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SchemaMediatorAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":14300,\"usage\":{\"promptTokens\":10516,\"completionTokens\":525,\"totalTokens\":11041}}}",
+      "ts": "2025-11-25T17:03:25.260Z",
+      "signature": "304402205f88165cc617784fe734f98266a502e99e8ff4404748871ced89c40aa400328e022024cd51b3b6d87a97f68c6d35bcb35df9a1731ce2f88ef30e70199872af281856",
+      "publicKey": "0398ef4a9fb486dfe071825290b42c51baeed80931e6d9cc7c7ac747a93d20f1c0",
+      "originalHash": "8bfc5d986e66ddf7ab0819fdf8c4784555f80012a9fc04084906a840a3568065",
+      "verified": true,
+      "textHash": "8bfc5d986e66ddf7ab0819fdf8c4784555f80012a9fc04084906a840a3568065"
+    },
+    {
+      "role": "user",
+      "text": "Transform this SOURCE data using the MAPPING STRATEGY to produce TARGET data.\n\nSOURCE DATA:\n{\n  \"FirstName\": \"Alice\",\n  \"LastName\": \"Johnson\",\n  \"Email\": \"alice.johnson@example.com\",\n  \"Phone\": \"+1-555-1234\",\n  \"Status__c\": \"Active\"\n}\n\nMAPPING STRATEGY:\n[\n  {\n    \"targetField\": \"fullName\",\n    \"sourceFields\": [\n      \"FirstName\",\n      \"LastName\"\n    ],\n    \"transformationType\": \"combine\",\n    \"transformationRule\": \"concatenate with space\",\n    \"defaultValue\": \"\"\n  },\n  {\n    \"targetField\": \"email\",\n    \"sourceFields\": [\n      \"Email\"\n    ],\n    \"transformationType\": \"direct\",\n    \"transformationRule\": \"\",\n    \"defaultValue\": \"\"\n  },\n  {\n    \"targetField\": \"phoneNumber\",\n    \"sourceFields\": [\n      \"Phone\"\n    ],\n    \"transformationType\": \"direct\",\n    \"transformationRule\": \"\",\n    \"defaultValue\": \"\"\n  },\n  {\n    \"targetField\": \"status\",\n    \"sourceFields\": [\n      \"Status__c\"\n    ],\n    \"transformationType\": \"convert\",\n    \"transformationRule\": \"map Active→A, Inactive→I, Pending→P\",\n    \"defaultValue\": \"P\"\n  }\n]\n\nApply each mapping rule precisely:\n- direct: copy field as-is\n- combine: merge multiple fields (follow the rule)\n- split: break one field into multiple\n- convert: apply value transformation (follow the rule)\n- default: use the default value\n\nProduce the complete transformed object.",
+      "ts": "2025-11-25T17:03:29.523Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "9507ef351f7910a48ba43e3611e63172a096a61723fe924e69b0e50d9be18ae8",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"transformedData\":{\"fullName\":\"Alice Johnson\",\"email\":\"alice.johnson@example.com\",\"phoneNumber\":\"+1-555-1234\",\"status\":\"A\"},\"appliedMappings\":[{\"targetField\":\"fullName\",\"success\":true,\"usedDefault\":false},{\"targetField\":\"email\",\"success\":true,\"usedDefault\":false},{\"targetField\":\"phoneNumber\",\"success\":true,\"usedDefault\":false},{\"targetField\":\"status\",\"success\":true,\"usedDefault\":false}],\"missingContext\":[],\"response\":\"Transformation completed successfully.\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"_signature\":{\"signature\":\"304402206f98c5119a661d49048bc1189ec3d4e33706dfa294732d2e792a5df870c9e648022031c1da85650e3ff56f6546eea9cbdc5bb04b8910a2cb4d62b88afccf385fd698\",\"responseHash\":\"6a963382a01cc214a5da7411865d290dba36cf2f927ed5dcc657aa3979e157ec\",\"address\":\"1CekyXPwPzR8X7L8XXiW7Bkpn5PWDhgVLV\",\"publicKey\":\"0398ef4a9fb486dfe071825290b42c51baeed80931e6d9cc7c7ac747a93d20f1c0\",\"timestamp\":\"2025-11-25T17:03:29.523Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SchemaMediatorAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":3690,\"usage\":{\"promptTokens\":11072,\"completionTokens\":130,\"totalTokens\":11202}}}",
+      "ts": "2025-11-25T17:03:29.533Z",
+      "signature": "304402206f98c5119a661d49048bc1189ec3d4e33706dfa294732d2e792a5df870c9e648022031c1da85650e3ff56f6546eea9cbdc5bb04b8910a2cb4d62b88afccf385fd698",
+      "publicKey": "0398ef4a9fb486dfe071825290b42c51baeed80931e6d9cc7c7ac747a93d20f1c0",
+      "originalHash": "6a963382a01cc214a5da7411865d290dba36cf2f927ed5dcc657aa3979e157ec",
+      "verified": true,
+      "textHash": "6a963382a01cc214a5da7411865d290dba36cf2f927ed5dcc657aa3979e157ec"
+    },
+    {
+      "role": "user",
+      "text": "Validate that this DATA matches this SCHEMA:\n\nDATA:\n{\n  \"fullName\": \"Alice Johnson\",\n  \"email\": \"alice.johnson@example.com\",\n  \"phoneNumber\": \"+1-555-1234\",\n  \"status\": \"A\"\n}\n\nSCHEMA:\n{\n  \"type\": \"object\",\n  \"properties\": {\n    \"fullName\": {\n      \"type\": \"string\"\n    },\n    \"email\": {\n      \"type\": \"string\"\n    },\n    \"phoneNumber\": {\n      \"type\": \"string\"\n    },\n    \"status\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"A\",\n        \"I\",\n        \"P\"\n      ]\n    }\n  },\n  \"required\": [\n    \"fullName\",\n    \"email\",\n    \"status\"\n  ]\n}\n\nCheck:\n- All required fields are present\n- All fields match the expected type\n- Enum values are valid\n- Nested objects match nested schemas",
+      "ts": "2025-11-25T17:03:38.334Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "cec9be950df2f0740e2da4a8564fd21df45513bcdd7726e985e672a89c540327",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"valid\":true,\"errors\":[],\"warnings\":[],\"response\":\"Validation completed successfully. The data matches the schema.\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"missingContext\":[],\"_signature\":{\"signature\":\"30440220677e8982b8e615c6c614dcf62f5c2f6581d636a755fe9e1d4c48e7f8d6a6071502206e1708c636b597507cb6795b22f551e2e99df08b6aa314b415223649db06a2d1\",\"responseHash\":\"1ee43ce7247d8e38a4a3012065ca155eab445ab50cf9160113f77f3366efd411\",\"address\":\"1CekyXPwPzR8X7L8XXiW7Bkpn5PWDhgVLV\",\"publicKey\":\"0398ef4a9fb486dfe071825290b42c51baeed80931e6d9cc7c7ac747a93d20f1c0\",\"timestamp\":\"2025-11-25T17:03:38.334Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SchemaMediatorAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":7970,\"usage\":{\"promptTokens\":11582,\"completionTokens\":336,\"totalTokens\":11918}}}",
+      "ts": "2025-11-25T17:03:38.346Z",
+      "signature": "30440220677e8982b8e615c6c614dcf62f5c2f6581d636a755fe9e1d4c48e7f8d6a6071502206e1708c636b597507cb6795b22f551e2e99df08b6aa314b415223649db06a2d1",
+      "publicKey": "0398ef4a9fb486dfe071825290b42c51baeed80931e6d9cc7c7ac747a93d20f1c0",
+      "originalHash": "1ee43ce7247d8e38a4a3012065ca155eab445ab50cf9160113f77f3366efd411",
+      "verified": true,
+      "textHash": "1ee43ce7247d8e38a4a3012065ca155eab445ab50cf9160113f77f3366efd411"
+    },
+    {
+      "role": "user",
+      "text": "Analyze this data and generate a JSON Schema that describes its structure:\n\n{\n  \"orderId\": 12345,\n  \"customer\": \"John Doe\",\n  \"total\": 199.99,\n  \"isPaid\": true,\n  \"items\": [\n    \"Widget A\",\n    \"Widget B\"\n  ]\n}\n\nGenerate a complete JSON Schema with:\n- type, properties, required fields\n- appropriate data types (string, number, boolean, object, array)\n- descriptions for each field based on the data",
+      "ts": "2025-11-25T17:08:52.716Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "8732f75b9c0c6620c4511fee0e7442f7e6940e105485a2cc21fd005b91d79242",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"schema\":{\"type\":\"object\",\"properties\":{\"orderId\":{\"type\":\"integer\",\"description\":\"Unique identifier for the order.\"},\"customer\":{\"type\":\"string\",\"description\":\"Name of the customer who placed the order.\"},\"total\":{\"type\":\"number\",\"description\":\"Total amount for the order.\"},\"isPaid\":{\"type\":\"boolean\",\"description\":\"Indicates whether the order has been paid.\"},\"items\":{\"type\":\"array\",\"items\":{\"type\":\"string\"},\"description\":\"List of items included in the order.\"}},\"required\":[\"orderId\",\"customer\",\"total\",\"isPaid\",\"items\"]},\"confidence\":0.95,\"assumptions\":[\"The 'orderId' field is an integer based on the provided data.\",\"The 'customer' field is a string representing the customer's name.\",\"The 'total' field is a number indicating the total cost of the order.\",\"The 'isPaid' field is a boolean indicating payment status.\",\"The 'items' field is an array of strings representing the items ordered.\"],\"response\":\"JSON Schema generated successfully.\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"missingContext\":[],\"_signature\":{\"signature\":\"3044022067e9b3f19a99e032d6a4a818257bd7df40b42368129315cd73c0d0eac02a14fa022031b5aa4a7e3aabc20488fd789ef8068796c0f74c0c7342a8999d58ced65bbd97\",\"responseHash\":\"6f923ab144e6176424abb0e1ce2df9879e69ceb429517182b93c371b98d4aa8a\",\"address\":\"1CekyXPwPzR8X7L8XXiW7Bkpn5PWDhgVLV\",\"publicKey\":\"0398ef4a9fb486dfe071825290b42c51baeed80931e6d9cc7c7ac747a93d20f1c0\",\"timestamp\":\"2025-11-25T17:08:52.716Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SchemaMediatorAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":313578,\"usage\":{\"promptTokens\":12092,\"completionTokens\":517,\"totalTokens\":12609}}}",
+      "ts": "2025-11-25T17:08:52.725Z",
+      "signature": "3044022067e9b3f19a99e032d6a4a818257bd7df40b42368129315cd73c0d0eac02a14fa022031b5aa4a7e3aabc20488fd789ef8068796c0f74c0c7342a8999d58ced65bbd97",
+      "publicKey": "0398ef4a9fb486dfe071825290b42c51baeed80931e6d9cc7c7ac747a93d20f1c0",
+      "originalHash": "6f923ab144e6176424abb0e1ce2df9879e69ceb429517182b93c371b98d4aa8a",
+      "verified": true,
+      "textHash": "6f923ab144e6176424abb0e1ce2df9879e69ceb429517182b93c371b98d4aa8a"
+    }
+  ],
+  "summaries": [],
+  "totalCount": 32,
+  "lastUpdated": "2025-11-25T17:08:52.741Z",
+  "metadata": {
+    "ownerName": "SchemaMediatorAgent",
+    "maxInteractions": 42,
+    "maxSummaries": 5,
+    "tokenLimit": 100000
+  }
+}
