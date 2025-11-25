@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartLedger Helpers - Demo</title>
+
+  <!-- SmartLedger BSV Library (Required) -->
+  <script src="https://cdn.jsdelivr.net/npm/smartledger-bsv@3.3.5/bsv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/smartledger-bsv@3.3.5/bsv-mnemonic.min.js"></script>
+
+  <!-- SmartLedger Helpers -->
+  <script src="./smartledger-helpers.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 36px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 16px;
+    }
+
+    .section {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-left: 4px solid #667eea;
+    }
+
+    .section h2 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #333;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .input-group input,
+    .input-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e1e8ed;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: monospace;
+    }
+
+    .input-group input:focus,
+    .input-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .output {
+      background: #fff;
+      border: 2px solid #e1e8ed;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 15px;
+      font-family: monospace;
+      font-size: 12px;
+      word-break: break-all;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .output.success {
+      border-color: #10b981;
+      background: #f0fdf4;
+    }
+
+    .output.error {
+      border-color: #ef4444;
+      background: #fef2f2;
+      color: #dc2626;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 5px;
+    }
+
+    .badge.green {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .badge.blue {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #3b82f6;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .info-box h3 {
+      color: #1e40af;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .info-box ul {
+      margin-left: 20px;
+      color: #1e3a8a;
+    }
+
+    .info-box ul li {
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>🔐 SmartLedger Helpers Demo</h1>
+    <p class="subtitle">Complete client-side BSV crypto operations powered by SmartLedger v3.3.5</p>
+
+    <div class="info-box">
+      <h3>📚 Library Information</h3>
+      <div id="libraryInfo"></div>
+    </div>
+
+    <!-- Mnemonic Generation -->
+    <div class="section">
+      <h2>🎲 1. Mnemonic Generation</h2>
+      <div class="button-group">
+        <button onclick="generate24Word()">Generate 24-word Mnemonic</button>
+        <button onclick="generate12Word()">Generate 12-word Mnemonic</button>
+        <button onclick="validateCurrentMnemonic()">Validate Mnemonic</button>
+      </div>
+      <div class="input-group">
+        <label>Generated/Import Mnemonic:</label>
+        <textarea id="mnemonicInput" rows="3" placeholder="Enter or generate mnemonic phrase"></textarea>
+      </div>
+      <div id="mnemonicOutput" class="output" style="display: none;"></div>
+    </div>
+
+    <!-- Key Derivation -->
+    <div class="section">
+      <h2>🔑 2. Key Derivation</h2>
+      <div class="grid">
+        <div class="input-group">
+          <label>Derivation Path:</label>
+          <input type="text" id="derivationPath" value="m/44'/236'/0'/0/0">
+        </div>
+        <div style="display: flex; align-items: flex-end;">
+          <button onclick="deriveKeys()" style="width: 100%;">Derive Keys from Path</button>
+        </div>
+      </div>
+      <div class="button-group">
+        <button onclick="generateDualKeys()">Generate Dual Keys (Identity + Financial)</button>
+      </div>
+      <div id="keysOutput" class="output" style="display: none;"></div>
+    </div>
+
+    <!-- Signing & Verification -->
+    <div class="section">
+      <h2>✍️ 3. Message Signing & Verification</h2>
+      <div class="input-group">
+        <label>Message to Sign:</label>
+        <textarea id="messageInput" rows="3" placeholder="Enter message to sign">Hello, SmartLedger!</textarea>
+      </div>
+      <div class="input-group">
+        <label>WIF Private Key (leave blank to use derived identity key):</label>
+        <input type="text" id="wifInput" placeholder="Optional WIF key">
+      </div>
+      <div class="button-group">
+        <button onclick="signMessage()">Sign Message</button>
+        <button onclick="verifySignature()">Verify Signature</button>
+      </div>
+      <div id="signOutput" class="output" style="display: none;"></div>
+    </div>
+
+    <!-- Encryption -->
+    <div class="section">
+      <h2>🔒 4. Encryption & Decryption</h2>
+      <div class="input-group">
+        <label>Data to Encrypt:</label>
+        <textarea id="encryptInput" rows="3" placeholder="Enter sensitive data">Secret information</textarea>
+      </div>
+      <div class="input-group">
+        <label>Password:</label>
+        <input type="password" id="encryptPassword" placeholder="Encryption password">
+      </div>
+      <div class="button-group">
+        <button onclick="encryptData()">Encrypt Data</button>
+        <button onclick="decryptData()">Decrypt Data</button>
+      </div>
+      <div id="encryptOutput" class="output" style="display: none;"></div>
+    </div>
+
+    <!-- Hashing -->
+    <div class="section">
+      <h2>#️⃣ 5. Hashing</h2>
+      <div class="input-group">
+        <label>Data to Hash:</label>
+        <textarea id="hashInput" rows="3" placeholder="Enter data to hash">Hello, world!</textarea>
+      </div>
+      <div class="button-group">
+        <button onclick="hashData('SHA256')">SHA-256</button>
+        <button onclick="hashData('SHA512')">SHA-512</button>
+        <button onclick="hashData('RIPEMD160')">RIPEMD-160</button>
+      </div>
+      <div id="hashOutput" class="output" style="display: none;"></div>
+    </div>
+
+    <!-- Backup & Restore -->
+    <div class="section">
+      <h2>💾 6. Backup & Restore</h2>
+      <div class="input-group">
+        <label>Backup Password:</label>
+        <input type="password" id="backupPassword" placeholder="Password for backup encryption">
+      </div>
+      <div class="button-group">
+        <button onclick="createBackup()">Create Encrypted Backup</button>
+        <button onclick="downloadBackup()">Download Backup</button>
+        <button onclick="document.getElementById('restoreFile').click()">Restore from File</button>
+        <input type="file" id="restoreFile" accept=".json" style="display: none;" onchange="restoreBackup(event)">
+      </div>
+      <div id="backupOutput" class="output" style="display: none;"></div>
+    </div>
+  </div>
+
+  <script>
+    // Global state
+    let currentKeys = null;
+    let currentBackup = null;
+    let encryptedData = null;
+
+    // Initialize library info
+    function showLibraryInfo() {
+      const info = SLH.getInfo();
+      const html = `
+        <span class="badge ${info.bsvAvailable ? 'green' : 'red'}">
+          BSV: ${info.bsvAvailable ? 'Loaded' : 'Not Loaded'}
+        </span>
+        <span class="badge ${info.mnemonicAvailable ? 'green' : 'red'}">
+          Mnemonic: ${info.mnemonicAvailable ? 'Available' : 'Not Available'}
+        </span>
+        <span class="badge blue">Version: ${info.version}</span>
+        <span class="badge blue">BSV: ${info.bsvVersion}</span>
+      `;
+      document.getElementById('libraryInfo').innerHTML = html;
+    }
+
+    // Mnemonic functions
+    function generate24Word() {
+      const mnemonic = SLH.generateMnemonic(256);
+      document.getElementById('mnemonicInput').value = mnemonic;
+      showOutput('mnemonicOutput', `Generated 24-word mnemonic:\n${mnemonic}`, true);
+    }
+
+    function generate12Word() {
+      const mnemonic = SLH.generateMnemonic(128);
+      document.getElementById('mnemonicInput').value = mnemonic;
+      showOutput('mnemonicOutput', `Generated 12-word mnemonic:\n${mnemonic}`, true);
+    }
+
+    function validateCurrentMnemonic() {
+      const mnemonic = document.getElementById('mnemonicInput').value.trim();
+      if (!mnemonic) {
+        showOutput('mnemonicOutput', 'Please enter a mnemonic to validate', false);
+        return;
+      }
+      const isValid = SLH.validateMnemonic(mnemonic);
+      const wordCount = mnemonic.split(' ').length;
+      showOutput(
+        'mnemonicOutput',
+        `Mnemonic validation: ${isValid ? '✅ VALID' : '❌ INVALID'}\nWord count: ${wordCount}`,
+        isValid
+      );
+    }
+
+    // Key derivation
+    function deriveKeys() {
+      const mnemonic = document.getElementById('mnemonicInput').value.trim();
+      const path = document.getElementById('derivationPath').value.trim();
+
+      if (!mnemonic) {
+        showOutput('keysOutput', 'Please generate or enter a mnemonic first', false);
+        return;
+      }
+
+      try {
+        const keys = SLH.deriveKeysFromMnemonic(mnemonic, path);
+        currentKeys = { identity: keys };
+
+        const output = `
+Keys derived from path: ${path}
+
+Address: ${keys.address}
+Public Key: ${keys.publicKey}
+WIF: ${keys.wif}
+`.trim();
+
+        showOutput('keysOutput', output, true);
+      } catch (error) {
+        showOutput('keysOutput', `Error: ${error.message}`, false);
+      }
+    }
+
+    function generateDualKeys() {
+      const mnemonic = document.getElementById('mnemonicInput').value.trim();
+
+      if (!mnemonic) {
+        showOutput('keysOutput', 'Please generate or enter a mnemonic first', false);
+        return;
+      }
+
+      try {
+        currentKeys = SLH.generateDualKeys(mnemonic);
+
+        const output = `
+🔐 IDENTITY KEYS (m/44'/236'/0'/0/0)
+Address: ${currentKeys.identity.address}
+Public Key: ${currentKeys.identity.publicKey}
+WIF: ${currentKeys.identity.wif}
+
+💰 FINANCIAL KEYS (m/44'/0'/0'/0/0)
+Address: ${currentKeys.financial.address}
+Public Key: ${currentKeys.financial.publicKey}
+WIF: ${currentKeys.financial.wif}
+`.trim();
+
+        showOutput('keysOutput', output, true);
+      } catch (error) {
+        showOutput('keysOutput', `Error: ${error.message}`, false);
+      }
+    }
+
+    // Signing functions
+    function signMessage() {
+      const message = document.getElementById('messageInput').value;
+      let wif = document.getElementById('wifInput').value.trim();
+
+      if (!message) {
+        showOutput('signOutput', 'Please enter a message to sign', false);
+        return;
+      }
+
+      if (!wif) {
+        if (!currentKeys?.identity?.wif) {
+          showOutput('signOutput', 'Please generate keys or enter a WIF private key', false);
+          return;
+        }
+        wif = currentKeys.identity.wif;
+      }
+
+      try {
+        const sigDetails = SLH.signData(message, wif);
+
+        const output = `
+Message signed successfully!
+
+Signature: ${sigDetails.signature}
+Public Key: ${sigDetails.publicKey}
+Address: ${sigDetails.address}
+Timestamp: ${sigDetails.timestamp}
+`.trim();
+
+        showOutput('signOutput', output, true);
+      } catch (error) {
+        showOutput('signOutput', `Error: ${error.message}`, false);
+      }
+    }
+
+    function verifySignature() {
+      const message = document.getElementById('messageInput').value;
+      const signOutputEl = document.getElementById('signOutput');
+      const signatureMatch = signOutputEl.textContent.match(/Signature: (.+)/);
+      const pubKeyMatch = signOutputEl.textContent.match(/Public Key: (.+)/);
+
+      if (!message || !signatureMatch || !pubKeyMatch) {
+        showOutput('signOutput', 'Please sign a message first', false);
+        return;
+      }
+
+      try {
+        const isValid = SLH.verifySignature(message, signatureMatch[1], pubKeyMatch[1]);
+        showOutput(
+          'signOutput',
+          `Signature verification: ${isValid ? '✅ VALID' : '❌ INVALID'}`,
+          isValid
+        );
+      } catch (error) {
+        showOutput('signOutput', `Error: ${error.message}`, false);
+      }
+    }
+
+    // Encryption functions
+    async function encryptData() {
+      const data = document.getElementById('encryptInput').value;
+      const password = document.getElementById('encryptPassword').value;
+
+      if (!data || !password) {
+        showOutput('encryptOutput', 'Please enter both data and password', false);
+        return;
+      }
+
+      try {
+        encryptedData = await SLH.encryptData(data, password);
+        showOutput(
+          'encryptOutput',
+          `Data encrypted successfully!\n\n${JSON.stringify(encryptedData, null, 2)}`,
+          true
+        );
+      } catch (error) {
+        showOutput('encryptOutput', `Error: ${error.message}`, false);
+      }
+    }
+
+    async function decryptData() {
+      const password = document.getElementById('encryptPassword').value;
+
+      if (!encryptedData) {
+        showOutput('encryptOutput', 'Please encrypt some data first', false);
+        return;
+      }
+
+      if (!password) {
+        showOutput('encryptOutput', 'Please enter the password', false);
+        return;
+      }
+
+      try {
+        const decrypted = await SLH.decryptData(encryptedData, password);
+        showOutput('encryptOutput', `Decrypted data:\n\n${decrypted}`, true);
+      } catch (error) {
+        showOutput('encryptOutput', `Decryption failed: ${error.message}`, false);
+      }
+    }
+
+    // Hashing functions
+    async function hashData(algorithm) {
+      const data = document.getElementById('hashInput').value;
+
+      if (!data) {
+        showOutput('hashOutput', 'Please enter data to hash', false);
+        return;
+      }
+
+      try {
+        const hash = await SLH.hash(data, algorithm);
+        showOutput('hashOutput', `${algorithm} Hash:\n\n${hash}`, true);
+      } catch (error) {
+        showOutput('hashOutput', `Error: ${error.message}`, false);
+      }
+    }
+
+    // Backup functions
+    async function createBackup() {
+      const password = document.getElementById('backupPassword').value;
+
+      if (!currentKeys) {
+        showOutput('backupOutput', 'Please generate dual keys first', false);
+        return;
+      }
+
+      if (!password) {
+        showOutput('backupOutput', 'Please enter a backup password', false);
+        return;
+      }
+
+      try {
+        currentBackup = await SLH.createBackup(currentKeys, password);
+        showOutput(
+          'backupOutput',
+          `Backup created successfully!\n\n${JSON.stringify(currentBackup, null, 2)}`,
+          true
+        );
+      } catch (error) {
+        showOutput('backupOutput', `Error: ${error.message}`, false);
+      }
+    }
+
+    function downloadBackup() {
+      if (!currentBackup) {
+        showOutput('backupOutput', 'Please create a backup first', false);
+        return;
+      }
+
+      SLH.downloadBackup(currentBackup, 'smartledger-keys-backup.json');
+      showOutput('backupOutput', 'Backup downloaded!', true);
+    }
+
+    async function restoreBackup(event) {
+      const file = event.target.files[0];
+      const password = document.getElementById('backupPassword').value;
+
+      if (!file) return;
+
+      if (!password) {
+        showOutput('backupOutput', 'Please enter the backup password', false);
+        return;
+      }
+
+      try {
+        const text = await file.text();
+        const backup = JSON.parse(text);
+        const restored = await SLH.restoreBackup(backup, password);
+
+        currentKeys = restored;
+        document.getElementById('mnemonicInput').value = restored.mnemonic;
+
+        const output = `
+Backup restored successfully!
+
+Identity Address: ${restored.identity.address}
+Financial Address: ${restored.financial.address}
+`.trim();
+
+        showOutput('backupOutput', output, true);
+      } catch (error) {
+        showOutput('backupOutput', `Restore failed: ${error.message}`, false);
+      }
+    }
+
+    // Helper function to show output
+    function showOutput(elementId, text, success = true) {
+      const el = document.getElementById(elementId);
+      el.textContent = text;
+      el.style.display = 'block';
+      el.className = success ? 'output success' : 'output error';
+    }
+
+    // Initialize on load
+    window.addEventListener('load', () => {
+      showLibraryInfo();
+      console.log('✅ SmartLedger Helpers Demo ready!');
+      console.log('Available as: SLH or SmartLedgerHelpers');
+    });
+  </script>
+</body>
+</html>

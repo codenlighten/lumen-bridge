@@ -1,0 +1,356 @@
+/**
+ * User Registration & Management Service
+ * Handles user registration, email verification, and tier management
+ */
+
+import crypto from 'crypto';
+import bcrypt from 'bcryptjs';
+import nodemailer from 'nodemailer';
+
+class UserService {
+  constructor(mongoService) {
+    this.db = mongoService;
+    this.collections = {
+      users: 'verified_users',
+      pending: 'pending_users',
+      verificationTokens: 'verification_tokens'
+    };
+    
+    // Email transporter (configure in .env)
+    this.transporter = null;
+    this.initEmailTransporter();
+  }
+
+  /**
+   * Initialize email transporter
+   */
+  initEmailTransporter() {
+    const emailConfig = {
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port: process.env.SMTP_PORT || 587,
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      }
+    };
+
+    if (emailConfig.auth.user && emailConfig.auth.pass) {
+      this.transporter = nodemailer.createTransporter(emailConfig);
+      console.log('✅ Email transporter initialized');
+    } else {
+      console.warn('⚠️  Email not configured. Set SMTP_USER and SMTP_PASS in .env');
+    }
+  }
+
+  /**
+   * Register a new user (pending email verification)
+   * @param {Object} userData - { email, publicKey, password }
+   * @returns {Promise<Object>} Registration result
+   */
+  async registerUser({ email, publicKey, password }) {
+    try {
+      // Validate inputs
+      if (!email || !publicKey || !password) {
+        throw new Error('Email, publicKey, and password are required');
+      }
+
+      // Check if email already exists
+      const existingUser = await this.db.findOne(this.collections.users, { email });
+      if (existingUser) {
+        throw new Error('Email already registered');
+      }
+
+      const existingPending = await this.db.findOne(this.collections.pending, { email });
+      if (existingPending) {
+        throw new Error('Email already pending verification. Check your inbox.');
+      }
+
+      // Check if publicKey already exists
+      const existingPubKey = await this.db.findOne(this.collections.users, { publicKey });
+      if (existingPubKey) {
+        throw new Error('Public key already registered');
+      }
+
+      // Hash password
+      const passwordHash = await bcrypt.hash(password, 10);
+
+      // Generate verification token
+      const verificationToken = crypto.randomBytes(32).toString('hex');
+      const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+      // Create pending user
+      const pendingUser = {
+        email,
+        publicKey,
+        passwordHash,
+        verificationToken,
+        tokenExpiry,
+        createdAt: new Date(),
+        tier: 'free',
+        requestCount: 0,
+        monthlyLimit: 100,
+        resetDate: this.getNextMonthDate()
+      };
+
+      await this.db.insertOne(this.collections.pending, pendingUser);
+
+      // Send verification email
+      await this.sendVerificationEmail(email, verificationToken);
+
+      return {
+        success: true,
+        message: 'Registration successful! Please check your email to verify your account.',
+        email,
+        publicKey
+      };
+    } catch (error) {
+      console.error('[UserService] Registration error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send verification email
+   */
+  async sendVerificationEmail(email, token) {
+    if (!this.transporter) {
+      console.warn('[UserService] Email not configured, skipping verification email');
+      // In development, log the token
+      console.log(`\n📧 Verification URL: ${process.env.BASE_URL || 'http://localhost:3000'}/api/users/verify?token=${token}\n`);
+      return;
+    }
+
+    const verificationUrl = `${process.env.BASE_URL || 'http://localhost:3000'}/api/users/verify?token=${token}`;
+
+    const mailOptions = {
+      from: process.env.SMTP_USER,
+      to: email,
+      subject: '🔐 Verify Your Lumen Bridge Account',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #667eea;">Welcome to Lumen Bridge!</h2>
+          <p>Thank you for registering. Please verify your email address by clicking the button below:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${verificationUrl}" 
+               style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                      color: white;
+                      padding: 15px 30px;
+                      text-decoration: none;
+                      border-radius: 8px;
+                      display: inline-block;
+                      font-weight: bold;">
+              Verify Email Address
+            </a>
+          </div>
+          <p>Or copy and paste this URL into your browser:</p>
+          <p style="background: #f4f4f4; padding: 10px; border-radius: 5px; word-break: break-all;">
+            ${verificationUrl}
+          </p>
+          <p style="color: #666; font-size: 12px; margin-top: 30px;">
+            This link will expire in 24 hours. If you didn't request this, please ignore this email.
+          </p>
+        </div>
+      `
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      console.log(`✅ Verification email sent to ${email}`);
+    } catch (error) {
+      console.error('[UserService] Email send error:', error);
+      throw new Error('Failed to send verification email');
+    }
+  }
+
+  /**
+   * Verify email with token
+   */
+  async verifyEmail(token) {
+    try {
+      const pendingUser = await this.db.findOne(this.collections.pending, { verificationToken: token });
+
+      if (!pendingUser) {
+        throw new Error('Invalid verification token');
+      }
+
+      if (new Date() > pendingUser.tokenExpiry) {
+        throw new Error('Verification token expired');
+      }
+
+      // Move to verified users
+      const verifiedUser = {
+        email: pendingUser.email,
+        publicKey: pendingUser.publicKey,
+        passwordHash: pendingUser.passwordHash,
+        tier: pendingUser.tier,
+        requestCount: 0,
+        monthlyLimit: pendingUser.monthlyLimit,
+        resetDate: pendingUser.resetDate,
+        verifiedAt: new Date(),
+        createdAt: pendingUser.createdAt
+      };
+
+      await this.db.insertOne(this.collections.users, verifiedUser);
+      await this.db.deleteOne(this.collections.pending, { verificationToken: token });
+
+      console.log(`✅ User verified: ${verifiedUser.email}`);
+
+      return {
+        success: true,
+        message: 'Email verified successfully! You can now use your account.',
+        user: {
+          email: verifiedUser.email,
+          publicKey: verifiedUser.publicKey,
+          tier: verifiedUser.tier,
+          monthlyLimit: verifiedUser.monthlyLimit
+        }
+      };
+    } catch (error) {
+      console.error('[UserService] Verification error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get user by public key
+   */
+  async getUserByPublicKey(publicKey) {
+    return await this.db.findOne(this.collections.users, { publicKey });
+  }
+
+  /**
+   * Get user by email
+   */
+  async getUserByEmail(email) {
+    return await this.db.findOne(this.collections.users, { email });
+  }
+
+  /**
+   * Authenticate user (login)
+   */
+  async authenticateUser(email, password) {
+    try {
+      const user = await this.getUserByEmail(email);
+      
+      if (!user) {
+        throw new Error('Invalid email or password');
+      }
+
+      const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+      
+      if (!isValidPassword) {
+        throw new Error('Invalid email or password');
+      }
+
+      return {
+        success: true,
+        user: {
+          email: user.email,
+          publicKey: user.publicKey,
+          tier: user.tier,
+          monthlyLimit: user.monthlyLimit,
+          requestCount: user.requestCount
+        }
+      };
+    } catch (error) {
+      console.error('[UserService] Authentication error:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Increment user request count
+   */
+  async incrementRequestCount(publicKey) {
+    const user = await this.getUserByPublicKey(publicKey);
+    
+    if (!user) return;
+
+    // Check if month has rolled over
+    if (new Date() > user.resetDate) {
+      await this.db.updateOne(
+        this.collections.users,
+        { publicKey },
+        {
+          $set: {
+            requestCount: 1,
+            resetDate: this.getNextMonthDate()
+          }
+        }
+      );
+    } else {
+      await this.db.updateOne(
+        this.collections.users,
+        { publicKey },
+        { $inc: { requestCount: 1 } }
+      );
+    }
+  }
+
+  /**
+   * Upgrade user tier
+   */
+  async upgradeUserTier(publicKey, newTier) {
+    const tierLimits = {
+      free: 100,
+      pro: 10000,
+      enterprise: -1 // unlimited
+    };
+
+    const limit = tierLimits[newTier];
+    if (limit === undefined) {
+      throw new Error('Invalid tier');
+    }
+
+    await this.db.updateOne(
+      this.collections.users,
+      { publicKey },
+      {
+        $set: {
+          tier: newTier,
+          monthlyLimit: limit,
+          upgradedAt: new Date()
+        }
+      }
+    );
+
+    console.log(`✅ User upgraded to ${newTier} tier`);
+  }
+
+  /**
+   * Get next month date for reset
+   */
+  getNextMonthDate() {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  }
+
+  /**
+   * Get user stats
+   */
+  async getUserStats(publicKey) {
+    const user = await this.getUserByPublicKey(publicKey);
+    
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const remaining = user.monthlyLimit === -1 
+      ? 'unlimited' 
+      : user.monthlyLimit - user.requestCount;
+
+    return {
+      email: user.email,
+      publicKey: user.publicKey,
+      tier: user.tier,
+      requestCount: user.requestCount,
+      monthlyLimit: user.monthlyLimit === -1 ? 'unlimited' : user.monthlyLimit,
+      remaining,
+      resetDate: user.resetDate,
+      verifiedAt: user.verifiedAt
+    };
+  }
+}
+
+export default UserService;

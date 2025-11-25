@@ -37,6 +37,7 @@ import { MemoryManager } from "./utilities/MemoryManager.js";
 import { agentRegistry } from "./utilities/AgentRegistry.js";
 import { dbService } from "./utilities/MongoDBService.js";
 import SignatureVerifier from "./utilities/SignatureVerifier.js";
+import UserService from "./utilities/UserService.js";
 
 dotenv.config();
 
@@ -68,6 +69,9 @@ const agents = {
 
 // Initialize schema registry
 const schemaRegistry = new SchemaRegistry();
+
+// Initialize user service
+const userService = new UserService(dbService);
 
 // Initialize database connection and load user agents
 (async () => {
@@ -414,6 +418,218 @@ app.post("/api/auth/verify", (req, res) => {
 		res.status(500).json({
 			success: false,
 			error: "Failed to verify challenge",
+		});
+	}
+});
+
+// ============================================================================
+// USER REGISTRATION & MANAGEMENT
+// ============================================================================
+
+/**
+ * Register a new user
+ * POST /api/users/register
+ * Body: { email: string, publicKey: string, password: string }
+ */
+app.post("/api/users/register", async (req, res) => {
+	try {
+		const { email, publicKey, password } = req.body;
+
+		if (!email || !publicKey || !password) {
+			return res.status(400).json({
+				success: false,
+				error: "Email, publicKey, and password are required"
+			});
+		}
+
+		// Email validation
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		if (!emailRegex.test(email)) {
+			return res.status(400).json({
+				success: false,
+				error: "Invalid email format"
+			});
+		}
+
+		// Password strength check
+		if (password.length < 8) {
+			return res.status(400).json({
+				success: false,
+				error: "Password must be at least 8 characters"
+			});
+		}
+
+		const result = await userService.registerUser({ email, publicKey, password });
+		res.json(result);
+	} catch (error) {
+		console.error("Registration error:", error);
+		res.status(400).json({
+			success: false,
+			error: error.message
+		});
+	}
+});
+
+/**
+ * Verify email with token
+ * GET /api/users/verify?token=xxx
+ */
+app.get("/api/users/verify", async (req, res) => {
+	try {
+		const { token } = req.query;
+
+		if (!token) {
+			return res.status(400).json({
+				success: false,
+				error: "Verification token is required"
+			});
+		}
+
+		const result = await userService.verifyEmail(token);
+		
+		// Redirect to success page or send HTML response
+		res.send(`
+			<!DOCTYPE html>
+			<html>
+			<head>
+				<title>Email Verified</title>
+				<style>
+					body {
+						font-family: Arial, sans-serif;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						min-height: 100vh;
+						margin: 0;
+						background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+					}
+					.container {
+						background: white;
+						padding: 40px;
+						border-radius: 20px;
+						text-align: center;
+						box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+						max-width: 500px;
+					}
+					h1 { color: #667eea; margin-bottom: 20px; }
+					p { color: #666; margin-bottom: 30px; }
+					.success { font-size: 64px; margin-bottom: 20px; }
+					.btn {
+						background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+						color: white;
+						padding: 15px 30px;
+						text-decoration: none;
+						border-radius: 8px;
+						display: inline-block;
+						font-weight: bold;
+					}
+				</style>
+			</head>
+			<body>
+				<div class="container">
+					<div class="success">✅</div>
+					<h1>Email Verified!</h1>
+					<p>Your account has been successfully verified. You can now use the API with your registered public key.</p>
+					<p><strong>Tier:</strong> ${result.user.tier} (${result.user.monthlyLimit} requests/month)</p>
+					<a href="/" class="btn">Return to Home</a>
+				</div>
+			</body>
+			</html>
+		`);
+	} catch (error) {
+		console.error("Verification error:", error);
+		res.status(400).send(`
+			<!DOCTYPE html>
+			<html>
+			<head>
+				<title>Verification Failed</title>
+				<style>
+					body {
+						font-family: Arial, sans-serif;
+						display: flex;
+						justify-content: center;
+						align-items: center;
+						min-height: 100vh;
+						margin: 0;
+						background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+					}
+					.container {
+						background: white;
+						padding: 40px;
+						border-radius: 20px;
+						text-align: center;
+						box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+						max-width: 500px;
+					}
+					h1 { color: #ef4444; margin-bottom: 20px; }
+					p { color: #666; }
+					.error { font-size: 64px; margin-bottom: 20px; }
+				</style>
+			</head>
+			<body>
+				<div class="container">
+					<div class="error">❌</div>
+					<h1>Verification Failed</h1>
+					<p>${error.message}</p>
+				</div>
+			</body>
+			</html>
+		`);
+	}
+});
+
+/**
+ * Login with email and password
+ * POST /api/users/login
+ * Body: { email: string, password: string }
+ */
+app.post("/api/users/login", async (req, res) => {
+	try {
+		const { email, password } = req.body;
+
+		if (!email || !password) {
+			return res.status(400).json({
+				success: false,
+				error: "Email and password are required"
+			});
+		}
+
+		const result = await userService.authenticateUser(email, password);
+		res.json(result);
+	} catch (error) {
+		console.error("Login error:", error);
+		res.status(401).json({
+			success: false,
+			error: error.message
+		});
+	}
+});
+
+/**
+ * Get user stats/profile
+ * GET /api/users/stats?publicKey=xxx
+ */
+app.get("/api/users/stats", async (req, res) => {
+	try {
+		const { publicKey } = req.query;
+
+		if (!publicKey) {
+			return res.status(400).json({
+				success: false,
+				error: "Public key is required"
+			});
+		}
+
+		const stats = await userService.getUserStats(publicKey);
+		res.json({
+			success: true,
+			stats
+		});
+	} catch (error) {
+		console.error("Stats error:", error);
+		res.status(404).json({
+			success: false,
+			error: error.message
 		});
 	}
 });

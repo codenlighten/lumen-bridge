@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - Lumen Bridge</title>
+
+  <!-- SmartLedger BSV Library -->
+  <script src="https://cdn.jsdelivr.net/npm/smartledger-bsv@3.3.5/bsv.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/smartledger-bsv@3.3.5/bsv-mnemonic.min.js"></script>
+  <script src="./smartledger-helpers.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      width: 100%;
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 32px;
+      text-align: center;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .step {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-left: 4px solid #667eea;
+    }
+
+    .step h2 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-number {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e1e8ed;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.3s;
+    }
+
+    .form-group textarea {
+      font-family: monospace;
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-group input[readonly] {
+      background: #f8f9fa;
+      cursor: not-allowed;
+    }
+
+    button {
+      width: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-bottom: 10px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    button.secondary {
+      background: #6b7280;
+    }
+
+    .alert {
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+
+    .alert.success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #10b981;
+    }
+
+    .alert.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #ef4444;
+    }
+
+    .alert.info {
+      background: #dbeafe;
+      color: #1e40af;
+      border: 1px solid #3b82f6;
+    }
+
+    .alert.warning {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #f59e0b;
+    }
+
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #3b82f6;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      color: #1e3a8a;
+    }
+
+    .info-box strong {
+      color: #1e40af;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 20px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .link a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .link a:hover {
+      text-decoration: underline;
+    }
+
+    .backup-warning {
+      background: #fef3c7;
+      border: 2px solid #f59e0b;
+      border-radius: 8px;
+      padding: 15px;
+      margin-top: 15px;
+      font-size: 13px;
+      color: #92400e;
+    }
+
+    .backup-warning strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #78350f;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>🔐 Register for Lumen Bridge</h1>
+    <p class="subtitle">Create your account with client-side key generation</p>
+
+    <div id="alertBox" class="hidden"></div>
+
+    <!-- Step 1: Generate Keys -->
+    <div class="step">
+      <h2><span class="step-number">1</span> Generate Your Keys</h2>
+      <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+        Generate a secure mnemonic phrase and derive your cryptographic keys. Your keys never leave your browser.
+      </p>
+      <button onclick="generateKeys()">🎲 Generate New Keys</button>
+      <button onclick="toggleImport()" class="secondary">📥 Import Existing Mnemonic</button>
+      
+      <div id="importSection" class="hidden" style="margin-top: 15px;">
+        <div class="form-group">
+          <label>Import Mnemonic Phrase:</label>
+          <textarea id="importMnemonic" placeholder="Enter your 12 or 24 word mnemonic phrase"></textarea>
+        </div>
+        <button onclick="importKeys()">Import Keys</button>
+      </div>
+
+      <div id="keysGenerated" class="hidden" style="margin-top: 20px;">
+        <div class="info-box">
+          <strong>✅ Keys Generated Successfully!</strong>
+          <div style="margin-top: 10px;">
+            <div><strong>Address:</strong> <span id="displayAddress"></span></div>
+            <div><strong>Public Key:</strong> <span id="displayPubKey" style="word-break: break-all; font-family: monospace; font-size: 12px;"></span></div>
+          </div>
+        </div>
+
+        <div class="backup-warning">
+          <strong>⚠️ IMPORTANT: Backup Your Mnemonic!</strong>
+          <div id="displayMnemonic" style="font-family: monospace; font-size: 12px; margin: 10px 0; padding: 10px; background: white; border-radius: 4px;"></div>
+          <p style="margin-top: 10px; font-size: 12px;">Write this down and store it safely. You'll need it to recover your account. Never share it with anyone!</p>
+          <button onclick="downloadKeyBackup()" style="width: auto; padding: 8px 16px; font-size: 14px; margin-top: 10px;">
+            💾 Download Encrypted Backup
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Registration -->
+    <div class="step">
+      <h2><span class="step-number">2</span> Complete Registration</h2>
+      
+      <form id="registrationForm" onsubmit="handleRegistration(event)">
+        <div class="form-group">
+          <label>Email Address:</label>
+          <input type="email" id="email" required placeholder="your@email.com">
+        </div>
+
+        <div class="form-group">
+          <label>Password:</label>
+          <input type="password" id="password" required placeholder="Minimum 8 characters" minlength="8">
+        </div>
+
+        <div class="form-group">
+          <label>Confirm Password:</label>
+          <input type="password" id="confirmPassword" required placeholder="Re-enter password">
+        </div>
+
+        <div class="form-group">
+          <label>Public Key (Auto-filled):</label>
+          <input type="text" id="publicKey" readonly placeholder="Generate keys first">
+        </div>
+
+        <button type="submit" id="registerBtn" disabled>Register Account</button>
+      </form>
+
+      <div class="info-box">
+        <strong>Free Tier Includes:</strong>
+        <ul style="margin: 10px 0 0 20px; font-size: 13px;">
+          <li>100 API requests per month</li>
+          <li>Access to all agents</li>
+          <li>Schema translation services</li>
+          <li>Cryptographic signatures</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="link">
+      Already have an account? <a href="/login.html">Login here</a>
+    </div>
+  </div>
+
+  <script>
+    let currentKeys = null;
+    let currentMnemonic = null;
+
+    function showAlert(message, type = 'info') {
+      const alertBox = document.getElementById('alertBox');
+      alertBox.className = `alert ${type}`;
+      alertBox.textContent = message;
+      alertBox.classList.remove('hidden');
+      setTimeout(() => alertBox.classList.add('hidden'), 5000);
+    }
+
+    function toggleImport() {
+      const section = document.getElementById('importSection');
+      section.classList.toggle('hidden');
+    }
+
+    function generateKeys() {
+      try {
+        // Generate 24-word mnemonic
+        currentMnemonic = SLH.generateMnemonic(256);
+        
+        // Derive identity keys
+        currentKeys = SLH.deriveKeysFromMnemonic(currentMnemonic, "m/44'/236'/0'/0/0");
+        
+        displayKeys();
+      } catch (error) {
+        showAlert('Failed to generate keys: ' + error.message, 'error');
+      }
+    }
+
+    function importKeys() {
+      try {
+        const mnemonic = document.getElementById('importMnemonic').value.trim();
+        
+        if (!SLH.validateMnemonic(mnemonic)) {
+          showAlert('Invalid mnemonic phrase', 'error');
+          return;
+        }
+
+        currentMnemonic = mnemonic;
+        currentKeys = SLH.deriveKeysFromMnemonic(currentMnemonic, "m/44'/236'/0'/0/0");
+        
+        displayKeys();
+        document.getElementById('importSection').classList.add('hidden');
+      } catch (error) {
+        showAlert('Failed to import keys: ' + error.message, 'error');
+      }
+    }
+
+    function displayKeys() {
+      document.getElementById('displayAddress').textContent = currentKeys.address;
+      document.getElementById('displayPubKey').textContent = currentKeys.publicKey;
+      document.getElementById('displayMnemonic').textContent = currentMnemonic;
+      document.getElementById('publicKey').value = currentKeys.publicKey;
+      document.getElementById('keysGenerated').classList.remove('hidden');
+      document.getElementById('registerBtn').disabled = false;
+      
+      showAlert('Keys generated successfully! Now complete your registration.', 'success');
+    }
+
+    async function downloadKeyBackup() {
+      if (!currentKeys || !currentMnemonic) return;
+
+      const password = prompt('Enter a password to encrypt your backup:');
+      if (!password) return;
+
+      try {
+        const backup = await SLH.createBackup({
+          identity: currentKeys,
+          mnemonic: currentMnemonic
+        }, password);
+
+        SLH.downloadBackup(backup, 'lumen-bridge-keys-backup.json');
+        showAlert('Backup downloaded successfully!', 'success');
+      } catch (error) {
+        showAlert('Backup failed: ' + error.message, 'error');
+      }
+    }
+
+    async function handleRegistration(event) {
+      event.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const publicKey = document.getElementById('publicKey').value;
+
+      if (!currentKeys) {
+        showAlert('Please generate your keys first', 'error');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showAlert('Passwords do not match', 'error');
+        return;
+      }
+
+      if (password.length < 8) {
+        showAlert('Password must be at least 8 characters', 'error');
+        return;
+      }
+
+      const registerBtn = document.getElementById('registerBtn');
+      registerBtn.disabled = true;
+      registerBtn.textContent = 'Registering...';
+
+      try {
+        const response = await fetch('/api/users/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, publicKey, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert('Registration successful! Check your email to verify your account.', 'success');
+          document.getElementById('registrationForm').reset();
+          
+          // Show success message
+          setTimeout(() => {
+            document.querySelector('.container').innerHTML = `
+              <div style="text-align: center; padding: 40px;">
+                <div style="font-size: 64px; margin-bottom: 20px;">✅</div>
+                <h1>Registration Successful!</h1>
+                <p style="color: #666; margin: 20px 0;">
+                  We've sent a verification email to <strong>${email}</strong>
+                </p>
+                <div class="info-box" style="text-align: left; margin: 30px 0;">
+                  <strong>Next Steps:</strong>
+                  <ol style="margin: 15px 0 0 20px;">
+                    <li>Check your email inbox (and spam folder)</li>
+                    <li>Click the verification link</li>
+                    <li>Start using the API with your public key</li>
+                  </ol>
+                </div>
+                <div class="backup-warning">
+                  <strong>⚠️ Don't forget to backup your mnemonic!</strong>
+                  <p style="margin-top: 10px;">You'll need it to sign API requests and prove ownership of your public key.</p>
+                </div>
+                <a href="/" style="display: inline-block; margin-top: 30px; padding: 15px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                  Return to Home
+                </a>
+              </div>
+            `;
+          }, 2000);
+        } else {
+          showAlert(data.error || 'Registration failed', 'error');
+          registerBtn.disabled = false;
+          registerBtn.textContent = 'Register Account';
+        }
+      } catch (error) {
+        showAlert('Network error: ' + error.message, 'error');
+        registerBtn.disabled = false;
+        registerBtn.textContent = 'Register Account';
+      }
+    }
+  </script>
+</body>
+</html>
