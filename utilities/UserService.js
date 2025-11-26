@@ -9,16 +9,30 @@ import nodemailer from 'nodemailer';
 
 class UserService {
   constructor(mongoService) {
-    this.db = mongoService;
-    this.collections = {
-      users: 'verified_users',
-      pending: 'pending_users',
-      verificationTokens: 'verification_tokens'
-    };
+    this.mongoService = mongoService;
+    this.db = null;
+    this.collections = {};
+    
+    // Initialize collections when MongoDB is connected
+    this.initCollections();
     
     // Email transporter (configure in .env)
     this.transporter = null;
     this.initEmailTransporter();
+  }
+
+  /**
+   * Initialize MongoDB collections
+   */
+  initCollections() {
+    if (this.mongoService && this.mongoService.db) {
+      this.db = this.mongoService.db;
+      this.collections = {
+        users: this.db.collection('verified_users'),
+        pending: this.db.collection('pending_users'),
+        verificationTokens: this.db.collection('verification_tokens')
+      };
+    }
   }
 
   /**
@@ -56,18 +70,18 @@ class UserService {
       }
 
       // Check if email already exists
-      const existingUser = await this.db.findOne(this.collections.users, { email });
+      const existingUser = await this.collections.users.findOne({ email });
       if (existingUser) {
         throw new Error('Email already registered');
       }
 
-      const existingPending = await this.db.findOne(this.collections.pending, { email });
+      const existingPending = await this.collections.pending.findOne({ email });
       if (existingPending) {
         throw new Error('Email already pending verification. Check your inbox.');
       }
 
       // Check if publicKey already exists
-      const existingPubKey = await this.db.findOne(this.collections.users, { publicKey });
+      const existingPubKey = await this.collections.users.findOne({ publicKey });
       if (existingPubKey) {
         throw new Error('Public key already registered');
       }
@@ -93,7 +107,7 @@ class UserService {
         resetDate: this.getNextMonthDate()
       };
 
-      await this.db.insertOne(this.collections.pending, pendingUser);
+      await this.collections.pending.insertOne(pendingUser);
 
       // Send verification email
       await this.sendVerificationEmail(email, verificationToken);
@@ -168,7 +182,7 @@ class UserService {
    */
   async verifyEmail(token) {
     try {
-      const pendingUser = await this.db.findOne(this.collections.pending, { verificationToken: token });
+      const pendingUser = await this.collections.pending.findOne({ verificationToken: token });
 
       if (!pendingUser) {
         throw new Error('Invalid verification token');
@@ -191,8 +205,8 @@ class UserService {
         createdAt: pendingUser.createdAt
       };
 
-      await this.db.insertOne(this.collections.users, verifiedUser);
-      await this.db.deleteOne(this.collections.pending, { verificationToken: token });
+      await this.collections.users.insertOne(verifiedUser);
+      await this.collections.pending.deleteOne({ verificationToken: token });
 
       console.log(`✅ User verified: ${verifiedUser.email}`);
 
@@ -216,14 +230,14 @@ class UserService {
    * Get user by public key
    */
   async getUserByPublicKey(publicKey) {
-    return await this.db.findOne(this.collections.users, { publicKey });
+    return await this.collections.users.findOne({ publicKey });
   }
 
   /**
    * Get user by email
    */
   async getUserByEmail(email) {
-    return await this.db.findOne(this.collections.users, { email });
+    return await this.collections.users.findOne({ email });
   }
 
   /**
@@ -269,8 +283,7 @@ class UserService {
 
     // Check if month has rolled over
     if (new Date() > user.resetDate) {
-      await this.db.updateOne(
-        this.collections.users,
+      await this.collections.users.updateOne(
         { publicKey },
         {
           $set: {
@@ -280,8 +293,7 @@ class UserService {
         }
       );
     } else {
-      await this.db.updateOne(
-        this.collections.users,
+      await this.collections.users.updateOne(
         { publicKey },
         { $inc: { requestCount: 1 } }
       );
@@ -303,8 +315,7 @@ class UserService {
       throw new Error('Invalid tier');
     }
 
-    await this.db.updateOne(
-      this.collections.users,
+    await this.collections.users.updateOne(
       { publicKey },
       {
         $set: {
