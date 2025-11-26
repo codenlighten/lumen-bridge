@@ -142,12 +142,15 @@ Be precise, thorough, and ensure all generated artifacts conform to schemas.`,
       console.log(`   Signature: ${signature.substring(0, 60)}...\n`);
 
       // Store in memory
-      await this.memory.remember({
-        type: 'agent_creation',
-        agentName: agentSpec.name,
-        result,
-        signature
-      });
+      await this.memory.addInteraction(
+        'system',
+        JSON.stringify({
+          type: 'agent_creation',
+          agentName: agentSpec.name,
+          result,
+          signature
+        })
+      );
 
       return result;
 
@@ -439,14 +442,17 @@ Return both as JSON.`;
     );
 
     // Store registration in memory
-    await this.memory.remember({
-      type: 'agent_registration',
-      agentName: agentSpec.name,
-      publicKey: keys.publicKey,
-      address: keys.address,
-      capabilities: agentSpec.outputs,
-      signature: specSignature
-    });
+    await this.memory.addInteraction(
+      'system',
+      JSON.stringify({
+        type: 'agent_registration',
+        agentName: agentSpec.name,
+        publicKey: keys.publicKey,
+        address: keys.address,
+        capabilities: agentSpec.outputs,
+        signature: specSignature
+      })
+    );
 
     return keys;
   }
