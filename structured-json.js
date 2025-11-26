@@ -19,9 +19,10 @@ export async function signedStructuredResponse({
   context,
   model = OPENAI_MODEL,
   temperature = 0.2,
-  systemPrompt = "You are an AI that outputs ONLY valid JSON strictly conforming to the provided schema. Include a 'missingContext' array describing any missing information needed for perfection. If nothing is missing, return an empty array.",
+  systemPrompt = "You are an AI that outputs ONLY valid JSON strictly conforming to the provided schema. If the schema includes a 'data' field, populate it with the domain-specific information requested. Always include a 'missingContext' array describing any missing information needed for perfection. If nothing is missing, return an empty array.",
   agentKey = null, // New parameter for agent-specific signing
-  provider = null // LLM provider override (openai|llama|auto)
+  provider = null, // LLM provider override (openai|llama|auto)
+  nestUserSchema = false // New parameter: if true, nest user schema in 'data' field
 } = {}) {
 
   // Default envelope schema with cryptographic fields and conversation control
@@ -52,19 +53,29 @@ export async function signedStructuredResponse({
     required: ["response", "includesCode", "code", "continue", "questionForUser", "missingContext"]
   };
 
-  // Merge user-provided schema (if any) with the base envelope
+  // If user provides a schema, nest it in a 'data' field separate from the envelope (if nestUserSchema is true)
+  // Otherwise, merge at the same level for backward compatibility
   const mergedSchema = schema
-    ? {
-        type: "object",
-        properties: {
-          ...schema.properties,
-          ...baseSchema.properties
-        },
-        required: Array.from(new Set([
-          ...(schema.required || []),
-          ...baseSchema.required
-        ]))
-      }
+    ? (nestUserSchema 
+        ? {
+            type: "object",
+            properties: {
+              data: schema, // Nest user schema in 'data' field
+              ...baseSchema.properties
+            },
+            required: ["data", ...baseSchema.required]
+          }
+        : {
+            type: "object",
+            properties: {
+              ...schema.properties,
+              ...baseSchema.properties
+            },
+            required: Array.from(new Set([
+              ...(schema.required || []),
+              ...baseSchema.required
+            ]))
+          })
     : baseSchema;
 
   const schemaPrompt = `You must respond with a JSON object that follows this JSON schema exactly: ${JSON.stringify(

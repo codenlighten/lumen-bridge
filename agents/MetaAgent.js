@@ -220,15 +220,14 @@ Extract:
 
 Return ONLY the JSON matching the schema.`;
 
-    const response = await signedStructuredResponse(
-      prompt,
-      specSchema,
-      this.agentKey.privateKey,
-      {
-        model: this.model,
-        temperature: 0.3
-      }
-    );
+    const response = await signedStructuredResponse({
+      query: prompt,
+      schema: specSchema,
+      agentKey: this.agentKey,
+      model: this.model,
+      temperature: 0.3,
+      nestUserSchema: true // Use nested data structure
+    });
 
     // Handle different response structures
     const data = response.data || response;
@@ -334,16 +333,14 @@ export class ${agentSpec.name} extends BaseMetaAgent {
 
 Generate the complete, production-ready code.`;
 
-    const response = await signedStructuredResponse(
-      prompt,
-      codeSchema,
-      this.agentKey.privateKey,
-      {
-        model: this.model,
-        temperature: 0.4,
-        max_tokens: 4000
-      }
-    );
+    const response = await signedStructuredResponse({
+      query: prompt,
+      schema: codeSchema,
+      agentKey: this.agentKey,
+      model: this.model,
+      temperature: 0.4,
+      nestUserSchema: true
+    });
 
     const data = response.data || response;
     if (!data || !data.code) {
@@ -398,15 +395,14 @@ Generate:
 
 Return both as JSON.`;
 
-    const response = await signedStructuredResponse(
-      prompt,
-      infraSchema,
-      this.agentKey.privateKey,
-      {
-        model: this.model,
-        temperature: 0.2
-      }
-    );
+    const response = await signedStructuredResponse({
+      query: prompt,
+      schema: infraSchema,
+      agentKey: this.agentKey,
+      model: this.model,
+      temperature: 0.2,
+      nestUserSchema: true
+    });
 
     const data = response.data || response;
     if (!data || !data.dockerfile || !data.nodeSpec) {
@@ -492,15 +488,14 @@ Generate:
 2. The expected output structure
 3. Validation steps to verify correctness`;
 
-    const response = await signedStructuredResponse(
-      prompt,
-      testSchema,
-      this.agentKey.privateKey,
-      {
-        model: this.model,
-        temperature: 0.3
-      }
-    );
+    const response = await signedStructuredResponse({
+      query: prompt,
+      schema: testSchema,
+      agentKey: this.agentKey,
+      model: this.model,
+      temperature: 0.3,
+      nestUserSchema: true
+    });
 
     const data = response.data || response;
     if (!data || !data.testInput || !data.expectedOutput) {
@@ -561,15 +556,14 @@ Determine:
 2. If not, what capabilities are missing?
 3. What agent would fill this gap?`;
 
-    const response = await signedStructuredResponse(
-      prompt,
-      gapSchema,
-      this.agentKey.privateKey,
-      {
-        model: this.model,
-        temperature: 0.2
-      }
-    );
+    const response = await signedStructuredResponse({
+      query: prompt,
+      schema: gapSchema,
+      agentKey: this.agentKey,
+      model: this.model,
+      temperature: 0.2,
+      nestUserSchema: true
+    });
 
     const analysis = response.data || response;
     if (!analysis || typeof analysis.hasGap !== 'boolean') {
