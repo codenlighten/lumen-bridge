@@ -1,5 +1,5 @@
 # Use Alpine-based Node.js image
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Install bash for terminal execution
 RUN apk add --no-cache bash

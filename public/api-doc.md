@@ -27,9 +27,15 @@
    - [Get Specific Agent](#12-get-specific-agent)
    - [Invoke User Agent](#13-invoke-user-agent)
    - [Admin View All](#14-admin-view-all-agents)
-6. [Error Handling](#error-handling)
-7. [Rate Limits](#rate-limits)
-8. [Examples](#examples)
+6. [User Authentication & Registration](#user-authentication--registration)
+   - [Register User](#15-register-user)
+   - [Verify Email](#16-verify-email)
+   - [Login](#17-login)
+   - [Get User Stats](#18-get-user-stats)
+   - [Get Challenge](#19-get-challenge)
+7. [Error Handling](#error-handling)
+8. [Rate Limits](#rate-limits)
+9. [Examples](#examples)
 
 ---
 
@@ -987,6 +993,296 @@ View all registered user agents (admin only).
 - `403`: Invalid or missing admin key
 
 **Security Note**: Set `ADMIN_KEY` in your environment variables. Never expose this key publicly.
+
+---
+
+## User Authentication & Registration
+
+**Create accounts, verify emails, and manage API access with tiered usage limits**
+
+Lumen Bridge supports user registration with email verification and cryptographic key-based authentication. Users generate client-side BSV keys for signing requests and receive tiered access to API endpoints.
+
+### Tier System
+
+- **Free Tier**: 100 requests/month
+- **Pro Tier**: 10,000 requests/month - $9/month
+- **Enterprise Tier**: Unlimited requests - $99/month
+
+### Authentication Flow
+
+1. **Generate Keys**: Client generates BSV key pair (24-word mnemonic)
+2. **Register**: Submit email, password, and public key
+3. **Verify Email**: Click verification link sent to email
+4. **Authenticate**: Sign requests with private key (optional but recommended)
+
+---
+
+### 15. Register User
+
+**POST** `/api/users/register`
+
+Register a new user account with email verification.
+
+**Request Body**:
+```json
+{
+  "email": "user@example.com",
+  "password": "SecurePassword123!",
+  "publicKey": "0206bdc3dcdc8d5dbfd6d4e85016c8a1cf1b02e1a5c8e3f8b5a4d2c1e3f4a5b6c7"
+}
+```
+
+**Required Fields**:
+- `email` (string): Valid email address
+- `password` (string): Minimum 8 characters
+- `publicKey` (string): BSV public key (hex format, generated client-side)
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "Registration successful. Please check your email to verify your account.",
+  "userId": "673e5f8a9c1234567890abcd",
+  "email": "user@example.com",
+  "publicKey": "0206bdc3dcdc8d5dbfd6d4e85016c8a1cf1b02e1a5c8e3f8b5a4d2c1e3f4a5b6c7",
+  "tier": "free",
+  "requestLimit": 100,
+  "requestCount": 0
+}
+```
+
+**Email Verification**:
+- Verification email sent to provided address
+- Contains 6-digit OTP code
+- Link format: `https://lumenbridge.xyz/verify?email=user@example.com&token=123456`
+- Token expires in 24 hours
+
+**Errors**:
+- `400`: Missing required fields (email, password, publicKey)
+- `400`: Invalid email format
+- `400`: Password too short (minimum 8 characters)
+- `400`: Email already registered
+- `500`: Email sending failed
+
+**Example**:
+```bash
+curl -X POST https://lumenbridge.codenlighten.org/api/users/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "alice@example.com",
+    "password": "MySecurePass123!",
+    "publicKey": "0206bdc3dcdc8d5dbfd6d4e85016c8a1cf1b02e1a5c8e3f8b5a4d2c1e3f4a5b6c7"
+  }'
+```
+
+---
+
+### 16. Verify Email
+
+**GET** `/api/users/verify?email=user@example.com&token=123456`
+
+Verify email address with OTP code sent during registration.
+
+**Query Parameters**:
+- `email` (required): User's email address
+- `token` (required): 6-digit verification code
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "Email verified successfully. You can now use the API.",
+  "user": {
+    "email": "user@example.com",
+    "publicKey": "0206bdc3dcdc8d5dbfd6d4e85016c8a1cf1b02e1a5c8e3f8b5a4d2c1e3f4a5b6c7",
+    "tier": "free",
+    "requestLimit": 100,
+    "requestCount": 0,
+    "verified": true,
+    "createdAt": "2025-11-25T12:00:00.000Z"
+  }
+}
+```
+
+**Errors**:
+- `400`: Missing email or token
+- `400`: Invalid or expired token
+- `404`: User not found
+
+**Example**:
+```bash
+curl "https://lumenbridge.codenlighten.org/api/users/verify?email=alice@example.com&token=123456"
+```
+
+---
+
+### 17. Login
+
+**POST** `/api/users/login`
+
+Authenticate with email and password.
+
+**Request Body**:
+```json
+{
+  "email": "user@example.com",
+  "password": "SecurePassword123!"
+}
+```
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "user": {
+    "email": "user@example.com",
+    "publicKey": "0206bdc3dcdc8d5dbfd6d4e85016c8a1cf1b02e1a5c8e3f8b5a4d2c1e3f4a5b6c7",
+    "tier": "free",
+    "requestLimit": 100,
+    "requestCount": 42,
+    "verified": true,
+    "createdAt": "2025-11-25T12:00:00.000Z"
+  }
+}
+```
+
+**Errors**:
+- `400`: Missing email or password
+- `401`: Invalid credentials
+- `401`: Email not verified
+
+**Example**:
+```bash
+curl -X POST https://lumenbridge.codenlighten.org/api/users/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "alice@example.com",
+    "password": "MySecurePass123!"
+  }'
+```
+
+---
+
+### 18. Get User Stats
+
+**GET** `/api/users/stats/:publicKey`
+
+Get usage statistics and account information for a user.
+
+**Path Parameters**:
+- `publicKey` (required): User's BSV public key
+
+**Response**:
+```json
+{
+  "success": true,
+  "stats": {
+    "email": "user@example.com",
+    "publicKey": "0206bdc3dcdc8d5dbfd6d4e85016c8a1cf1b02e1a5c8e3f8b5a4d2c1e3f4a5b6c7",
+    "tier": "free",
+    "requestLimit": 100,
+    "requestCount": 42,
+    "requestsRemaining": 58,
+    "usagePercentage": 42,
+    "verified": true,
+    "createdAt": "2025-11-25T12:00:00.000Z"
+  }
+}
+```
+
+**Errors**:
+- `404`: User not found
+
+**Example**:
+```bash
+curl "https://lumenbridge.codenlighten.org/api/users/stats/0206bdc3dcdc8d5dbfd6d4e85016c8a1cf1b02e1a5c8e3f8b5a4d2c1e3f4a5b6c7"
+```
+
+---
+
+### 19. Get Challenge
+
+**GET** `/api/auth/challenge`
+
+Get a random challenge string for request signing (used for signature verification).
+
+**Response**:
+```json
+{
+  "challenge": "a8f3c9e2d1b4f7e6c5a8d9e3f1b2c4d5",
+  "expiresIn": 300
+}
+```
+
+**Usage**:
+1. Request a challenge
+2. Sign the challenge with your private key
+3. Include signature in API request headers:
+   - `x-signature`: DER-encoded signature
+   - `x-public-key`: Your public key
+   - `x-challenge`: The challenge string
+
+**Note**: This endpoint does NOT require authentication and is used to obtain challenges for signing.
+
+**Example**:
+```bash
+curl "https://lumenbridge.codenlighten.org/api/auth/challenge"
+```
+
+---
+
+### Client-Side Key Generation
+
+Users generate cryptographic keys in the browser using the SmartLedger BSV library:
+
+```javascript
+// Generate new mnemonic and keys
+const mnemonic = SmartLedger.Mnemonic.fromRandom();
+const seed = mnemonic.toSeed();
+const hdPrivateKey = SmartLedger.HDPrivateKey.fromSeed(seed);
+const derivedKey = hdPrivateKey.derive("m/44'/236'/0'/0/0");
+const privateKey = derivedKey.privateKey;
+const publicKey = privateKey.publicKey.toString();
+
+// Save mnemonic securely (user's responsibility)
+console.log('Mnemonic (save this!):', mnemonic.toString());
+console.log('Public Key:', publicKey);
+```
+
+**Security Notes**:
+- Keys are generated entirely client-side
+- Private keys never leave the user's device
+- Users must backup their 24-word mnemonic phrase
+- Lost mnemonics cannot be recovered
+
+---
+
+### Request Signing (Optional)
+
+While not required, signing requests provides enhanced security and authenticity:
+
+```javascript
+// Sign a request payload
+const challenge = await fetch('/api/auth/challenge').then(r => r.json());
+const message = challenge.challenge;
+const signature = SmartLedger.crypto.ECDSA.sign(
+  SmartLedger.crypto.Hash.sha256(Buffer.from(message)),
+  privateKey
+).toDER().toString('hex');
+
+// Include in request headers
+fetch('/api/agents/search', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'x-signature': signature,
+    'x-public-key': publicKey,
+    'x-challenge': message
+  },
+  body: JSON.stringify({ userQuery: 'AI news' })
+});
+```
 
 ---
 
