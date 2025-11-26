@@ -1,0 +1,28 @@
+{
+  "name": "lumenbridge-meta-agent-experiment",
+  "version": "0.1.0",
+  "description": "Meta-Agent / Agent Factory experiment for LumenBridge",
+  "type": "module",
+  "main": "MetaAgent.js",
+  "scripts": {
+    "build": "tsc",
+    "example:contract": "tsx examples/example-contract-analyzer.ts",
+    "example:gap": "tsx examples/example-capability-gap.ts",
+    "test": "echo \"Tests coming soon\" && exit 0"
+  },
+  "keywords": [
+    "ai",
+    "meta-agent",
+    "agent-factory",
+    "self-evolution",
+    "lumenbridge"
+  ],
+  "author": "LumenBridge",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {}
+}

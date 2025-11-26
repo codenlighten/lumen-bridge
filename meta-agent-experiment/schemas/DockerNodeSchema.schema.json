@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lumenbridge.io/schemas/DockerNodeSchema.json",
+  "title": "DockerNodeSchema",
+  "description": "Specification for deploying an agent as a containerized node",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Kubernetes-compatible node name (lowercase, dashes)",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "examples": ["contract-analyzer-agent", "pdf-parser-agent"]
+    },
+    "image": {
+      "type": "string",
+      "description": "Docker image name with tag",
+      "pattern": "^[a-z0-9./-]+:[a-z0-9._-]+$",
+      "examples": ["lumenbridge/contractanalyzer:latest", "lumenbridge/pdfparser:v1.0.0"]
+    },
+    "resources": {
+      "type": "object",
+      "description": "Resource limits and requests",
+      "properties": {
+        "memory": {
+          "type": "string",
+          "description": "Memory limit (e.g., '512Mi', '1Gi')",
+          "pattern": "^[0-9]+(Mi|Gi)$",
+          "examples": ["256Mi", "512Mi", "1Gi"]
+        },
+        "cpu": {
+          "type": "string",
+          "description": "CPU limit (e.g., '0.5', '1', '2')",
+          "pattern": "^[0-9]+(\\.[0-9]+)?$",
+          "examples": ["0.5", "1", "2"]
+        }
+      },
+      "required": ["memory", "cpu"]
+    },
+    "env": {
+      "type": "array",
+      "description": "Environment variables",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Environment variable name"
+          },
+          "value": {
+            "type": "string",
+            "description": "Environment variable value"
+          }
+        },
+        "required": ["name", "value"]
+      },
+      "default": []
+    },
+    "capabilities": {
+      "type": "array",
+      "description": "Agent capabilities/outputs it provides",
+      "items": {
+        "type": "string"
+      },
+      "examples": [
+        ["risk_score", "clauses_array"],
+        ["classification", "confidence"]
+      ]
+    },
+    "port": {
+      "type": "number",
+      "description": "Container port the agent listens on",
+      "minimum": 1024,
+      "maximum": 65535,
+      "default": 8080
+    },
+    "healthCheck": {
+      "type": "object",
+      "description": "Health check configuration",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Health check endpoint path",
+          "default": "/health"
+        },
+        "interval": {
+          "type": "number",
+          "description": "Check interval in seconds",
+          "default": 30
+        },
+        "timeout": {
+          "type": "number",
+          "description": "Check timeout in seconds",
+          "default": 5
+        }
+      }
+    },
+    "replicas": {
+      "type": "number",
+      "description": "Number of replicas for horizontal scaling",
+      "minimum": 1,
+      "maximum": 10,
+      "default": 1
+    }
+  },
+  "required": ["name", "image", "resources", "capabilities"],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "name": "contract-analyzer-agent",
+      "image": "lumenbridge/contractanalyzer:latest",
+      "resources": {
+        "memory": "512Mi",
+        "cpu": "0.5"
+      },
+      "env": [
+        { "name": "LOG_LEVEL", "value": "info" },
+        { "name": "MAX_WORKERS", "value": "4" }
+      ],
+      "capabilities": ["risk_score", "clauses_array", "recommendations"],
+      "port": 8080,
+      "healthCheck": {
+        "path": "/health",
+        "interval": 30,
+        "timeout": 5
+      },
+      "replicas": 2
+    }
+  ]
+}

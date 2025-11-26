@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lumenbridge.io/schemas/AgentSpecification.json",
+  "title": "AgentSpecification",
+  "description": "Specification for a new agent to be created by Meta-Agent",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Agent name in PascalCase, ending with 'Agent'",
+      "pattern": "^[A-Z][a-zA-Z0-9]*Agent$",
+      "examples": ["ContractAnalyzerAgent", "PDFParserAgent", "RiskAssessmentAgent"]
+    },
+    "purpose": {
+      "type": "string",
+      "description": "Clear description of what this agent does",
+      "minLength": 10,
+      "maxLength": 500
+    },
+    "inputs": {
+      "type": "array",
+      "description": "Array of input field names the agent accepts",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "examples": [["base64_pdf", "analysis_type"], ["contract_text", "jurisdiction"]]
+    },
+    "outputs": {
+      "type": "array",
+      "description": "Array of output field names the agent returns",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "examples": [["risk_score", "clauses_array"], ["summary", "key_terms"]]
+    },
+    "constraints": {
+      "type": "array",
+      "description": "Optional constraints or requirements",
+      "items": {
+        "type": "string"
+      },
+      "examples": [
+        ["Must use pdf-parse library", "Max latency 5s"],
+        ["Must handle scanned PDFs", "Support multiple languages"]
+      ]
+    },
+    "libraries": {
+      "type": "array",
+      "description": "Required npm libraries",
+      "items": {
+        "type": "string"
+      },
+      "examples": [
+        ["pdf-parse", "natural"],
+        ["sharp", "tesseract.js"]
+      ]
+    },
+    "maxLatency": {
+      "type": "number",
+      "description": "Maximum acceptable latency in milliseconds",
+      "minimum": 100,
+      "maximum": 60000,
+      "examples": [5000, 10000, 30000]
+    }
+  },
+  "required": ["name", "purpose", "inputs", "outputs"],
+  "additionalProperties": false,
+  "examples": [
+    {
+      "name": "ContractAnalyzerAgent",
+      "purpose": "Analyze PDF contracts to identify and assess liability clauses",
+      "inputs": ["base64_pdf", "analysis_depth"],
+      "outputs": ["risk_score", "clauses_array", "recommendations"],
+      "constraints": [
+        "Must use pdf-parse library",
+        "Max latency 5s",
+        "Support contracts up to 100 pages"
+      ],
+      "libraries": ["pdf-parse", "natural", "compromise"],
+      "maxLatency": 5000
+    },
+    {
+      "name": "ImageClassifierAgent",
+      "purpose": "Classify images using computer vision",
+      "inputs": ["image_url", "categories"],
+      "outputs": ["classification", "confidence", "bounding_boxes"],
+      "libraries": ["sharp", "@tensorflow/tfjs-node"],
+      "maxLatency": 3000
+    }
+  ]
+}
