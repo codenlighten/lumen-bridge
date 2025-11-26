@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Lumen Bridge</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 500px;
+      width: 100%;
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 32px;
+      text-align: center;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e1e8ed;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    button {
+      width: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-bottom: 10px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .alert {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .alert.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .info-box {
+      background: #e7f3ff;
+      border: 1px solid #b3d9ff;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+
+    .info-box strong {
+      color: #0066cc;
+    }
+
+    .user-info {
+      display: none;
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .user-info h3 {
+      color: #667eea;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    .user-info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #e1e8ed;
+    }
+
+    .user-info-row:last-child {
+      border-bottom: none;
+    }
+
+    .user-info-label {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .user-info-value {
+      color: #333;
+      font-weight: 500;
+      font-size: 14px;
+      font-family: monospace;
+      word-break: break-all;
+    }
+
+    .tier-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .tier-badge.free {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+
+    .tier-badge.pro {
+      background: #f3e5f5;
+      color: #7b1fa2;
+    }
+
+    .tier-badge.enterprise {
+      background: #fff3e0;
+      color: #e65100;
+    }
+
+    .links {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    .links a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .links a:hover {
+      text-decoration: underline;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔐 Login</h1>
+    <p class="subtitle">Access your Lumen Bridge account</p>
+
+    <div id="alertBox" class="alert"></div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" required placeholder="your@email.com">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required placeholder="Enter your password">
+      </div>
+
+      <button type="submit" id="loginBtn">Login</button>
+    </form>
+
+    <div id="userInfo" class="user-info">
+      <h3>✅ Login Successful!</h3>
+      
+      <div class="user-info-row">
+        <span class="user-info-label">Email:</span>
+        <span class="user-info-value" id="userEmail"></span>
+      </div>
+      
+      <div class="user-info-row">
+        <span class="user-info-label">Public Key:</span>
+        <span class="user-info-value" id="userPublicKey"></span>
+      </div>
+      
+      <div class="user-info-row">
+        <span class="user-info-label">Tier:</span>
+        <span id="userTier"></span>
+      </div>
+      
+      <div class="user-info-row">
+        <span class="user-info-label">Requests Used:</span>
+        <span class="user-info-value" id="userRequests"></span>
+      </div>
+      
+      <div class="user-info-row">
+        <span class="user-info-label">Monthly Limit:</span>
+        <span class="user-info-value" id="userLimit"></span>
+      </div>
+      
+      <div class="user-info-row">
+        <span class="user-info-label">Account Status:</span>
+        <span class="user-info-value" style="color: #28a745;">✓ Verified</span>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <a href="/api-doc" style="display: inline-block; width: 100%; text-align: center; padding: 12px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; font-weight: 600;">
+          View API Documentation
+        </a>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>📝 Note:</strong> Your account credentials are stored securely with bcrypt password hashing. Never share your password with anyone.
+    </div>
+
+    <div class="links">
+      <p>Don't have an account? <a href="/register.html">Register here</a></p>
+      <p><a href="/">← Back to Home</a></p>
+    </div>
+  </div>
+
+  <script>
+    function showAlert(message, type = 'info') {
+      const alertBox = document.getElementById('alertBox');
+      alertBox.className = `alert ${type}`;
+      alertBox.textContent = message;
+      alertBox.style.display = 'block';
+      
+      if (type === 'success') {
+        setTimeout(() => alertBox.style.display = 'none', 5000);
+      }
+    }
+
+    async function handleLogin(event) {
+      event.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      const loginBtn = document.getElementById('loginBtn');
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Logging in...';
+
+      try {
+        const response = await fetch('/api/users/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert('Login successful!', 'success');
+          
+          // Hide form
+          document.getElementById('loginForm').style.display = 'none';
+          
+          // Show user info
+          const userInfo = document.getElementById('userInfo');
+          document.getElementById('userEmail').textContent = data.user.email;
+          document.getElementById('userPublicKey').textContent = data.user.publicKey;
+          
+          const tierBadge = document.createElement('span');
+          tierBadge.className = `tier-badge ${data.user.tier}`;
+          tierBadge.textContent = data.user.tier;
+          document.getElementById('userTier').innerHTML = '';
+          document.getElementById('userTier').appendChild(tierBadge);
+          
+          document.getElementById('userRequests').textContent = `${data.user.requestCount} requests`;
+          document.getElementById('userLimit').textContent = `${data.user.requestLimit} requests/month`;
+          
+          userInfo.style.display = 'block';
+          
+          // Store user info in sessionStorage for API requests
+          sessionStorage.setItem('userEmail', data.user.email);
+          sessionStorage.setItem('userPublicKey', data.user.publicKey);
+          sessionStorage.setItem('userTier', data.user.tier);
+          
+        } else {
+          showAlert(data.error || 'Login failed', 'error');
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Login';
+        }
+      } catch (error) {
+        showAlert('Network error: ' + error.message, 'error');
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Login';
+      }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', handleLogin);
+  </script>
+</body>
+</html>
