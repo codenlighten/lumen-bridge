@@ -25,6 +25,7 @@ import { marked } from "marked";
 
 // Import agents
 import BaseMetaAgent from "./agents/BaseMetaAgent.js";
+import MetaAgent from "./agents/MetaAgent.js";
 import SearchAgent from "./agents/SearchAgent.js";
 import TerminalAgent from "./agents/TerminalAgent.js";
 import CodeGenerator from "./agents/CodeGenerator.js";
@@ -633,6 +634,221 @@ app.get("/api/users/stats", async (req, res) => {
 	} catch (error) {
 		console.error("Stats error:", error);
 		res.status(404).json({
+			success: false,
+			error: error.message
+		});
+	}
+});
+
+// ============================================================================
+// META-AGENT API - Agent Creation Factory
+// ============================================================================
+
+// Initialize Meta-Agent
+const metaAgent = new MetaAgent({
+	model: "gpt-4o-mini",
+	temperature: 0.3
+});
+
+/**
+ * Create a new agent on-demand
+ * POST /api/meta/create-agent
+ * Body: { prompt: string, options?: object }
+ */
+app.post("/api/meta/create-agent", async (req, res) => {
+	try {
+		const { prompt, options = {} } = req.body;
+
+		if (!prompt) {
+			return res.status(400).json({
+				success: false,
+				error: "Prompt is required"
+			});
+		}
+
+		// Check if user is authenticated (optional for free tier)
+		let userId = null;
+		if (req.publicKey) {
+			// User is authenticated, check their tier and request count
+			const user = await userService.getUserByPublicKey(req.publicKey);
+			if (user) {
+				userId = user.email;
+				// Agent creation counts as 10 requests
+				if (user.requestCount + 10 > user.monthlyLimit) {
+					return res.status(429).json({
+						success: false,
+						error: "Monthly limit exceeded. Agent creation costs 10 requests.",
+						currentUsage: user.requestCount,
+						limit: user.monthlyLimit
+					});
+				}
+			}
+		}
+
+		console.log(`[Meta-Agent] Creating agent from prompt: "${prompt}"`);
+
+		// Create the agent
+		const result = await metaAgent.createNewAgent(prompt, {
+			withInfrastructure: options.withInfrastructure || false,
+			autoTest: options.autoTest !== false,
+			returnCode: options.returnCode !== false
+		});
+
+		if (result.success) {
+			// Store in MongoDB
+			const agentRecord = {
+				name: result.agentSpec.name,
+				purpose: result.agentSpec.purpose,
+				inputs: result.agentSpec.inputs,
+				outputs: result.agentSpec.outputs,
+				publicKey: result.keys.publicKey,
+				address: result.keys.address,
+				schemas: result.schemas,
+				code: result.code,
+				infra: result.infra,
+				testResult: result.testResult,
+				createdBy: userId || 'anonymous',
+				createdAt: new Date(),
+				signature: result._signature,
+				prompt: prompt
+			};
+
+			await dbService.db.collection('generated_agents').insertOne(agentRecord);
+
+			// Increment user request count if authenticated (10 requests)
+			if (req.publicKey) {
+				for (let i = 0; i < 10; i++) {
+					await userService.incrementRequestCount(req.publicKey);
+				}
+			}
+
+			console.log(`[Meta-Agent] Successfully created ${result.agentSpec.name}`);
+		}
+
+		res.json(result);
+	} catch (error) {
+		console.error("[Meta-Agent] Creation error:", error);
+		res.status(500).json({
+			success: false,
+			error: error.message
+		});
+	}
+});
+
+/**
+ * Get all generated agents
+ * GET /api/meta/agents?limit=20&skip=0
+ */
+app.get("/api/meta/agents", async (req, res) => {
+	try {
+		const limit = parseInt(req.query.limit) || 20;
+		const skip = parseInt(req.query.skip) || 0;
+		const createdBy = req.query.createdBy;
+
+		const query = createdBy ? { createdBy } : {};
+
+		const agents = await dbService.db
+			.collection('generated_agents')
+			.find(query)
+			.sort({ createdAt: -1 })
+			.limit(limit)
+			.skip(skip)
+			.project({
+				name: 1,
+				purpose: 1,
+				inputs: 1,
+				outputs: 1,
+				publicKey: 1,
+				address: 1,
+				createdBy: 1,
+				createdAt: 1,
+				prompt: 1
+			})
+			.toArray();
+
+		const total = await dbService.db.collection('generated_agents').countDocuments(query);
+
+		res.json({
+			success: true,
+			agents,
+			total,
+			limit,
+			skip
+		});
+	} catch (error) {
+		console.error("[Meta-Agent] List error:", error);
+		res.status(500).json({
+			success: false,
+			error: error.message
+		});
+	}
+});
+
+/**
+ * Get a specific generated agent by name or ID
+ * GET /api/meta/agents/:id
+ */
+app.get("/api/meta/agents/:id", async (req, res) => {
+	try {
+		const { id } = req.params;
+
+		// Try to find by name first, then by _id
+		let agent = await dbService.db.collection('generated_agents').findOne({ name: id });
+		
+		if (!agent) {
+			try {
+				const { ObjectId } = await import('mongodb');
+				agent = await dbService.db.collection('generated_agents').findOne({ _id: new ObjectId(id) });
+			} catch (e) {
+				// Invalid ObjectId, agent not found
+			}
+		}
+
+		if (!agent) {
+			return res.status(404).json({
+				success: false,
+				error: "Agent not found"
+			});
+		}
+
+		res.json({
+			success: true,
+			agent
+		});
+	} catch (error) {
+		console.error("[Meta-Agent] Get agent error:", error);
+		res.status(500).json({
+			success: false,
+			error: error.message
+		});
+	}
+});
+
+/**
+ * Detect capability gaps and suggest agent creation
+ * POST /api/meta/analyze-gap
+ * Body: { task: string, availableContext: object }
+ */
+app.post("/api/meta/analyze-gap", async (req, res) => {
+	try {
+		const { task, availableContext = {} } = req.body;
+
+		if (!task) {
+			return res.status(400).json({
+				success: false,
+				error: "Task is required"
+			});
+		}
+
+		const gapAnalysis = await metaAgent.handleCapabilityGap(task, availableContext);
+
+		res.json({
+			success: true,
+			...gapAnalysis
+		});
+	} catch (error) {
+		console.error("[Meta-Agent] Gap analysis error:", error);
+		res.status(500).json({
 			success: false,
 			error: error.message
 		});
