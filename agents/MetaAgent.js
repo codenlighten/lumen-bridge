@@ -230,7 +230,15 @@ Return ONLY the JSON matching the schema.`;
       }
     );
 
-    return response.data;
+    // Handle different response structures
+    const data = response.data || response;
+    
+    if (!data || !data.name) {
+      console.error('[MetaAgent] Invalid response from Phase 1:', JSON.stringify(response, null, 2));
+      throw new Error(`Phase 1 failed: Unable to extract agent specification. Response: ${JSON.stringify(response)}`);
+    }
+
+    return data;
   }
 
   /**
@@ -337,7 +345,18 @@ Generate the complete, production-ready code.`;
       }
     );
 
-    return response.data.code;
+    const data = response.data || response;
+    if (!data || !data.code) {
+      console.error('[MetaAgent] Phase 3 response validation failed:', {
+        hasResponse: !!response,
+        hasData: !!response?.data,
+        dataKeys: data ? Object.keys(data) : [],
+        fullResponse: JSON.stringify(response, null, 2)
+      });
+      throw new Error('Phase 3: Invalid response structure - missing code field');
+    }
+
+    return data.code;
   }
 
   /**
@@ -389,7 +408,18 @@ Return both as JSON.`;
       }
     );
 
-    return response.data;
+    const data = response.data || response;
+    if (!data || !data.dockerfile || !data.nodeSpec) {
+      console.error('[MetaAgent] Phase 4 response validation failed:', {
+        hasResponse: !!response,
+        hasData: !!response?.data,
+        dataKeys: data ? Object.keys(data) : [],
+        fullResponse: JSON.stringify(response, null, 2)
+      });
+      throw new Error('Phase 4: Invalid response structure - missing dockerfile or nodeSpec');
+    }
+
+    return data;
   }
 
   /**
@@ -472,9 +502,20 @@ Generate:
       }
     );
 
+    const data = response.data || response;
+    if (!data || !data.testInput || !data.expectedOutput) {
+      console.error('[MetaAgent] Phase 6 response validation failed:', {
+        hasResponse: !!response,
+        hasData: !!response?.data,
+        dataKeys: data ? Object.keys(data) : [],
+        fullResponse: JSON.stringify(response, null, 2)
+      });
+      throw new Error('Phase 6: Invalid response structure - missing testInput or expectedOutput');
+    }
+
     return {
       success: true,
-      testCase: response.data,
+      testCase: data,
       validated: true,
       _signature: response.signature
     };
@@ -530,7 +571,16 @@ Determine:
       }
     );
 
-    const analysis = response.data;
+    const analysis = response.data || response;
+    if (!analysis || typeof analysis.hasGap !== 'boolean') {
+      console.error('[MetaAgent] handleCapabilityGap response validation failed:', {
+        hasResponse: !!response,
+        hasData: !!response?.data,
+        dataKeys: analysis ? Object.keys(analysis) : [],
+        fullResponse: JSON.stringify(response, null, 2)
+      });
+      throw new Error('handleCapabilityGap: Invalid response structure - missing hasGap field');
+    }
 
     if (analysis.hasGap && analysis.suggestedAgentName) {
       console.log(`\n⚠️  Capability gap detected: ${analysis.missingCapabilities.join(", ")}`);
