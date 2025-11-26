@@ -36,7 +36,7 @@ class UserService {
     };
 
     if (emailConfig.auth.user && emailConfig.auth.pass) {
-      this.transporter = nodemailer.createTransporter(emailConfig);
+      this.transporter = nodemailer.createTransport(emailConfig);
       console.log('✅ Email transporter initialized');
     } else {
       console.warn('⚠️  Email not configured. Set SMTP_USER and SMTP_PASS in .env');
