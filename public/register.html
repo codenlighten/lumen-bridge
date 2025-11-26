@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Register - Lumen Bridge</title>
 
-  <!-- Buffer polyfill for browser -->
-  <script src="https://cdn.jsdelivr.net/npm/buffer@6.0.3/index.js"></script>
-  
   <!-- SmartLedger BSV Library -->
   <script src="https://cdn.jsdelivr.net/npm/smartledger-bsv@3.3.5/bsv.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/smartledger-bsv@3.3.5/bsv-mnemonic.min.js"></script>
@@ -336,10 +333,11 @@
 
     // Wait for all libraries to load
     window.addEventListener('load', function() {
-      // Check if SmartLedger is available
-      if (typeof SmartLedger !== 'undefined' && typeof SLH !== 'undefined') {
+      // Check if BSV is available
+      if (typeof bsv !== 'undefined' && typeof SLH !== 'undefined') {
         librariesLoaded = true;
-        console.log('✅ SmartLedger libraries loaded successfully');
+        console.log('✅ SmartLedger BSV libraries loaded successfully');
+        console.log('BSV version:', bsv.version || '3.3.5');
         
         // Enable generate button
         const generateBtn = document.querySelector('button[onclick="generateKeys()"]');
@@ -347,7 +345,9 @@
           generateBtn.disabled = false;
         }
       } else {
-        console.error('❌ SmartLedger libraries failed to load');
+        console.error('❌ SmartLedger BSV libraries failed to load');
+        console.log('bsv available:', typeof bsv !== 'undefined');
+        console.log('SLH available:', typeof SLH !== 'undefined');
         showAlert('Failed to load cryptographic libraries. Please refresh the page.', 'error');
       }
     });
@@ -372,9 +372,9 @@
       }
 
       try {
-        // Check if SmartLedger is available
-        if (typeof SmartLedger === 'undefined') {
-          throw new Error('SmartLedger library not loaded');
+        // Check if BSV is available
+        if (typeof bsv === 'undefined') {
+          throw new Error('BSV library not loaded');
         }
 
         // Generate 24-word mnemonic

@@ -4,6 +4,9 @@
  * Requires: SmartLedger BSV library v3.3.5+
  */
 
+// Define Buffer using BSV's implementation
+const Buffer = window.bsv ? window.bsv.deps.Buffer : null;
+
 const SmartLedgerHelpers = {
   version: '1.0.0',
 
@@ -13,9 +16,9 @@ const SmartLedgerHelpers = {
   getInfo() {
     return {
       version: this.version,
-      bsvAvailable: typeof SmartLedger !== 'undefined',
-      mnemonicAvailable: typeof SmartLedger !== 'undefined' && typeof SmartLedger.Mnemonic !== 'undefined',
-      bsvVersion: typeof SmartLedger !== 'undefined' ? SmartLedger.version || '3.3.5' : 'N/A'
+      bsvAvailable: typeof bsv !== 'undefined',
+      mnemonicAvailable: !!(window.bsvMnemonic || window.Mnemonic || (window.bsv && window.bsv.Mnemonic)),
+      bsvVersion: window.bsv ? (bsv.version || '3.3.5') : 'N/A'
     };
   },
 
@@ -25,12 +28,13 @@ const SmartLedgerHelpers = {
    * @returns {string} Mnemonic phrase
    */
   generateMnemonic(strength = 256) {
-    if (typeof SmartLedger === 'undefined' || !SmartLedger.Mnemonic) {
-      throw new Error('SmartLedger library not loaded');
+    const MnemonicClass = window.bsvMnemonic || window.Mnemonic || (window.bsv && window.bsv.Mnemonic);
+    if (!MnemonicClass) {
+      throw new Error('Mnemonic module not loaded');
     }
     
-    const mnemonic = SmartLedger.Mnemonic.fromRandom(strength);
-    return mnemonic.toString();
+    const mnemonic = MnemonicClass.fromRandom(strength);
+    return mnemonic.phrase || mnemonic.toString();
   },
 
   /**
@@ -39,12 +43,13 @@ const SmartLedgerHelpers = {
    * @returns {boolean} True if valid
    */
   validateMnemonic(mnemonicPhrase) {
-    if (typeof SmartLedger === 'undefined' || !SmartLedger.Mnemonic) {
-      throw new Error('SmartLedger library not loaded');
+    const MnemonicClass = window.bsvMnemonic || window.Mnemonic || (window.bsv && window.bsv.Mnemonic);
+    if (!MnemonicClass) {
+      throw new Error('Mnemonic module not loaded');
     }
 
     try {
-      SmartLedger.Mnemonic.fromString(mnemonicPhrase);
+      new MnemonicClass(mnemonicPhrase);
       return true;
     } catch (error) {
       return false;
@@ -58,21 +63,26 @@ const SmartLedgerHelpers = {
    * @returns {Object} Keys object with address, publicKey, privateKey, wif
    */
   deriveKeysFromMnemonic(mnemonicPhrase, derivationPath = "m/44'/236'/0'/0/0") {
-    if (typeof SmartLedger === 'undefined') {
-      throw new Error('SmartLedger library not loaded');
+    if (typeof bsv === 'undefined') {
+      throw new Error('BSV library not loaded');
     }
 
-    const mnemonic = SmartLedger.Mnemonic.fromString(mnemonicPhrase);
+    const MnemonicClass = window.bsvMnemonic || window.Mnemonic || (window.bsv && window.bsv.Mnemonic);
+    if (!MnemonicClass) {
+      throw new Error('Mnemonic module not loaded');
+    }
+
+    const mnemonic = new MnemonicClass(mnemonicPhrase);
     const seed = mnemonic.toSeed();
-    const hdPrivateKey = SmartLedger.HDPrivateKey.fromSeed(seed);
-    const derivedKey = hdPrivateKey.derive(derivationPath);
+    const hdPrivateKey = bsv.HDPrivateKey.fromSeed(seed);
+    const derivedKey = hdPrivateKey.deriveChild(derivationPath);
     const privateKey = derivedKey.privateKey;
-    const publicKey = privateKey.publicKey;
-    const address = publicKey.toAddress().toString();
+    const publicKey = privateKey.toPublicKey();
+    const address = bsv.Address.fromPrivateKey(privateKey).toString();
 
     return {
       address,
-      publicKey: publicKey.toString(),
+      publicKey: publicKey.toString('hex'),
       privateKey: privateKey.toString(),
       wif: privateKey.toWIF()
     };
@@ -101,19 +111,19 @@ const SmartLedgerHelpers = {
    * @returns {Object} Signature details
    */
   signData(message, wif) {
-    if (typeof SmartLedger === 'undefined') {
-      throw new Error('SmartLedger library not loaded');
+    if (typeof bsv === 'undefined') {
+      throw new Error('BSV library not loaded');
     }
 
-    const privateKey = SmartLedger.PrivateKey.fromWIF(wif);
-    const publicKey = privateKey.publicKey;
-    const messageHash = SmartLedger.crypto.Hash.sha256(Buffer.from(message));
-    const signature = SmartLedger.crypto.ECDSA.sign(messageHash, privateKey);
+    const privateKey = bsv.PrivateKey.fromWIF(wif);
+    const signature = bsv.Message(message).sign(privateKey);
+    const publicKey = privateKey.toPublicKey();
+    const address = bsv.Address.fromPrivateKey(privateKey).toString();
 
     return {
-      signature: signature.toDER().toString('hex'),
-      publicKey: publicKey.toString(),
-      address: publicKey.toAddress().toString(),
+      signature: signature,
+      publicKey: publicKey.toString('hex'),
+      address: address,
       timestamp: new Date().toISOString()
     };
   },
@@ -121,21 +131,19 @@ const SmartLedgerHelpers = {
   /**
    * Verify a signature
    * @param {string} message - Original message
-   * @param {string} signatureHex - DER signature in hex
+   * @param {string} signature - Signature string
    * @param {string} publicKeyHex - Public key in hex
    * @returns {boolean} True if valid
    */
-  verifySignature(message, signatureHex, publicKeyHex) {
-    if (typeof SmartLedger === 'undefined') {
-      throw new Error('SmartLedger library not loaded');
+  verifySignature(message, signature, publicKeyHex) {
+    if (typeof bsv === 'undefined') {
+      throw new Error('BSV library not loaded');
     }
 
     try {
-      const publicKey = SmartLedger.PublicKey.fromString(publicKeyHex);
-      const messageHash = SmartLedger.crypto.Hash.sha256(Buffer.from(message));
-      const signature = SmartLedger.crypto.Signature.fromDER(Buffer.from(signatureHex, 'hex'));
-      
-      return SmartLedger.crypto.ECDSA.verify(messageHash, signature, publicKey);
+      const publicKey = bsv.PublicKey.fromString(publicKeyHex);
+      const address = bsv.Address.fromPublicKey(publicKey);
+      return bsv.Message(message).verify(address, signature);
     } catch (error) {
       console.error('Verification error:', error);
       return false;
@@ -244,19 +252,19 @@ const SmartLedgerHelpers = {
    * @returns {Promise<string>} Hash in hex
    */
   async hash(data, algorithm = 'SHA256') {
-    if (typeof SmartLedger !== 'undefined' && SmartLedger.crypto && SmartLedger.crypto.Hash) {
-      const buffer = Buffer.from(data);
+    if (typeof bsv !== 'undefined' && bsv.crypto && bsv.crypto.Hash) {
+      const buffer = Buffer.from(data, 'utf8');
       let hash;
       
       switch (algorithm.toUpperCase()) {
         case 'SHA256':
-          hash = SmartLedger.crypto.Hash.sha256(buffer);
+          hash = bsv.crypto.Hash.sha256(buffer);
           break;
         case 'SHA512':
-          hash = SmartLedger.crypto.Hash.sha512(buffer);
+          hash = bsv.crypto.Hash.sha512(buffer);
           break;
         case 'RIPEMD160':
-          hash = SmartLedger.crypto.Hash.ripemd160(buffer);
+          hash = bsv.crypto.Hash.ripemd160(buffer);
           break;
         default:
           throw new Error(`Unsupported algorithm: ${algorithm}`);
