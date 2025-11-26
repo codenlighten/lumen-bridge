@@ -13,16 +13,13 @@ class UserService {
     this.db = null;
     this.collections = {};
     
-    // Initialize collections when MongoDB is connected
-    this.initCollections();
-    
     // Email transporter (configure in .env)
     this.transporter = null;
     this.initEmailTransporter();
   }
 
   /**
-   * Initialize MongoDB collections
+   * Initialize MongoDB collections (call after DB is connected)
    */
   initCollections() {
     if (this.mongoService && this.mongoService.db) {
@@ -32,6 +29,20 @@ class UserService {
         pending: this.db.collection('pending_users'),
         verificationTokens: this.db.collection('verification_tokens')
       };
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Ensure collections are initialized
+   */
+  ensureCollections() {
+    if (!this.collections.users) {
+      this.initCollections();
+    }
+    if (!this.collections.users) {
+      throw new Error('Database not connected. Please try again later.');
     }
   }
 
@@ -64,6 +75,8 @@ class UserService {
    */
   async registerUser({ email, publicKey, password }) {
     try {
+      this.ensureCollections();
+      
       // Validate inputs
       if (!email || !publicKey || !password) {
         throw new Error('Email, publicKey, and password are required');
@@ -182,6 +195,8 @@ class UserService {
    */
   async verifyEmail(token) {
     try {
+      this.ensureCollections();
+      
       const pendingUser = await this.collections.pending.findOne({ verificationToken: token });
 
       if (!pendingUser) {
@@ -230,6 +245,7 @@ class UserService {
    * Get user by public key
    */
   async getUserByPublicKey(publicKey) {
+    this.ensureCollections();
     return await this.collections.users.findOne({ publicKey });
   }
 
@@ -237,6 +253,7 @@ class UserService {
    * Get user by email
    */
   async getUserByEmail(email) {
+    this.ensureCollections();
     return await this.collections.users.findOne({ email });
   }
 
@@ -277,6 +294,8 @@ class UserService {
    * Increment user request count
    */
   async incrementRequestCount(publicKey) {
+    this.ensureCollections();
+    
     const user = await this.getUserByPublicKey(publicKey);
     
     if (!user) return;
@@ -304,6 +323,8 @@ class UserService {
    * Upgrade user tier
    */
   async upgradeUserTier(publicKey, newTier) {
+    this.ensureCollections();
+    
     const tierLimits = {
       free: 100,
       pro: 10000,

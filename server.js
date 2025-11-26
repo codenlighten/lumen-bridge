@@ -76,6 +76,11 @@ const userService = new UserService(dbService);
 // Initialize database connection and load user agents
 (async () => {
 	await dbService.connect();
+	
+	// Initialize UserService collections after DB connection
+	userService.initCollections();
+	console.log("   ✅ UserService initialized");
+	
 	await agentRegistry.loadUserAgentsFromDB();
 	console.log("   ✅ User agents loaded from database");
 })();
