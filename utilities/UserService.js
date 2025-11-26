@@ -52,17 +52,30 @@ class UserService {
   initEmailTransporter() {
     const emailConfig = {
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: process.env.SMTP_PORT || 587,
-      secure: false,
+      port: parseInt(process.env.SMTP_PORT) || 587,
+      secure: process.env.SMTP_SECURE === 'true',
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS
-      }
+      },
+      connectionTimeout: 5000,
+      greetingTimeout: 5000,
+      socketTimeout: 10000
     };
 
     if (emailConfig.auth.user && emailConfig.auth.pass) {
       this.transporter = nodemailer.createTransport(emailConfig);
       console.log('✅ Email transporter initialized');
+      
+      // Verify connection on startup (non-blocking)
+      this.transporter.verify((error, success) => {
+        if (error) {
+          console.warn('⚠️  SMTP connection test failed:', error.message);
+          console.warn('   Emails will be logged to console instead');
+        } else {
+          console.log('✅ SMTP connection verified');
+        }
+      });
     } else {
       console.warn('⚠️  Email not configured. Set SMTP_USER and SMTP_PASS in .env');
     }
@@ -122,14 +135,17 @@ class UserService {
 
       await this.collections.pending.insertOne(pendingUser);
 
-      // Send verification email
-      await this.sendVerificationEmail(email, verificationToken);
+      // Send verification email (non-blocking - don't fail registration if email fails)
+      this.sendVerificationEmail(email, verificationToken).catch(err => {
+        console.error('[UserService] Failed to send verification email:', err.message);
+      });
 
       return {
         success: true,
         message: 'Registration successful! Please check your email to verify your account.',
         email,
-        publicKey
+        publicKey,
+        verificationToken: process.env.NODE_ENV === 'development' ? verificationToken : undefined
       };
     } catch (error) {
       console.error('[UserService] Registration error:', error);
@@ -185,8 +201,10 @@ class UserService {
       await this.transporter.sendMail(mailOptions);
       console.log(`✅ Verification email sent to ${email}`);
     } catch (error) {
-      console.error('[UserService] Email send error:', error);
-      throw new Error('Failed to send verification email');
+      console.error('[UserService] Email send error:', error.message);
+      // Log the verification URL for development/debugging
+      console.log(`\n📧 Manual verification URL: ${verificationUrl}\n`);
+      // Don't throw - let registration succeed even if email fails
     }
   }
 
