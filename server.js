@@ -855,6 +855,78 @@ app.post("/api/meta/analyze-gap", async (req, res) => {
 	}
 });
 
+/**
+ * Invoke a generated agent
+ * POST /api/meta/agents/:id/invoke
+ * Body: { input: object }
+ */
+app.post("/api/meta/agents/:id/invoke", async (req, res) => {
+	try {
+		const { id } = req.params;
+		const { input } = req.body;
+
+		if (!input || typeof input !== 'object') {
+			return res.status(400).json({
+				success: false,
+				error: "Input object is required"
+			});
+		}
+
+		// Find the agent
+		let agent = await dbService.db.collection('generated_agents').findOne({ name: id });
+		
+		if (!agent) {
+			try {
+				const { ObjectId } = await import('mongodb');
+				agent = await dbService.db.collection('generated_agents').findOne({ _id: new ObjectId(id) });
+			} catch (e) {
+				// Invalid ObjectId
+			}
+		}
+
+		if (!agent) {
+			return res.status(404).json({
+				success: false,
+				error: "Agent not found"
+			});
+		}
+
+		// Validate input against schema
+		const Ajv = (await import('ajv')).default;
+		const ajv = new Ajv();
+		const validate = ajv.compile(agent.schemas.inputSchema);
+		
+		if (!validate(input)) {
+			return res.status(400).json({
+				success: false,
+				error: "Input validation failed",
+				errors: validate.errors
+			});
+		}
+
+		// For now, we return a simulated result based on the test case
+		// In a full implementation, you would dynamically execute the agent code
+		console.log(`[Meta-Agent] Invoking ${agent.name} with input:`, input);
+
+		// Return the test expected output structure as a demonstration
+		res.json({
+			success: true,
+			agent: agent.name,
+			input,
+			message: "Agent invocation simulated. In production, this would execute the generated code.",
+			note: "To fully execute, save the agent code to a file and import it dynamically.",
+			testCase: agent.testResult?.testCase
+		});
+
+	} catch (error) {
+		console.error("[Meta-Agent] Invoke agent error:", error);
+		res.status(500).json({
+			success: false,
+			error: error.message
+		});
+	}
+});
+
 // ============================================================================
 // AGENTS API
 // ============================================================================
