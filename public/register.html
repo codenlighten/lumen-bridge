@@ -5,10 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Register - Lumen Bridge</title>
 
+  <!-- Buffer polyfill for browser -->
+  <script src="https://cdn.jsdelivr.net/npm/buffer@6.0.3/index.js"></script>
+  
   <!-- SmartLedger BSV Library -->
   <script src="https://cdn.jsdelivr.net/npm/smartledger-bsv@3.3.5/bsv.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/smartledger-bsv@3.3.5/bsv-mnemonic.min.js"></script>
-  <script src="./smartledger-helpers.js"></script>
+  <script src="./smartledger-helpers.js" defer></script>
 
   <style>
     * {
@@ -329,6 +332,25 @@
   <script>
     let currentKeys = null;
     let currentMnemonic = null;
+    let librariesLoaded = false;
+
+    // Wait for all libraries to load
+    window.addEventListener('load', function() {
+      // Check if SmartLedger is available
+      if (typeof SmartLedger !== 'undefined' && typeof SLH !== 'undefined') {
+        librariesLoaded = true;
+        console.log('✅ SmartLedger libraries loaded successfully');
+        
+        // Enable generate button
+        const generateBtn = document.querySelector('button[onclick="generateKeys()"]');
+        if (generateBtn) {
+          generateBtn.disabled = false;
+        }
+      } else {
+        console.error('❌ SmartLedger libraries failed to load');
+        showAlert('Failed to load cryptographic libraries. Please refresh the page.', 'error');
+      }
+    });
 
     function showAlert(message, type = 'info') {
       const alertBox = document.getElementById('alertBox');
@@ -344,7 +366,17 @@
     }
 
     function generateKeys() {
+      if (!librariesLoaded) {
+        showAlert('Libraries still loading, please wait...', 'error');
+        return;
+      }
+
       try {
+        // Check if SmartLedger is available
+        if (typeof SmartLedger === 'undefined') {
+          throw new Error('SmartLedger library not loaded');
+        }
+
         // Generate 24-word mnemonic
         currentMnemonic = SLH.generateMnemonic(256);
         
@@ -353,6 +385,7 @@
         
         displayKeys();
       } catch (error) {
+        console.error('Key generation error:', error);
         showAlert('Failed to generate keys: ' + error.message, 'error');
       }
     }

@@ -5,12 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SmartLedger Helpers - Demo</title>
 
+  <!-- Buffer polyfill for browser -->
+  <script src="https://cdn.jsdelivr.net/npm/buffer@6.0.3/index.js"></script>
+  
   <!-- SmartLedger BSV Library (Required) -->
   <script src="https://cdn.jsdelivr.net/npm/smartledger-bsv@3.3.5/bsv.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/smartledger-bsv@3.3.5/bsv-mnemonic.min.js"></script>
 
   <!-- SmartLedger Helpers -->
-  <script src="./smartledger-helpers.js"></script>
+  <script src="./smartledger-helpers.js" defer></script>
 
   <style>
     * {
