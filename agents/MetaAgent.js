@@ -259,12 +259,12 @@ Expected output fields: ${agentSpec.outputs.join(", ")}
 
 Create a proper JSON Schema (draft-07) that validates the output data structure.`;
 
-    const inputSchema = await this.schemaAgent.generateSchema(inputSchemaPrompt);
-    const outputSchema = await this.schemaAgent.generateSchema(outputSchemaPrompt);
+    const inputSchema = await this.schemaAgent.generateSchema({ userPrompt: inputSchemaPrompt });
+    const outputSchema = await this.schemaAgent.generateSchema({ userPrompt: outputSchemaPrompt });
 
     return {
-      inputSchema: inputSchema.schema || inputSchema,
-      outputSchema: outputSchema.schema || outputSchema
+      inputSchema: inputSchema.data?.generatedSchema || inputSchema.generatedSchema || inputSchema,
+      outputSchema: outputSchema.data?.generatedSchema || outputSchema.generatedSchema || outputSchema
     };
   }
 

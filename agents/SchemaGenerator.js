@@ -116,7 +116,8 @@ Requirements:
       model: this.model,
       temperature: this.temperature,
       systemPrompt: this.systemPrompt,
-      agentKey: this.agentKey
+      agentKey: this.agentKey,
+      nestUserSchema: true // Nest schema data in 'data' field
     });
 
     // At this point `res` includes:
