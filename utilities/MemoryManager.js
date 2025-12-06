@@ -44,9 +44,9 @@ export class MemoryManager {
   async _initializeFileSystem() {
     try {
       await fs.mkdir(this.memoryDir, { recursive: true });
-      console.log(`📁 Memory directory initialized: ${this.memoryDir}`);
+      // Only log once - directory creation is idempotent
     } catch (error) {
-      console.error(`❌ Failed to create memory directory: ${error.message}`);
+      console.error(`❌ [${this.ownerName}] Failed to create memory directory: ${error.message}`);
       this.persistToFile = false;
     }
   }
@@ -60,7 +60,6 @@ export class MemoryManager {
   async _loadFromFile() {
     try {
       const filePath = this._getMemoryFilePath();
-      console.log(`🔄 Loading memory from: ${filePath}`);
       
       const data = await fs.readFile(filePath, 'utf8');
       const memoryData = JSON.parse(data);
@@ -69,12 +68,12 @@ export class MemoryManager {
       this.summaries = memoryData.summaries || [];
       this.totalCount = memoryData.totalCount || 0;
       
-      console.log(`✅ Memory loaded: ${this.interactions.length} interactions, ${this.summaries.length} summaries, totalCount: ${this.totalCount}`);
+      console.log(`   💾 [${this.ownerName}] Loaded ${this.interactions.length} interactions (total: ${this.totalCount})`);
     } catch (error) {
       if (error.code === 'ENOENT') {
-        console.log(`📝 No existing memory file found, starting fresh session`);
+        // Fresh session - no log needed
       } else {
-        console.error(`❌ Error loading memory: ${error.message}`);
+        console.error(`❌ [${this.ownerName}] Error loading memory: ${error.message}`);
       }
     }
   }
@@ -98,9 +97,9 @@ export class MemoryManager {
       };
       
       await fs.writeFile(filePath, JSON.stringify(memoryData, null, 2), 'utf8');
-      console.log(`💾 Memory saved to: ${filePath}`);
+      // Silent save - only log on errors
     } catch (error) {
-      console.error(`❌ Error saving memory: ${error.message}`);
+      console.error(`❌ [${this.ownerName}] Error saving memory: ${error.message}`);
     }
   }
 

@@ -36,6 +36,7 @@ import { SchemaMediatorAgent } from "./agents/SchemaMediatorAgent.js";
 // Import utilities
 import { SchemaRegistry } from "./utilities/SchemaRegistry.js";
 import { MemoryManager } from "./utilities/MemoryManager.js";
+import { sessionMemoryManager } from "./utilities/SessionMemoryManager.js";
 import { agentRegistry } from "./utilities/AgentRegistry.js";
 import { dbService } from "./utilities/MongoDBService.js";
 import SignatureVerifier from "./utilities/SignatureVerifier.js";
@@ -57,6 +58,9 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Optional signature verification middleware (all requests, still allows through)
 app.use(SignatureVerifier.middleware());
+
+// Session memory middleware - attaches session memory to each request
+app.use(sessionMemoryManager.middleware());
 
 // Initialize agents (singleton instances)
 const agents = {
@@ -2205,9 +2209,15 @@ app.listen(PORT, () => {
 	console.log(`   • CustomAgents: http://localhost:${PORT}/api/custom-agent`);
 	console.log("\n⚡ Performance Features:");
 	console.log(`   • Cache Statistics: GET http://localhost:${PORT}/api/cache/stats`);
+	console.log(`   • Clear Cache: POST http://localhost:${PORT}/api/cache/clear?adminKey=KEY`);
 	console.log(`   • Fast Mode: Skip strategy planning for 50% speed improvement`);
 	console.log(`   • Express Mode: Cached responses (<1ms for cache hits)`);
 	console.log(`   • Response Time Headers: X-Response-Time, X-Cache-Status`);
+	console.log("\n💾 Session Memory:");
+	console.log(`   • Current Session Stats: GET http://localhost:${PORT}/api/session/stats`);
+	console.log(`   • Session History: GET http://localhost:${PORT}/api/session/history`);
+	console.log(`   • Clear Session: POST http://localhost:${PORT}/api/session/clear`);
+	console.log(`   • All Sessions (admin): GET http://localhost:${PORT}/api/sessions/all?adminKey=KEY`);
 	console.log("\n👤 User Agent Management:");
 	console.log(
 		`   • Register Agent: POST http://localhost:${PORT}/api/agents/register`
@@ -2260,6 +2270,62 @@ app.post("/api/cache/clear", (req, res) => {
 	res.json({
 		success: true,
 		message: "Cache cleared",
+		timestamp: new Date().toISOString(),
+	});
+});
+
+// ============================================================================
+// SESSION MEMORY ENDPOINTS
+// ============================================================================
+
+// Get session memory statistics for current user
+app.get("/api/session/stats", (req, res) => {
+	const stats = sessionMemoryManager.getStatsForRequest(req);
+	res.json({
+		success: true,
+		session: stats,
+		timestamp: new Date().toISOString(),
+	});
+});
+
+// Get all session statistics (admin only)
+app.get("/api/sessions/all", (req, res) => {
+	const { adminKey } = req.query;
+	
+	if (!adminKey || adminKey !== process.env.ADMIN_KEY) {
+		return res.status(403).json({
+			error: "Admin key required",
+		});
+	}
+
+	const allStats = sessionMemoryManager.getAllStats();
+	res.json({
+		success: true,
+		...allStats,
+		timestamp: new Date().toISOString(),
+	});
+});
+
+// Clear current session memory
+app.post("/api/session/clear", (req, res) => {
+	const cleared = sessionMemoryManager.clearSessionFromRequest(req);
+	res.json({
+		success: cleared,
+		message: cleared ? "Session memory cleared" : "No session found",
+		timestamp: new Date().toISOString(),
+	});
+});
+
+// Get conversation history for current session
+app.get("/api/session/history", (req, res) => {
+	const context = sessionMemoryManager.getContextForRequest(req);
+	const stats = sessionMemoryManager.getStatsForRequest(req);
+	
+	res.json({
+		success: true,
+		sessionId: req.sessionId,
+		context,
+		stats,
 		timestamp: new Date().toISOString(),
 	});
 });
