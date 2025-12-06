@@ -1,5 +1,6 @@
 import { signedStructuredResponse } from '../structured-json.js';
 import { createAgentKeys } from '../tools/signature.js';
+import { PerformanceMonitor } from '../utilities/PerformanceMonitor.js';
 
 /**
  * CodeGenerator - Natural Language to Code Agent
@@ -105,13 +106,17 @@ export class CodeGenerator {
    * @returns {Object} Generated code with metadata
    */
   async generate(query, context = {}, memory = null) {
+    const perf = new PerformanceMonitor('CodeGenerator.generate');
     console.log(`\n💻 Generating code for: "${query.substring(0, 60)}${query.length > 60 ? '...' : ''}"`);
     
     // Build comprehensive prompt
+    perf.checkpoint('start');
     const prompt = this.buildPrompt(query, context);
+    perf.checkpoint('build-prompt');
     
     // Prepare context for LLM
     const llmContext = this.prepareContext(context, memory);
+    perf.checkpoint('prepare-context');
     
     // Generate code with structured response
     const result = await signedStructuredResponse({
@@ -122,12 +127,15 @@ export class CodeGenerator {
       agentKey: this.keys,
       systemPrompt: this.getSystemPrompt()
     });
+    perf.checkpoint('llm-generation', { tokens: result._llm?.usage?.totalTokens });
 
     // Post-process and enhance
     const enhanced = this.enhanceResult(result, context);
+    perf.checkpoint('post-process');
     
     // Log summary
     this.logGenerationSummary(enhanced);
+    perf.print();
     
     return enhanced;
   }

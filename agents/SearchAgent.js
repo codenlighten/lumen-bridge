@@ -11,6 +11,8 @@
 
 import BaseMetaAgent from './BaseMetaAgent.js';
 import googleSearchService from '../utilities/google-apis.js';
+import { PerformanceMonitor } from '../utilities/PerformanceMonitor.js';
+
 export class SearchAgent extends BaseMetaAgent {
   constructor(options = {}) {
     super({
@@ -36,6 +38,7 @@ Be specific about what additional context would help narrow the search.`
     
     this.searchService = googleSearchService;
     this.maxResults = options.maxResults || 10;
+    this.skipStrategyPlanning = options.skipStrategyPlanning || false; // Performance optimization flag
   }
 
   /**
@@ -47,9 +50,81 @@ Be specific about what additional context would help narrow the search.`
     maxResults = this.maxResults,
     location = null
   }) {
+    const perf = new PerformanceMonitor(`SearchAgent.search${this.skipStrategyPlanning ? ' (FAST)' : ''}`);
     console.log(`\n🔍 [SearchAgent] Processing: "${userQuery.substring(0, 60)}..."`);
 
-    // Step 1: Plan the search strategy (current self)
+    // FAST PATH: Skip strategy planning if flag is set
+    if (this.skipStrategyPlanning) {
+      perf.checkpoint('start');
+      
+      // Use query directly
+      const searchQuery = refinedQuery || userQuery;
+      console.log(`   ⚡ Fast mode: Searching directly for: "${searchQuery}"`);
+      
+      perf.checkpoint('pre-google-search');
+      const rawResults = location
+        ? await this.searchService.searchWithLocation(searchQuery, location, { num: maxResults })
+        : await this.searchService.search(searchQuery, { num: maxResults });
+      perf.checkpoint('google-search', { resultCount: rawResults.length });
+
+      if (rawResults.length === 0) {
+        perf.print();
+        return {
+          action: 'no_results',
+          query: searchQuery,
+          results: [],
+          answer: `No results found for: ${searchQuery}`,
+          finalAnswer: `No results found for: ${searchQuery}`,
+          missingContext: []
+        };
+      }
+
+      // Simple analysis without strategy planning
+      const analysis = await this.step({
+        userPrompt: `Analyze these search results for the query: "${userQuery}"
+
+Results:
+${JSON.stringify(rawResults.slice(0, 5), null, 2)}
+
+Provide a comprehensive summary.`,
+        explicitSchema: {
+          type: "object",
+          properties: {
+            summary: { type: "string" },
+            keyFindings: { type: "array", items: { type: "string" } },
+            sources: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  title: { type: "string" },
+                  url: { type: "string" },
+                  relevance: { type: "string", enum: ["high", "medium", "low"] }
+                }
+              }
+            },
+            answerQuality: { type: "string", enum: ["complete", "partial", "insufficient"] }
+          },
+          required: ["summary", "keyFindings", "sources", "answerQuality"]
+        }
+      });
+      perf.checkpoint('result-analysis', { tokens: analysis._llm?.usage?.totalTokens });
+
+      perf.print();
+      return {
+        action: 'search_completed',
+        query: searchQuery,
+        results: rawResults,
+        answer: analysis.summary,
+        finalAnswer: analysis.summary,
+        missingContext: [],
+        analysis: analysis,
+        _signature: analysis._signature
+      };
+    }
+
+    // NORMAL PATH: Full strategy planning
+    perf.checkpoint('start');
     const strategy = await this.step({
       userPrompt: `Analyze this search request and create a search strategy:
 
@@ -87,9 +162,11 @@ Tasks:
         required: ["searchIntent", "missingContext", "searchQueries", "needsSearch", "reasoning"]
       }
     });
+    perf.checkpoint('strategy-planning', { tokens: strategy._llm?.usage?.totalTokens });
 
     // If no search needed, return early
     if (!strategy.needsSearch) {
+      perf.print();
       return {
         action: 'answer_directly',
         answer: strategy.response,
@@ -103,6 +180,7 @@ Tasks:
 
     // If missing context, ask user
     if (strategy.missingContext && strategy.missingContext.length > 0) {
+      perf.print();
       const questionText = `I need more information to search effectively: ${strategy.missingContext.join('; ')}`;
       return {
         action: 'ask_user',
@@ -121,9 +199,11 @@ Tasks:
     const searchQuery = refinedQuery || strategy.searchQueries[0];
     console.log(`   🔎 Searching for: "${searchQuery}"`);
 
+    perf.checkpoint('pre-google-search');
     const rawResults = location
       ? await this.searchService.searchWithLocation(searchQuery, location, { num: maxResults })
       : await this.searchService.search(searchQuery, { num: maxResults });
+    perf.checkpoint('google-search', { resultCount: rawResults.length });
 
     if (rawResults.length === 0) {
       return {
@@ -180,7 +260,9 @@ Task: Create a structured analysis of these results.`,
         required: ["summary", "keyFindings", "sources", "answerQuality"]
       }
     });
+    perf.checkpoint('result-analysis', { tokens: analysis._llm?.usage?.totalTokens });
 
+    perf.print();
     return {
       action: 'search_completed',
       query: searchQuery,
