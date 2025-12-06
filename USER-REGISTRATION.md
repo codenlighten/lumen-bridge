@@ -220,7 +220,7 @@ Users manage their own keys:
 npm start
 
 # Visit registration page
-open http://localhost:3000/register.html
+open http://localhost:3005/register.html
 
 # Generate keys, register, check email
 ```
@@ -230,7 +230,7 @@ open http://localhost:3000/register.html
 Without SMTP configured, verification URLs are logged to console:
 
 ```
-📧 Verification URL: http://localhost:3000/api/users/verify?token=abc123...
+📧 Verification URL: http://localhost:3005/api/users/verify?token=abc123...
 ```
 
 Copy and paste to verify during development.

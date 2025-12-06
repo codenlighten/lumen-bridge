@@ -73,7 +73,7 @@ All endpoints return a consistent JSON structure:
     },
     "_llm": {
       "provider": "openai",
-      "model": "gpt-4o-mini-2024-07-18",
+      "model": "gpt-5-nano",
       "elapsed": 3214,
       "usage": {
         "promptTokens": 1201,

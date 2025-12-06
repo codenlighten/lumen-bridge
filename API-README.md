@@ -12,7 +12,7 @@ npm install
 node server.js
 ```
 
-Server runs on `http://localhost:3000`
+Server runs on `http://localhost:3005`
 
 ## 🎯 What Can You Build?
 

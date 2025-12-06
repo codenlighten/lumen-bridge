@@ -79,7 +79,7 @@ console.log(response);
   </div>
 
   <script>
-    const API_URL = 'http://localhost:3000/api/router';
+    const API_URL = 'http://localhost:3005/api/router';
 
     async function sendMessage() {
       const input = document.getElementById('input');

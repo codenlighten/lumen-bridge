@@ -206,7 +206,7 @@ Admin-only endpoint to view all registered user agents.
 
 ```javascript
 // Register a new agent
-const response = await fetch('http://localhost:3000/api/agents/register', {
+const response = await fetch('http://localhost:3005/api/agents/register', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -221,7 +221,7 @@ const data = await response.json();
 console.log('Agent registered:', data.agent.name);
 
 // Invoke the agent
-const result = await fetch('http://localhost:3000/api/agents/invoke-user-agent', {
+const result = await fetch('http://localhost:3005/api/agents/invoke-user-agent', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -241,7 +241,7 @@ console.log('Review:', reviewResult.result.response);
 
 ```bash
 # Register agent
-curl -X POST http://localhost:3000/api/agents/register \
+curl -X POST http://localhost:3005/api/agents/register \
   -H "Content-Type: application/json" \
   -d '{
     "userId": "user-bob",
@@ -251,10 +251,10 @@ curl -X POST http://localhost:3000/api/agents/register \
   }'
 
 # Get my agents
-curl http://localhost:3000/api/agents/my-agents/user-bob
+curl http://localhost:3005/api/agents/my-agents/user-bob
 
 # Invoke agent
-curl -X POST http://localhost:3000/api/agents/invoke-user-agent \
+curl -X POST http://localhost:3005/api/agents/invoke-user-agent \
   -H "Content-Type: application/json" \
   -d '{
     "userId": "user-bob",

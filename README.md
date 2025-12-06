@@ -70,6 +70,10 @@ Lumen Bridge is a **self-aware, self-evolving agent platform** that implements t
 8. **🆕 ProjectPlannerAgent** - Architect brain that creates contracts and decomposes projects
 9. **🆕 CodeWorkerAgent** - Individual developer that executes task tickets in parallel
 10. **🆕 SyntheticDevTeam** - CTO orchestrator that manages entire development teams
+11. **🆕 VisionAgent** - Creates structured final-state architectural specifications
+12. **🆕 TaskPlannerAgent** - Converts vision to dependency-aware task DAG
+13. **🆕 BuilderAgent** - Self-iterating reason ↔ code loop executor
+14. **🆕 BuilderOrchestrator** - DAG scheduler with parallel task execution
 
 ### 🎭 User-Created Agents (NEW!)
 
@@ -129,6 +133,38 @@ const deliverable = await team.buildProject({
 ```
 
 **[Read full documentation →](./SYNTHETIC-DEV-TEAM.md)**
+
+### 🏗️ Self-Iterating Builder Workflow (NEW!)
+
+**The Vision → DAG → Execute Pattern** - Build complete projects through causality-aware scheduling:
+
+- **VisionAgent** creates structured final-state specifications (modules, APIs, constraints)
+- **TaskPlannerAgent** converts vision to dependency-aware task graph (DAG)
+- **BuilderAgent** executes tasks through self-iterating reason ↔ code loops
+- **BuilderOrchestrator** schedules parallel execution respecting dependencies
+
+```javascript
+import { BuilderOrchestrator } from './utilities/BuilderOrchestrator.js';
+
+const orchestrator = new BuilderOrchestrator({
+  maxParallelTasks: 3,
+  maxIterationsPerTask: 20
+});
+
+const result = await orchestrator.build(
+  "Build a task management API with auth, CRUD, and search",
+  { language: "javascript", runtime: "Node.js", framework: "Express" }
+);
+
+// Vision created → 8 modules identified
+// Task graph built → 19 tasks with dependencies
+// Parallel execution → tasks run as dependencies complete
+// Project complete!
+```
+
+**Key Innovation**: Separates what (vision), when (DAG causality), and how (self-iterating execution) for efficient parallel building.
+
+**[Read full documentation →](./BUILDER-WORKFLOW.md)**
 
 ### 🔄 Universal Schema Translation
 
@@ -202,7 +238,7 @@ PORT=3000
 node server.js
 ```
 
-Server runs on `http://localhost:3000`
+Server runs on `http://localhost:3005`
 
 ## 📡 API Endpoints
 
@@ -210,7 +246,7 @@ Server runs on `http://localhost:3000`
 
 #### SearchAgent - Intelligent Web Search
 ```bash
-curl -X POST http://localhost:3000/api/agents/search \
+curl -X POST http://localhost:3005/api/agents/search \
   -H "Content-Type: application/json" \
   -d '{
     "userQuery": "Latest TypeScript features 2024",
@@ -228,7 +264,7 @@ curl -X POST http://localhost:3000/api/agents/search \
 
 #### TerminalAgent - Command Generation
 ```bash
-curl -X POST http://localhost:3000/api/agents/terminal \
+curl -X POST http://localhost:3005/api/agents/terminal \
   -H "Content-Type: application/json" \
   -d '{
     "task": "Find all JavaScript files modified today"
@@ -237,7 +273,7 @@ curl -X POST http://localhost:3000/api/agents/terminal \
 
 #### CodeGenerator - Code Creation
 ```bash
-curl -X POST http://localhost:3000/api/agents/code \
+curl -X POST http://localhost:3005/api/agents/code \
   -H "Content-Type: application/json" \
   -d '{
     "prompt": "Create a React component for a user profile card",
@@ -247,7 +283,7 @@ curl -X POST http://localhost:3000/api/agents/code \
 
 #### SchemaAgent - JSON Schema Generation
 ```bash
-curl -X POST http://localhost:3000/api/agents/schema \
+curl -X POST http://localhost:3005/api/agents/schema \
   -H "Content-Type: application/json" \
   -d '{
     "userPrompt": "Schema for a blog post with title, content, author, tags, and publish date"
@@ -257,7 +293,7 @@ curl -X POST http://localhost:3000/api/agents/schema \
 #### SchemaMediatorAgent - Universal Schema Translation
 ```bash
 # Translate data between any two schemas
-curl -X POST http://localhost:3000/api/schema/translate \
+curl -X POST http://localhost:3005/api/schema/translate \
   -H "Content-Type: application/json" \
   -d '{
     "data": {"FirstName": "Jane", "LastName": "Smith", "Email": "jane@example.com"},
@@ -268,14 +304,14 @@ curl -X POST http://localhost:3000/api/schema/translate \
   }'
 
 # Infer schema from example data
-curl -X POST http://localhost:3000/api/schema/infer \
+curl -X POST http://localhost:3005/api/schema/infer \
   -H "Content-Type: application/json" \
   -d '{
     "data": {"id": 123, "name": "Product", "price": 29.99}
   }'
 
 # Get translation statistics
-curl http://localhost:3000/api/schema/mediator/stats
+curl http://localhost:3005/api/schema/mediator/stats
 ```
 
 **Key Features:**
@@ -289,7 +325,7 @@ curl http://localhost:3000/api/schema/mediator/stats
 ### Intelligent Router (Auto-Select Best Agent)
 
 ```bash
-curl -X POST http://localhost:3000/api/router \
+curl -X POST http://localhost:3005/api/router \
   -H "Content-Type: application/json" \
   -d '{
     "userPrompt": "What are the latest features in Node.js 22?"
@@ -305,7 +341,7 @@ The router automatically:
 ### Custom Agent Creation
 
 ```bash
-curl -X POST http://localhost:3000/api/custom-agent \
+curl -X POST http://localhost:3005/api/custom-agent \
   -H "Content-Type: application/json" \
   -d '{
     "agentName": "MathTutor",
@@ -508,7 +544,7 @@ Every response is verifiable:
 ## 🛠️ Technology Stack
 
 - **Runtime**: Node.js 18+
-- **LLM Provider**: OpenAI (gpt-4o-mini, gpt-4o)
+- **LLM Provider**: OpenAI (gpt-5-nano, with Llama fallback)
 - **Cryptography**: BSV-ECDSA-DER (smartledger-bsv)
 - **Web Server**: Express 5
 - **Search**: Google Custom Search API

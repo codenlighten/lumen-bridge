@@ -244,7 +244,7 @@ await agentRegistry.registerUserAgent(userId, {
 
 ```javascript
 // 1. Register a custom agent
-const response = await fetch('http://localhost:3000/api/agents/register', {
+const response = await fetch('http://localhost:3005/api/agents/register', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -256,7 +256,7 @@ const response = await fetch('http://localhost:3000/api/agents/register', {
 });
 
 // 2. Invoke the agent
-const result = await fetch('http://localhost:3000/api/agents/invoke-user-agent', {
+const result = await fetch('http://localhost:3005/api/agents/invoke-user-agent', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({

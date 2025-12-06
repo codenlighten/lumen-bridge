@@ -178,7 +178,7 @@ node test-auth-flow.js
 
 ```javascript
 class LumenBridgeClient {
-	constructor(privateKeyWIF, serverUrl = "http://localhost:3000") {
+	constructor(privateKeyWIF, serverUrl = "http://localhost:3005") {
 		this.privateKey = bsv.PrivateKey.fromWIF(privateKeyWIF);
 		this.publicKey = this.privateKey.toPublicKey().toString();
 		this.serverUrl = serverUrl;
