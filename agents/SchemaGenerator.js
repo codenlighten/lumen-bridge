@@ -16,8 +16,8 @@ import { signedStructuredResponse } from "../structured-json.js";
 export class SchemaAgent {
   constructor({
     agentKey = null,
-    model = "gpt-4o-mini",
-    temperature = 0.1,
+    model = "gpt-5-nano",
+    temperature = 1.0,
     systemPrompt = null
   } = {}) {
     this.agentKey = agentKey;

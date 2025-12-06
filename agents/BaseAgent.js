@@ -40,8 +40,8 @@ export class BaseAgent {
     agentSchema = null,
     agentDescription = '',
     agentKey = null,
-    model = 'gpt-4o-mini',
-    temperature = 0.2,
+    model = 'gpt-5-nano',
+    temperature = 1.0,
     systemPrompt = null,
     autoRegisterSchema = true
   } = {}) {

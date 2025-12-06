@@ -6,7 +6,7 @@ import crypto from "crypto";
 import fs from "fs/promises";
 import path from "path";
 
-const OPENAI_MODEL = "gpt-4o-mini";
+const OPENAI_MODEL = "gpt-5-nano";
 
 dotenv.config();
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -200,7 +200,7 @@ Output valid JSON:
 
     const res = await client.chat.completions.create({
       model: OPENAI_MODEL,
-      temperature: 0.2,
+      temperature: 1.0,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: windowText }
@@ -237,7 +237,7 @@ Output valid JSON:
 
     const res = await client.chat.completions.create({
       model: OPENAI_MODEL,
-      temperature: 0.2,
+      temperature: 1.0,
       messages: [
         { role: "system", content: "Condense the following summaries into one, preserving all key facts, names, and goals." },
         { role: "user", content: combined }

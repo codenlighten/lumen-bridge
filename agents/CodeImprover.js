@@ -138,7 +138,7 @@ export class CodeImprover {
       query: prompt,
       schema: this.getCodeImprovementSchema(),
       context: llmContext,
-      temperature: 0.3, // Balanced for improvements
+      temperature: 1.0, // Standard temperature for improvements
       agentKey: this.keys,
       systemPrompt: this.getSystemPrompt()
     });
@@ -436,7 +436,7 @@ ${improvedCode}
 Analyze the differences and assess if the improved version maintains backward compatibility.`,
       schema: comparisonSchema,
       context: context,
-      temperature: 0.3,
+      temperature: 1.0,
       agentKey: this.keys
     });
 
@@ -540,7 +540,7 @@ ${code}
 List all potential improvements, categorize them, and assess priority and effort.`,
       schema: suggestionSchema,
       context: context,
-      temperature: 0.3,
+      temperature: 1.0,
       agentKey: this.keys,
       systemPrompt: this.getSystemPrompt()
     });

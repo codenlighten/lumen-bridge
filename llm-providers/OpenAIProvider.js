@@ -17,7 +17,7 @@ export class OpenAIProvider extends BaseLLMProvider {
     }
     
     this.#client = new OpenAI({ apiKey });
-    this.model = config.model || "gpt-4o-mini";
+    this.model = config.model || "gpt-5-nano";
     this.defaultTemperature = config.temperature || 0.4;
   }
 

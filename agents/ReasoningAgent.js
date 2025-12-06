@@ -227,7 +227,7 @@ Important:
       query: prompt,
       schema: this.getReasoningSchema(),
       context: llmContext,
-      temperature: 0.35,
+      temperature: 1.0,
       agentKey: this.keys,
       systemPrompt: this.getSystemPrompt()
     });

@@ -8,7 +8,7 @@ import crypto from "crypto";
 dotenv.config();
 
 // Legacy constants for backward compatibility
-const OPENAI_MODEL = "gpt-4o-mini";
+const OPENAI_MODEL = "gpt-5-nano";
 
 /* ======================================================
  * Cryptographically Signed Response Helper with Agent Identity

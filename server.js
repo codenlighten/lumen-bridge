@@ -646,8 +646,8 @@ app.get("/api/users/stats", async (req, res) => {
 
 // Initialize Meta-Agent
 const metaAgent = new MetaAgent({
-	model: "gpt-4o-mini",
-	temperature: 0.3
+	model: "gpt-5-nano",
+	temperature: 1.0
 });
 
 /**

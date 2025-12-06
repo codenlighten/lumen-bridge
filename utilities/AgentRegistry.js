@@ -500,9 +500,9 @@ export class AgentRegistry {
       ];
 
       const response = await openai.chat.completions.create({
-        model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+        model: process.env.OPENAI_MODEL || 'gpt-5-nano',
         messages,
-        temperature: 0.7
+        temperature: 1.0
       });
 
       return {

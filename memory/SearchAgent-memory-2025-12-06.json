@@ -1,0 +1,108 @@
+{
+  "interactions": [
+    {
+      "role": "user",
+      "text": "Analyze this search request and create a search strategy:\n\nUser Query: \"What is the current Bitcoin price?\"\n\nTasks:\n1. Identify what the user is really looking for\n2. List any missing context that would improve results\n3. Generate 1-3 optimized search queries\n4. Decide if search is needed or if you can answer directly",
+      "ts": "2025-12-06T13:16:17.775Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "bf1cb1fd4ab234b66fcf296f1d65591f9266c14350c393660a0bb2ae05447fb3",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"searchIntent\":\"To find the current price of Bitcoin.\",\"missingContext\":[\"User's preferred currency for the Bitcoin price (e.g., USD, EUR)\",\"User's location which might affect price due to local exchanges\",\"Time frame for the price (e.g., real-time, average over the last hour)\"],\"searchQueries\":[\"current Bitcoin price in USD\",\"Bitcoin price live update\",\"Bitcoin price today\"],\"needsSearch\":true,\"reasoning\":\"The user is looking for real-time information, which requires a search to provide the most accurate and current data.\",\"suggestedFilters\":{\"timeRange\":\"real-time\",\"language\":\"en\",\"safeSearch\":true},\"response\":\"\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":true,\"question\":\"What currency do you want the Bitcoin price in?\",\"_signature\":{\"signature\":\"304402206d1c7e49704758a5d7377b0061b5ca122501be60c6aa4d22fbe511b664c2cbc2022055a8dd15a696bfdcc5e1ed3a55a6fa5bc34a2809e4711a24aebedca943e6e680\",\"responseHash\":\"5d184f046f2721e83150227c59efb44ac98f9b184f48609c3cc8dab372824c7b\",\"address\":\"15Rr5hAyWaCByXCjx54oJXsLVHN1zDmacj\",\"publicKey\":\"034abe89cd458a3a75485ca6bfbea80d216e932dbaf503520bac0d932d4b61f168\",\"timestamp\":\"2025-12-06T13:16:17.775Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SearchAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":6674,\"usage\":{\"promptTokens\":750,\"completionTokens\":218,\"totalTokens\":968}}}",
+      "ts": "2025-12-06T13:16:17.792Z",
+      "signature": "304402206d1c7e49704758a5d7377b0061b5ca122501be60c6aa4d22fbe511b664c2cbc2022055a8dd15a696bfdcc5e1ed3a55a6fa5bc34a2809e4711a24aebedca943e6e680",
+      "publicKey": "034abe89cd458a3a75485ca6bfbea80d216e932dbaf503520bac0d932d4b61f168",
+      "originalHash": "5d184f046f2721e83150227c59efb44ac98f9b184f48609c3cc8dab372824c7b",
+      "verified": true,
+      "textHash": "5d184f046f2721e83150227c59efb44ac98f9b184f48609c3cc8dab372824c7b"
+    },
+    {
+      "role": "user",
+      "text": "Analyze this search request and create a search strategy:\n\nUser Query: \"latest news about AI\"\n\nTasks:\n1. Identify what the user is really looking for\n2. List any missing context that would improve results\n3. Generate 1-3 optimized search queries\n4. Decide if search is needed or if you can answer directly",
+      "ts": "2025-12-06T13:16:22.582Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "43777443b12d8356021335544af3322501289dabe30657b4a11314cbb74f6716",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"searchIntent\":\"The user is looking for the most recent updates and developments in artificial intelligence.\",\"missingContext\":[\"Specific topics within AI (e.g., machine learning, ethics, applications)\",\"Geographical focus (e.g., global news, news from a specific country)\",\"Preferred sources (e.g., academic journals, news websites, blogs)\"],\"searchQueries\":[\"latest news on artificial intelligence October 2023\",\"recent developments in AI technology\",\"AI news updates this week\"],\"needsSearch\":true,\"reasoning\":\"The query is broad and lacks specificity, making it necessary to perform a search to gather the latest relevant information.\",\"suggestedFilters\":{\"timeRange\":\"last week\",\"language\":\"English\",\"safeSearch\":true},\"response\":\"\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":true,\"question\":\"What specific area of AI are you interested in (e.g., technology, ethics, applications)?\",\"_signature\":{\"signature\":\"304402207c9ae1a8bbda6e141321e3ea14dd6a62785dc1af27a8a7a000d08c8efa5dab2f02201c0779d89a269522cbd294b00067b898d214d0139e21dfb74a55cb1956b6c5de\",\"responseHash\":\"ebed5ee602485776dbbdd7e96ed11bc5ef903d23424cd50f40dc3e082dcdcc39\",\"address\":\"15Rr5hAyWaCByXCjx54oJXsLVHN1zDmacj\",\"publicKey\":\"034abe89cd458a3a75485ca6bfbea80d216e932dbaf503520bac0d932d4b61f168\",\"timestamp\":\"2025-12-06T13:16:22.582Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SearchAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":4850,\"usage\":{\"promptTokens\":748,\"completionTokens\":241,\"totalTokens\":989}}}",
+      "ts": "2025-12-06T13:16:22.585Z",
+      "signature": "304402207c9ae1a8bbda6e141321e3ea14dd6a62785dc1af27a8a7a000d08c8efa5dab2f02201c0779d89a269522cbd294b00067b898d214d0139e21dfb74a55cb1956b6c5de",
+      "publicKey": "034abe89cd458a3a75485ca6bfbea80d216e932dbaf503520bac0d932d4b61f168",
+      "originalHash": "ebed5ee602485776dbbdd7e96ed11bc5ef903d23424cd50f40dc3e082dcdcc39",
+      "verified": true,
+      "textHash": "ebed5ee602485776dbbdd7e96ed11bc5ef903d23424cd50f40dc3e082dcdcc39"
+    },
+    {
+      "role": "user",
+      "text": "Analyze this search request and create a search strategy:\n\nUser Query: \"What is the capital of France?\"\n\nTasks:\n1. Identify what the user is really looking for\n2. List any missing context that would improve results\n3. Generate 1-3 optimized search queries\n4. Decide if search is needed or if you can answer directly",
+      "ts": "2025-12-06T13:32:21.066Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "e0fa403603027f59db0c729e21dc71d61c1cee6a6ee726cb3d2007eeb6f6a4db",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"searchIntent\":\"To find out the capital city of France.\",\"missingContext\":[],\"searchQueries\":[\"capital of France\",\"what is the capital city of France\",\"France capital information\"],\"needsSearch\":false,\"reasoning\":\"The capital of France is a well-known fact that can be answered directly without the need for a search.\",\"suggestedFilters\":{\"timeRange\":\"\",\"language\":\"en\",\"safeSearch\":true},\"response\":\"The capital of France is Paris.\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":false,\"question\":\"\",\"_signature\":{\"signature\":\"3045022100dbb8c42d6b7533329ec7b12a075aed26a6adfc5cc6c81e195656312dbdebee1b022012bb44796db204caff55db34f2289c0206d81db48b3682ef18bf1694a8fb55a3\",\"responseHash\":\"1775ba267032360cf79a47d67eb2e70edb7625ec051bbffcaf06c45b89836814\",\"address\":\"15Rr5hAyWaCByXCjx54oJXsLVHN1zDmacj\",\"publicKey\":\"034abe89cd458a3a75485ca6bfbea80d216e932dbaf503520bac0d932d4b61f168\",\"timestamp\":\"2025-12-06T13:32:21.066Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SearchAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":10026,\"usage\":{\"promptTokens\":1802,\"completionTokens\":465,\"totalTokens\":2267}}}",
+      "ts": "2025-12-06T13:32:21.076Z",
+      "signature": "3045022100dbb8c42d6b7533329ec7b12a075aed26a6adfc5cc6c81e195656312dbdebee1b022012bb44796db204caff55db34f2289c0206d81db48b3682ef18bf1694a8fb55a3",
+      "publicKey": "034abe89cd458a3a75485ca6bfbea80d216e932dbaf503520bac0d932d4b61f168",
+      "originalHash": "1775ba267032360cf79a47d67eb2e70edb7625ec051bbffcaf06c45b89836814",
+      "verified": true,
+      "textHash": "1775ba267032360cf79a47d67eb2e70edb7625ec051bbffcaf06c45b89836814"
+    },
+    {
+      "role": "user",
+      "text": "Analyze this search request and create a search strategy:\n\nUser Query: \"latest AI news\"\n\nTasks:\n1. Identify what the user is really looking for\n2. List any missing context that would improve results\n3. Generate 1-3 optimized search queries\n4. Decide if search is needed or if you can answer directly",
+      "ts": "2025-12-06T13:40:14.654Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "9ccf2226730e721af16f4d1e99e62b310ff0463261fefa9e53c2236d68f8cba5",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"searchIntent\":\"To find the most recent news and updates related to artificial intelligence.\",\"missingContext\":[\"Specific topics of interest within AI (e.g., technology advancements, ethical discussions, industry applications)\",\"Preferred sources for news (e.g., tech blogs, mainstream news outlets, academic journals)\",\"Geographical focus (e.g., global news, news specific to a region or country)\"],\"searchQueries\":[\"latest news on artificial intelligence\",\"AI news updates October 2023\",\"recent developments in AI technology\"],\"needsSearch\":true,\"reasoning\":\"The query is broad and lacks specificity, making it necessary to perform a search to gather the latest relevant information.\",\"suggestedFilters\":{\"timeRange\":\"last week\",\"language\":\"English\",\"safeSearch\":true},\"response\":\"\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":true,\"question\":\"What specific area of AI are you interested in (e.g., technology, ethics, applications)?\",\"_signature\":{\"signature\":\"3045022100b866e868ce86394cede55b544f753aeebd1de187b36400733ddbccfd3eae32e50220451caf749f8aae2a3f2486a4c91bae258d00d35fa75cdb9e4d1d5105baefe84f\",\"responseHash\":\"4f137d6382e9b7ddaed6877eeb41e03c29fba0e7546b901e6612d296aa698069\",\"address\":\"15Rr5hAyWaCByXCjx54oJXsLVHN1zDmacj\",\"publicKey\":\"034abe89cd458a3a75485ca6bfbea80d216e932dbaf503520bac0d932d4b61f168\",\"timestamp\":\"2025-12-06T13:40:14.653Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SearchAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":4121,\"usage\":{\"promptTokens\":2256,\"completionTokens\":193,\"totalTokens\":2449}}}",
+      "ts": "2025-12-06T13:40:14.677Z",
+      "signature": "3045022100b866e868ce86394cede55b544f753aeebd1de187b36400733ddbccfd3eae32e50220451caf749f8aae2a3f2486a4c91bae258d00d35fa75cdb9e4d1d5105baefe84f",
+      "publicKey": "034abe89cd458a3a75485ca6bfbea80d216e932dbaf503520bac0d932d4b61f168",
+      "originalHash": "4f137d6382e9b7ddaed6877eeb41e03c29fba0e7546b901e6612d296aa698069",
+      "verified": true,
+      "textHash": "4f137d6382e9b7ddaed6877eeb41e03c29fba0e7546b901e6612d296aa698069"
+    },
+    {
+      "role": "user",
+      "text": "Analyze this search request and create a search strategy:\n\nUser Query: \"latest AI news\"\n\nTasks:\n1. Identify what the user is really looking for\n2. List any missing context that would improve results\n3. Generate 1-3 optimized search queries\n4. Decide if search is needed or if you can answer directly",
+      "ts": "2025-12-06T13:41:39.180Z",
+      "signature": null,
+      "publicKey": null,
+      "originalHash": "9ccf2226730e721af16f4d1e99e62b310ff0463261fefa9e53c2236d68f8cba5",
+      "verified": false
+    },
+    {
+      "role": "ai",
+      "text": "{\"searchIntent\":\"To find the most recent news and updates related to artificial intelligence.\",\"missingContext\":[\"Specific topics of interest within AI (e.g., technology advancements, ethical discussions, industry applications)\",\"Preferred sources for news (e.g., tech blogs, mainstream news outlets, academic journals)\",\"Geographical focus (e.g., global news, news specific to a region or country)\"],\"searchQueries\":[\"latest news on artificial intelligence\",\"AI news updates October 2023\",\"recent developments in AI technology\"],\"needsSearch\":true,\"reasoning\":\"The query is broad and lacks specificity, making it necessary to perform a search to gather the latest relevant information.\",\"suggestedFilters\":{\"timeRange\":\"last week\",\"language\":\"English\",\"safeSearch\":true},\"response\":\"\",\"includesCode\":false,\"code\":\"\",\"continue\":false,\"questionForUser\":true,\"question\":\"What specific area of AI are you interested in (e.g., technology, ethics, applications)?\",\"_signature\":{\"signature\":\"3045022100b866e868ce86394cede55b544f753aeebd1de187b36400733ddbccfd3eae32e50220451caf749f8aae2a3f2486a4c91bae258d00d35fa75cdb9e4d1d5105baefe84f\",\"responseHash\":\"4f137d6382e9b7ddaed6877eeb41e03c29fba0e7546b901e6612d296aa698069\",\"address\":\"15Rr5hAyWaCByXCjx54oJXsLVHN1zDmacj\",\"publicKey\":\"034abe89cd458a3a75485ca6bfbea80d216e932dbaf503520bac0d932d4b61f168\",\"timestamp\":\"2025-12-06T13:41:39.180Z\",\"algorithm\":\"BSV-ECDSA-DER\",\"encoding\":\"hex\",\"agentIdentity\":\"SearchAgent\"},\"_llm\":{\"provider\":\"openai\",\"model\":\"gpt-4o-mini-2024-07-18\",\"elapsed\":2137,\"usage\":{\"promptTokens\":2796,\"completionTokens\":193,\"totalTokens\":2989}}}",
+      "ts": "2025-12-06T13:41:39.197Z",
+      "signature": "3045022100b866e868ce86394cede55b544f753aeebd1de187b36400733ddbccfd3eae32e50220451caf749f8aae2a3f2486a4c91bae258d00d35fa75cdb9e4d1d5105baefe84f",
+      "publicKey": "034abe89cd458a3a75485ca6bfbea80d216e932dbaf503520bac0d932d4b61f168",
+      "originalHash": "4f137d6382e9b7ddaed6877eeb41e03c29fba0e7546b901e6612d296aa698069",
+      "verified": true,
+      "textHash": "4f137d6382e9b7ddaed6877eeb41e03c29fba0e7546b901e6612d296aa698069"
+    }
+  ],
+  "summaries": [],
+  "totalCount": 10,
+  "lastUpdated": "2025-12-06T13:41:39.267Z",
+  "metadata": {
+    "ownerName": "SearchAgent",
+    "maxInteractions": 42,
+    "maxSummaries": 5,
+    "tokenLimit": 100000
+  }
+}

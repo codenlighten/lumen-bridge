@@ -149,7 +149,7 @@ export class TerminalAgent {
       query: prompt,
       schema: this.getTerminalCommandSchema(),
       context: llmContext,
-      temperature: 0.2, // Lower for more deterministic commands
+      temperature: 1.0, // Standard temperature for command generation
       agentKey: this.keys,
       systemPrompt: this.getSystemPrompt()
     });
@@ -388,7 +388,7 @@ Always be explicit about:
       query: `Generate a sequence of terminal commands for: ${query}`,
       schema: sequenceSchema,
       context: this.prepareContext(context, memory),
-      temperature: 0.2,
+      temperature: 1.0,
       agentKey: this.keys,
       systemPrompt: this.getSystemPrompt()
     });
@@ -481,7 +481,7 @@ ${command}
 Provide a comprehensive breakdown of what each part does, any risks involved, and best practices.`,
       schema: explainSchema,
       context: context,
-      temperature: 0.3,
+      temperature: 1.0,
       agentKey: this.keys,
       systemPrompt: this.getSystemPrompt()
     });

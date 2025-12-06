@@ -34,8 +34,8 @@ export class BaseMetaAgent {
   constructor({
     agentName = "BaseMetaAgent",
     agentKey = null,
-    model = "gpt-4o-mini",
-    temperature = 0.2,
+    model = "gpt-5-nano",
+    temperature = 1.0,
     systemPrompt = null,
     memoryOptions = null,
     autoSchemaPlanning = true,
@@ -80,7 +80,7 @@ When you need to continue:
     this.schemaAgent = new SchemaAgent({
       agentKey: this.agentKey,
       model,
-      temperature: 0.1 // Low temperature for deterministic schema generation
+      temperature: 1.0 // Standard temperature for schema generation
     });
 
     // Per-agent memory

@@ -14,8 +14,8 @@ export const LLMConfig = {
   // OpenAI Configuration
   openai: {
     apiKey: process.env.OPENAI_API_KEY,
-    model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
-    temperature: parseFloat(process.env.OPENAI_TEMPERATURE || '0.4'),
+    model: process.env.OPENAI_MODEL || 'gpt-5-nano',
+    temperature: parseFloat(process.env.OPENAI_TEMPERATURE || '1.0'),
     maxRetries: parseInt(process.env.OPENAI_MAX_RETRIES || '3')
   },
   
@@ -24,7 +24,7 @@ export const LLMConfig = {
     endpoint: process.env.LLAMA_ENDPOINT || 'localhost',
     port: parseInt(process.env.LLAMA_PORT || '11434'),
     model: process.env.LLAMA_MODEL || 'llama3:8b',
-    temperature: parseFloat(process.env.LLAMA_TEMPERATURE || '0.4')
+    temperature: parseFloat(process.env.LLAMA_TEMPERATURE || '1.0')
   },
   
   // Fallback behavior when primary provider fails

@@ -228,7 +228,7 @@ Return ONLY the JSON matching the schema.`;
       schema: specSchema,
       agentKey: this.agentKey,
       model: this.model,
-      temperature: 0.3,
+      temperature: 1.0,
       nestUserSchema: true // Use nested data structure
     });
 
@@ -341,7 +341,7 @@ Generate the complete, production-ready code.`;
       schema: codeSchema,
       agentKey: this.agentKey,
       model: this.model,
-      temperature: 0.4,
+      temperature: 1.0,
       nestUserSchema: true
     });
 
@@ -403,7 +403,7 @@ Return both as JSON.`;
       schema: infraSchema,
       agentKey: this.agentKey,
       model: this.model,
-      temperature: 0.2,
+      temperature: 1.0,
       nestUserSchema: true
     });
 
@@ -499,7 +499,7 @@ Generate:
       schema: testSchema,
       agentKey: this.agentKey,
       model: this.model,
-      temperature: 0.3,
+      temperature: 1.0,
       nestUserSchema: true
     });
 
@@ -567,7 +567,7 @@ Determine:
       schema: gapSchema,
       agentKey: this.agentKey,
       model: this.model,
-      temperature: 0.2,
+      temperature: 1.0,
       nestUserSchema: true
     });
 

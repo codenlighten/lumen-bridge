@@ -111,7 +111,7 @@ export class SummaryAgent {
     const analysis = await signedStructuredResponse({
       query: prompt,
       schema: analysisSchema,
-      temperature: 0.3,
+      temperature: 1.0,
       agentKey: this.keys
     });
     
@@ -366,7 +366,7 @@ Return what should be ADDED or UPDATED in the global context.`;
         },
         required: ["newKeyPoints", "updatedSummary", "newInsights"]
       },
-      temperature: 0.3,
+      temperature: 1.0,
       agentKey: this.keys
     });
 
@@ -461,7 +461,7 @@ What's still missing to fully achieve the objective?`,
         },
         required: ["completenessScore", "satisfiedElements", "missingElements", "nextSteps", "confidence"]
       },
-      temperature: 0.3,
+      temperature: 1.0,
       agentKey: this.keys
     });
 
@@ -524,7 +524,7 @@ Make it publication-ready and professional.`;
         },
         required: ["title", "content", "sections", "summary"]
       },
-      temperature: 0.4,
+      temperature: 1.0,
       agentKey: this.keys
     });
 
@@ -579,7 +579,7 @@ Make it scannable and memorable.`,
         },
         required: ["oneSentenceSummary", "topPoints", "mustRemember"]
       },
-      temperature: 0.3,
+      temperature: 1.0,
       agentKey: this.keys
     });
 

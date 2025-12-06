@@ -118,7 +118,7 @@ export class CodeGenerator {
       query: prompt,
       schema: this.getCodeGenerationSchema(),
       context: llmContext,
-      temperature: 0.3, // Lower for more deterministic code
+      temperature: 1.0, // Standard temperature for code generation
       agentKey: this.keys,
       systemPrompt: this.getSystemPrompt()
     });
@@ -353,7 +353,7 @@ Complexity: ${v.complexity}
 
 Consider: readability, performance, maintainability, error handling, and best practices.`,
       schema: comparisonSchema,
-      temperature: 0.4,
+      temperature: 1.0,
       agentKey: this.keys
     });
 
