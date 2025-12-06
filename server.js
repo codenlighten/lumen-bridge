@@ -29,6 +29,7 @@ import MetaAgent from "./agents/MetaAgent.js";
 import SearchAgent from "./agents/SearchAgent.js";
 import TerminalAgent from "./agents/TerminalAgent.js";
 import CodeGenerator from "./agents/CodeGenerator.js";
+import { CodeImprover } from "./agents/CodeImprover.js";
 import SchemaAgent from "./agents/SchemaGenerator.js";
 import { SchemaMediatorAgent } from "./agents/SchemaMediatorAgent.js";
 
@@ -63,6 +64,7 @@ const agents = {
 	searchFast: new SearchAgent({ maxResults: 10, skipStrategyPlanning: true }),
 	terminal: new TerminalAgent("API-Terminal"),
 	code: new CodeGenerator("API-CodeGen"),
+	codeImprover: new CodeImprover("API-CodeImprover"),
 	schema: new SchemaAgent(),
 	schemaMediator: new SchemaMediatorAgent({
 		cacheMaxSize: 100,
@@ -1137,11 +1139,70 @@ app.post("/api/agents/terminal", async (req, res) => {
 			});
 		}
 
+		const startTime = Date.now();
 		const result = await agents.terminal.generate(task, context || {});
+		const responseTime = Date.now() - startTime;
 
+		res.set('X-Response-Time', responseTime + 'ms');
 		res.json({
 			success: true,
 			agent: "TerminalAgent",
+			result,
+			timestamp: new Date().toISOString(),
+		});
+	} catch (error) {
+		res.status(500).json({
+			error: error.message,
+			agent: "TerminalAgent",
+		});
+	}
+});
+
+// TerminalAgent EXPRESS endpoint (with caching)
+app.post("/api/agents/terminal/express", async (req, res) => {
+	try {
+		const { task, context } = req.body;
+
+		if (!task) {
+			return res.status(400).json({
+				error: "task is required",
+			});
+		}
+
+		const cacheContext = { context: context || {} };
+		
+		// Check cache first
+		if (globalCache.has(task, cacheContext)) {
+			const cached = globalCache.get(task, cacheContext);
+			res.set('X-Cache-Status', 'HIT');
+			res.set('X-Cache-Age', cached._cache.age + 'ms');
+			res.set('X-Performance-Mode', 'express');
+			return res.json({
+				success: true,
+				agent: "TerminalAgent",
+				mode: "express",
+				cached: true,
+				result: cached,
+				timestamp: new Date().toISOString(),
+			});
+		}
+
+		// Cache miss - generate terminal commands
+		const startTime = Date.now();
+		const result = await agents.terminal.generate(task, context || {});
+		const responseTime = Date.now() - startTime;
+
+		// Store in cache
+		globalCache.set(task, cacheContext, result);
+
+		res.set('X-Cache-Status', 'MISS');
+		res.set('X-Response-Time', responseTime + 'ms');
+		res.set('X-Performance-Mode', 'express');
+		res.json({
+			success: true,
+			agent: "TerminalAgent",
+			mode: "express",
+			cached: false,
 			result,
 			timestamp: new Date().toISOString(),
 		});
@@ -1164,8 +1225,11 @@ app.post("/api/agents/code", async (req, res) => {
 			});
 		}
 
+		const startTime = Date.now();
 		const result = await agents.code.generate(prompt, context || {});
+		const responseTime = Date.now() - startTime;
 
+		res.set('X-Response-Time', responseTime + 'ms');
 		res.json({
 			success: true,
 			agent: "CodeGenerator",
@@ -1176,6 +1240,148 @@ app.post("/api/agents/code", async (req, res) => {
 		res.status(500).json({
 			error: error.message,
 			agent: "CodeGenerator",
+		});
+	}
+});
+
+// CodeGenerator EXPRESS endpoint (with caching)
+app.post("/api/agents/code/express", async (req, res) => {
+	try {
+		const { prompt, context } = req.body;
+
+		if (!prompt) {
+			return res.status(400).json({
+				error: "prompt is required",
+			});
+		}
+
+		const cacheContext = { context: context || {} };
+		
+		// Check cache first
+		if (globalCache.has(prompt, cacheContext)) {
+			const cached = globalCache.get(prompt, cacheContext);
+			res.set('X-Cache-Status', 'HIT');
+			res.set('X-Cache-Age', cached._cache.age + 'ms');
+			res.set('X-Performance-Mode', 'express');
+			return res.json({
+				success: true,
+				agent: "CodeGenerator",
+				mode: "express",
+				cached: true,
+				result: cached,
+				timestamp: new Date().toISOString(),
+			});
+		}
+
+		// Cache miss - generate code
+		const startTime = Date.now();
+		const result = await agents.code.generate(prompt, context || {});
+		const responseTime = Date.now() - startTime;
+
+		// Store in cache
+		globalCache.set(prompt, cacheContext, result);
+
+		res.set('X-Cache-Status', 'MISS');
+		res.set('X-Response-Time', responseTime + 'ms');
+		res.set('X-Performance-Mode', 'express');
+		res.json({
+			success: true,
+			agent: "CodeGenerator",
+			mode: "express",
+			cached: false,
+			result,
+			timestamp: new Date().toISOString(),
+		});
+	} catch (error) {
+		res.status(500).json({
+			error: error.message,
+			agent: "CodeGenerator",
+		});
+	}
+});
+
+// CodeImprover endpoint
+app.post("/api/agents/code/improve", async (req, res) => {
+	try {
+		const { code, context } = req.body;
+
+		if (!code) {
+			return res.status(400).json({
+				error: "code is required",
+			});
+		}
+
+		const startTime = Date.now();
+		const result = await agents.codeImprover.improve(code, context || {});
+		const responseTime = Date.now() - startTime;
+
+		res.set('X-Response-Time', responseTime + 'ms');
+		res.json({
+			success: true,
+			agent: "CodeImprover",
+			result,
+			timestamp: new Date().toISOString(),
+		});
+	} catch (error) {
+		res.status(500).json({
+			error: error.message,
+			agent: "CodeImprover",
+		});
+	}
+});
+
+// CodeImprover EXPRESS endpoint (with caching)
+app.post("/api/agents/code/improve/express", async (req, res) => {
+	try {
+		const { code, context } = req.body;
+
+		if (!code) {
+			return res.status(400).json({
+				error: "code is required",
+			});
+		}
+
+		const cacheContext = { context: context || {} };
+		
+		// Check cache first
+		if (globalCache.has(code, cacheContext)) {
+			const cached = globalCache.get(code, cacheContext);
+			res.set('X-Cache-Status', 'HIT');
+			res.set('X-Cache-Age', cached._cache.age + 'ms');
+			res.set('X-Performance-Mode', 'express');
+			return res.json({
+				success: true,
+				agent: "CodeImprover",
+				mode: "express",
+				cached: true,
+				result: cached,
+				timestamp: new Date().toISOString(),
+			});
+		}
+
+		// Cache miss - improve code
+		const startTime = Date.now();
+		const result = await agents.codeImprover.improve(code, context || {});
+		const responseTime = Date.now() - startTime;
+
+		// Store in cache
+		globalCache.set(code, cacheContext, result);
+
+		res.set('X-Cache-Status', 'MISS');
+		res.set('X-Response-Time', responseTime + 'ms');
+		res.set('X-Performance-Mode', 'express');
+		res.json({
+			success: true,
+			agent: "CodeImprover",
+			mode: "express",
+			cached: false,
+			result,
+			timestamp: new Date().toISOString(),
+		});
+	} catch (error) {
+		res.status(500).json({
+			error: error.message,
+			agent: "CodeImprover",
 		});
 	}
 });
@@ -1983,7 +2189,13 @@ app.listen(PORT, () => {
 	console.log(
 		`   • TerminalAgent: http://localhost:${PORT}/api/agents/terminal`
 	);
+	console.log(
+		`   • TerminalAgent (Express): http://localhost:${PORT}/api/agents/terminal/express`
+	);
 	console.log(`   • CodeGenerator: http://localhost:${PORT}/api/agents/code`);
+	console.log(`   • CodeGenerator (Express): http://localhost:${PORT}/api/agents/code/express`);
+	console.log(`   • CodeImprover: http://localhost:${PORT}/api/agents/code/improve`);
+	console.log(`   • CodeImprover (Express): http://localhost:${PORT}/api/agents/code/improve/express`);
 	console.log(`   • SchemaAgent: http://localhost:${PORT}/api/agents/schema`);
 	console.log(
 		`   • SchemaMediatorAgent: http://localhost:${PORT}/api/schema/translate`
@@ -1995,6 +2207,7 @@ app.listen(PORT, () => {
 	console.log(`   • Cache Statistics: GET http://localhost:${PORT}/api/cache/stats`);
 	console.log(`   • Fast Mode: Skip strategy planning for 50% speed improvement`);
 	console.log(`   • Express Mode: Cached responses (<1ms for cache hits)`);
+	console.log(`   • Response Time Headers: X-Response-Time, X-Cache-Status`);
 	console.log("\n👤 User Agent Management:");
 	console.log(
 		`   • Register Agent: POST http://localhost:${PORT}/api/agents/register`

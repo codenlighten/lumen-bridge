@@ -1,5 +1,6 @@
 import { signedStructuredResponse } from '../structured-json.js';
 import { createAgentKeys } from '../tools/signature.js';
+import { PerformanceMonitor } from '../utilities/PerformanceMonitor.js';
 
 /**
  * CodeImprover - Enhance Existing Code Without Breaking Changes
@@ -125,13 +126,17 @@ export class CodeImprover {
    * @returns {Object} Improved code with metadata
    */
   async improve(code, context = {}, memory = null) {
+    const perf = new PerformanceMonitor('CodeImprover.improve');
     console.log(`\n🔧 Improving code (${code.split('\n').length} lines)...`);
     
     // Build comprehensive prompt
+    perf.checkpoint('start');
     const prompt = this.buildPrompt(code, context);
+    perf.checkpoint('build-prompt');
     
     // Prepare context for LLM
     const llmContext = this.prepareContext(context, memory);
+    perf.checkpoint('prepare-context');
     
     // Generate improved code with structured response
     const result = await signedStructuredResponse({
@@ -142,6 +147,7 @@ export class CodeImprover {
       agentKey: this.keys,
       systemPrompt: this.getSystemPrompt()
     });
+    perf.checkpoint('llm-improvement', { tokens: result._llm?.usage?.totalTokens });
 
     // Validate no breaking changes
     if (result.breakingChanges && result.breakingChanges.length > 0) {
@@ -150,9 +156,11 @@ export class CodeImprover {
 
     // Post-process and enhance
     const enhanced = this.enhanceResult(result, code, context);
+    perf.checkpoint('post-process');
     
     // Log summary
     this.logImprovementSummary(enhanced);
+    perf.print();
     
     return enhanced;
   }
