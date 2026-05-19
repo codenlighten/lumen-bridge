@@ -52,6 +52,8 @@ import {
 	errorHandler,
 	AppError,
 } from "./utilities/AuthMiddleware.js";
+import { CACHE, META_AGENT } from "./config/constants.js";
+import { validateBody, schemas } from "./utilities/Validate.js";
 
 dotenv.config();
 
@@ -153,8 +155,8 @@ const agents = {
 	codeImprover: new CodeImprover("API-CodeImprover"),
 	schema: new SchemaAgent(),
 	schemaMediator: new SchemaMediatorAgent({
-		cacheMaxSize: 100,
-		cacheTTL: 3600000,
+		cacheMaxSize: CACHE.MAX_SIZE,
+		cacheTTL: CACHE.TTL_MS,
 	}),
 };
 
@@ -456,7 +458,7 @@ app.get("/api/docs", (req, res) => {
  * POST /api/auth/challenge
  * Body: { publicKey: string }
  */
-app.post("/api/auth/challenge", (req, res) => {
+app.post("/api/auth/challenge", validateBody(schemas.challenge), (req, res) => {
 	try {
 		const { publicKey } = req.body;
 
@@ -487,7 +489,7 @@ app.post("/api/auth/challenge", (req, res) => {
  * POST /api/auth/verify
  * Body: { challenge: string, signature: string, publicKey: string }
  */
-app.post("/api/auth/verify", (req, res) => {
+app.post("/api/auth/verify", validateBody(schemas.verify), (req, res) => {
 	try {
 		const { challenge, signature, publicKey } = req.body;
 
@@ -527,7 +529,7 @@ app.post("/api/auth/verify", (req, res) => {
  * POST /api/users/register
  * Body: { email: string, publicKey: string, password: string }
  */
-app.post("/api/users/register", async (req, res) => {
+app.post("/api/users/register", validateBody(schemas.register), async (req, res) => {
 	try {
 		const { email, publicKey, password } = req.body;
 
@@ -681,7 +683,7 @@ app.get("/api/users/verify", async (req, res) => {
  * POST /api/users/login
  * Body: { email: string, password: string }
  */
-app.post("/api/users/login", async (req, res) => {
+app.post("/api/users/login", validateBody(schemas.login), async (req, res) => {
 	try {
 		const { email, password } = req.body;
 
@@ -747,7 +749,7 @@ const metaAgent = new MetaAgent({
  * POST /api/meta/create-agent
  * Body: { prompt: string, options?: object }
  */
-app.post("/api/meta/create-agent", requireAuth, async (req, res) => {
+app.post("/api/meta/create-agent", requireAuth, validateBody(schemas.metaCreateAgent), async (req, res) => {
 	try {
 		const { prompt, options = {} } = req.body;
 
@@ -764,11 +766,11 @@ app.post("/api/meta/create-agent", requireAuth, async (req, res) => {
 			const user = await userService.getUserByPublicKey(req.user.publicKey);
 			if (user) {
 				userId = user.email;
-				// Agent creation counts as 10 requests
-				if (user.requestCount + 10 > user.monthlyLimit) {
+				// Agent creation counts as META_AGENT.REQUEST_COST requests
+				if (user.requestCount + META_AGENT.REQUEST_COST > user.monthlyLimit) {
 					return res.status(429).json({
 						success: false,
-						error: "Monthly limit exceeded. Agent creation costs 10 requests.",
+						error: `Monthly limit exceeded. Agent creation costs ${META_AGENT.REQUEST_COST} requests.`,
 						currentUsage: user.requestCount,
 						limit: user.monthlyLimit
 					});
@@ -806,9 +808,9 @@ app.post("/api/meta/create-agent", requireAuth, async (req, res) => {
 
 			await dbService.db.collection('generated_agents').insertOne(agentRecord);
 
-			// Increment user request count (10 requests for agent creation)
+			// Increment user request count (META_AGENT.REQUEST_COST per creation)
 			if (req.user?.publicKey) {
-				for (let i = 0; i < 10; i++) {
+				for (let i = 0; i < META_AGENT.REQUEST_COST; i++) {
 					await userService.incrementRequestCount(req.user.publicKey);
 				}
 			}

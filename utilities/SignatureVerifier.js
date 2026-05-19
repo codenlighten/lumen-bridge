@@ -1,6 +1,7 @@
 import { verifySignature } from "../tools/der-signature.js";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
+import { AUTH } from "../config/constants.js";
 
 /**
  * SignatureVerifier - Helper for verifying DER signatures on API requests
@@ -12,10 +13,10 @@ import jwt from "jsonwebtoken";
 class SignatureVerifier {
 	// In-memory challenge storage (use Redis/DB for production)
 	static challenges = new Map();
-	static CHALLENGE_EXPIRY = 5 * 60 * 1000; // 5 minutes
+	static CHALLENGE_EXPIRY = AUTH.CHALLENGE_EXPIRY_MS;
 	static JWT_SECRET =
 		process.env.JWT_SECRET || "lumenbridge-secret-key-change-in-production";
-	static JWT_EXPIRY = "1h";
+	static JWT_EXPIRY = AUTH.JWT_EXPIRY;
 	/**
 	 * Verify a signed request
 	 * @param {string} jsonString - The JSON string that was signed

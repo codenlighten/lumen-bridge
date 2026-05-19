@@ -7,10 +7,9 @@ import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
 import jwt from 'jsonwebtoken';
+import { AUTH, TIERS } from '../config/constants.js';
 
-const BCRYPT_COST = 12;
 const JWT_SECRET = process.env.JWT_SECRET || 'lumenbridge-secret-key-change-in-production';
-const JWT_EXPIRY = process.env.JWT_EXPIRES_IN || '1h';
 
 class UserService {
   constructor(mongoService) {
@@ -118,11 +117,11 @@ class UserService {
       }
 
       // Hash password
-      const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
+      const passwordHash = await bcrypt.hash(password, AUTH.BCRYPT_COST);
 
       // Generate verification token
       const verificationToken = crypto.randomBytes(32).toString('hex');
-      const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+      const tokenExpiry = new Date(Date.now() + AUTH.EMAIL_VERIFICATION_TTL_MS);
 
       // Create pending user
       const pendingUser = {
@@ -134,7 +133,7 @@ class UserService {
         createdAt: new Date(),
         tier: 'free',
         requestCount: 0,
-        monthlyLimit: 100,
+        monthlyLimit: TIERS.free.monthlyLimit,
         resetDate: this.getNextMonthDate()
       };
 
@@ -307,13 +306,13 @@ class UserService {
       const token = jwt.sign(
         { publicKey: user.publicKey, email: user.email, type: 'password-auth' },
         JWT_SECRET,
-        { expiresIn: JWT_EXPIRY, issuer: 'lumenbridge', subject: user.publicKey }
+        { expiresIn: AUTH.JWT_EXPIRY, issuer: 'lumenbridge', subject: user.publicKey }
       );
 
       return {
         success: true,
         token,
-        expiresIn: JWT_EXPIRY,
+        expiresIn: AUTH.JWT_EXPIRY,
         user: {
           email: user.email,
           publicKey: user.publicKey,
@@ -363,16 +362,10 @@ class UserService {
   async upgradeUserTier(publicKey, newTier) {
     this.ensureCollections();
     
-    const tierLimits = {
-      free: 100,
-      pro: 10000,
-      enterprise: -1 // unlimited
-    };
-
-    const limit = tierLimits[newTier];
-    if (limit === undefined) {
+    if (!TIERS[newTier]) {
       throw new Error('Invalid tier');
     }
+    const limit = TIERS[newTier].monthlyLimit;
 
     await this.collections.users.updateOne(
       { publicKey },

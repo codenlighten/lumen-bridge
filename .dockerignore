@@ -1,0 +1,38 @@
+# Secrets & local config
+.env
+.env.*
+!.env.example
+
+# Dependencies (installed inside container)
+node_modules
+npm-debug.log
+
+# Tests & demos (not needed in image)
+test-*.js
+demo-*.js
+manual-verify.js
+check-db.js
+get-pending-users.js
+__tests__
+coverage
+.jest-cache
+
+# Source control & editor
+.git
+.gitignore
+.vscode
+.idea
+*.swp
+
+# Local logs / OS files
+*.log
+.DS_Store
+
+# Generated keys / scratch
+generated-keys.json
+
+# Dev docs (not needed in image; keep root README.md)
+docs/
+
+# Claude/dev metadata
+.claude

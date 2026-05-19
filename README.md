@@ -584,9 +584,13 @@ Seamlessly integrates external services (Google Search) into the agent workflow.
 
 ## 📚 Documentation
 
-- [API Documentation](./API-README.md) - Complete API reference
-- [Architecture Guide](./FUTURE-SELF-BRIDGE.md) - Deep dive into the future self bridge
-- [Agent Development](./agents/BaseAgent.js) - Creating custom agents
+Detailed docs live in [docs/](./docs/) — see [docs/README.md](./docs/README.md) for the index.
+
+- [API reference](./docs/API-README.md)
+- [Authentication](./docs/AUTHENTICATION.md)
+- [Architecture (Future Self Bridge)](./docs/FUTURE-SELF-BRIDGE.md)
+- [Performance](./docs/PERFORMANCE-GUIDE.md)
+- [Agent development](./agents/BaseAgent.js) — source
 
 ## 🤝 Contributing
 
