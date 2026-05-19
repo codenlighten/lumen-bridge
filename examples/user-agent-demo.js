@@ -211,7 +211,7 @@ Be supportive, knowledgeable, and adaptive to individual needs.`,
   console.log('   3. Integrate with your own applications');
   console.log('   4. Experiment with different prompts and configurations');
   
-  console.log('\n📖 Documentation: USER-AGENTS.md');
+  console.log('\n📖 Documentation: docs/USER-AGENTS.md');
   console.log('\n');
 }
 
