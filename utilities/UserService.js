@@ -6,6 +6,11 @@
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
+import jwt from 'jsonwebtoken';
+
+const BCRYPT_COST = 12;
+const JWT_SECRET = process.env.JWT_SECRET || 'lumenbridge-secret-key-change-in-production';
+const JWT_EXPIRY = process.env.JWT_EXPIRES_IN || '1h';
 
 class UserService {
   constructor(mongoService) {
@@ -113,7 +118,7 @@ class UserService {
       }
 
       // Hash password
-      const passwordHash = await bcrypt.hash(password, 10);
+      const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
 
       // Generate verification token
       const verificationToken = crypto.randomBytes(32).toString('hex');
@@ -135,10 +140,17 @@ class UserService {
 
       await this.collections.pending.insertOne(pendingUser);
 
-      // Send verification email (non-blocking - don't fail registration if email fails)
-      this.sendVerificationEmail(email, verificationToken).catch(err => {
-        console.error('[UserService] Failed to send verification email:', err.message);
-      });
+      // Send verification email — if it fails, roll back the pending user so
+      // the account isn't left in an unverifiable state.
+      try {
+        await this.sendVerificationEmail(email, verificationToken);
+      } catch (mailErr) {
+        console.error('[UserService] Verification email failed, rolling back:', mailErr.message);
+        await this.collections.pending.deleteOne({ email, verificationToken });
+        const err = new Error('Failed to send verification email. Please try again.');
+        err.code = 'EMAIL_SEND_FAILED';
+        throw err;
+      }
 
       return {
         success: true,
@@ -292,8 +304,16 @@ class UserService {
         throw new Error('Invalid email or password');
       }
 
+      const token = jwt.sign(
+        { publicKey: user.publicKey, email: user.email, type: 'password-auth' },
+        JWT_SECRET,
+        { expiresIn: JWT_EXPIRY, issuer: 'lumenbridge', subject: user.publicKey }
+      );
+
       return {
         success: true,
+        token,
+        expiresIn: JWT_EXPIRY,
         user: {
           email: user.email,
           publicKey: user.publicKey,

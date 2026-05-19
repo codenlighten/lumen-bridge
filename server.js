@@ -17,6 +17,9 @@
 
 import express from "express";
 import cors from "cors";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
+import validator from "validator";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -42,6 +45,13 @@ import { dbService } from "./utilities/MongoDBService.js";
 import SignatureVerifier from "./utilities/SignatureVerifier.js";
 import UserService from "./utilities/UserService.js";
 import { globalCache } from "./utilities/ResponseCache.js";
+import {
+	requireAuth,
+	optionalAuth,
+	asyncHandler,
+	errorHandler,
+	AppError,
+} from "./utilities/AuthMiddleware.js";
 
 dotenv.config();
 
@@ -50,10 +60,79 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const NODE_ENV = process.env.NODE_ENV || "development";
+const IS_PROD = NODE_ENV === "production";
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// Fail-fast: refuse to start in prod with default/missing secrets
+const DEFAULT_JWT_SECRET = "lumenbridge-secret-key-change-in-production";
+const DEFAULT_ADMIN_KEY = "your-admin-key-change-this";
+if (IS_PROD) {
+	const problems = [];
+	if (!process.env.JWT_SECRET || process.env.JWT_SECRET === DEFAULT_JWT_SECRET)
+		problems.push("JWT_SECRET is unset or default");
+	if (!process.env.ADMIN_KEY || process.env.ADMIN_KEY === DEFAULT_ADMIN_KEY)
+		problems.push("ADMIN_KEY is unset or default");
+	if (!process.env.CORS_ORIGINS) problems.push("CORS_ORIGINS is unset");
+	if (!process.env.OPENAI_API_KEY) problems.push("OPENAI_API_KEY is unset");
+	if (problems.length) {
+		console.error("FATAL: refusing to start in production:");
+		problems.forEach((p) => console.error("  -", p));
+		process.exit(1);
+	}
+}
+
+// Trust proxy (needed for correct IPs behind CapRover/nginx for rate limiting)
+app.set("trust proxy", 1);
+
+// Security headers
+app.use(helmet());
+
+// CORS allowlist
+const corsOrigins = (process.env.CORS_ORIGINS || "")
+	.split(",")
+	.map((s) => s.trim())
+	.filter(Boolean);
+const corsOptions = {
+	origin: (origin, cb) => {
+		// allow same-origin / curl / server-to-server (no Origin header)
+		if (!origin) return cb(null, true);
+		if (!IS_PROD && corsOrigins.length === 0) return cb(null, true); // permissive in dev
+		if (corsOrigins.includes(origin)) return cb(null, true);
+		return cb(new AppError("CORS_REJECTED", 403, "Origin not allowed"));
+	},
+	credentials: true,
+};
+app.use(cors(corsOptions));
+
+// Body limit
+app.use(express.json({ limit: process.env.BODY_LIMIT || "256kb" }));
+
+// Rate limiters
+const globalLimiter = rateLimit({
+	windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
+	max: Number(process.env.RATE_LIMIT_MAX) || 200,
+	standardHeaders: true,
+	legacyHeaders: false,
+	message: {
+		success: false,
+		error: { code: "RATE_LIMITED", message: "Too many requests" },
+	},
+});
+const authLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000,
+	max: Number(process.env.AUTH_RATE_LIMIT_MAX) || 10,
+	standardHeaders: true,
+	legacyHeaders: false,
+	message: {
+		success: false,
+		error: { code: "RATE_LIMITED", message: "Too many auth requests" },
+	},
+});
+app.use(globalLimiter);
+app.use("/api/auth/", authLimiter);
+app.use("/api/users/login", authLimiter);
+app.use("/api/users/register", authLimiter);
+
 app.use(express.static(path.join(__dirname, "public")));
 
 // Optional signature verification middleware (all requests, still allows through)
@@ -61,6 +140,9 @@ app.use(SignatureVerifier.middleware());
 
 // Session memory middleware - attaches session memory to each request
 app.use(sessionMemoryManager.middleware());
+
+// Populate req.user from Bearer token when present (non-blocking, global)
+app.use(optionalAuth);
 
 // Initialize agents (singleton instances)
 const agents = {
@@ -456,9 +538,11 @@ app.post("/api/users/register", async (req, res) => {
 			});
 		}
 
-		// Email validation
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-		if (!emailRegex.test(email)) {
+		// Email validation (RFC-compliant via `validator`, no localhost)
+		if (
+			typeof email !== "string" ||
+			!validator.isEmail(email, { require_tld: true })
+		) {
 			return res.status(400).json({
 				success: false,
 				error: "Invalid email format"
@@ -479,7 +563,7 @@ app.post("/api/users/register", async (req, res) => {
 		console.error("Registration error:", error);
 		res.status(400).json({
 			success: false,
-			error: error.message
+			error: IS_PROD ? "Internal server error" : error.message
 		});
 	}
 });
@@ -614,7 +698,7 @@ app.post("/api/users/login", async (req, res) => {
 		console.error("Login error:", error);
 		res.status(401).json({
 			success: false,
-			error: error.message
+			error: IS_PROD ? "Internal server error" : error.message
 		});
 	}
 });
@@ -643,7 +727,7 @@ app.get("/api/users/stats", async (req, res) => {
 		console.error("Stats error:", error);
 		res.status(404).json({
 			success: false,
-			error: error.message
+			error: IS_PROD ? "Internal server error" : error.message
 		});
 	}
 });
@@ -663,7 +747,7 @@ const metaAgent = new MetaAgent({
  * POST /api/meta/create-agent
  * Body: { prompt: string, options?: object }
  */
-app.post("/api/meta/create-agent", async (req, res) => {
+app.post("/api/meta/create-agent", requireAuth, async (req, res) => {
 	try {
 		const { prompt, options = {} } = req.body;
 
@@ -674,11 +758,10 @@ app.post("/api/meta/create-agent", async (req, res) => {
 			});
 		}
 
-		// Check if user is authenticated (optional for free tier)
+		// Authenticated user — enforce tier/usage
 		let userId = null;
-		if (req.publicKey) {
-			// User is authenticated, check their tier and request count
-			const user = await userService.getUserByPublicKey(req.publicKey);
+		if (req.user?.publicKey) {
+			const user = await userService.getUserByPublicKey(req.user.publicKey);
 			if (user) {
 				userId = user.email;
 				// Agent creation counts as 10 requests
@@ -723,10 +806,10 @@ app.post("/api/meta/create-agent", async (req, res) => {
 
 			await dbService.db.collection('generated_agents').insertOne(agentRecord);
 
-			// Increment user request count if authenticated (10 requests)
-			if (req.publicKey) {
+			// Increment user request count (10 requests for agent creation)
+			if (req.user?.publicKey) {
 				for (let i = 0; i < 10; i++) {
-					await userService.incrementRequestCount(req.publicKey);
+					await userService.incrementRequestCount(req.user.publicKey);
 				}
 			}
 
@@ -736,9 +819,10 @@ app.post("/api/meta/create-agent", async (req, res) => {
 		res.json(result);
 	} catch (error) {
 		console.error("[Meta-Agent] Creation error:", error);
+		const message = IS_PROD ? "Failed to create agent" : error.message;
 		res.status(500).json({
 			success: false,
-			error: error.message
+			error: { code: "META_CREATE_FAILED", message }
 		});
 	}
 });
@@ -749,8 +833,8 @@ app.post("/api/meta/create-agent", async (req, res) => {
  */
 app.get("/api/meta/agents", async (req, res) => {
 	try {
-		const limit = parseInt(req.query.limit) || 20;
-		const skip = parseInt(req.query.skip) || 0;
+		const limit = Math.min(Math.max(parseInt(req.query.limit) || 20, 1), 100);
+		const skip = Math.min(Math.max(parseInt(req.query.skip) || 0, 0), 10000);
 		const createdBy = req.query.createdBy;
 
 		const query = createdBy ? { createdBy } : {};
@@ -787,7 +871,7 @@ app.get("/api/meta/agents", async (req, res) => {
 		console.error("[Meta-Agent] List error:", error);
 		res.status(500).json({
 			success: false,
-			error: error.message
+			error: IS_PROD ? "Internal server error" : error.message
 		});
 	}
 });
@@ -827,7 +911,7 @@ app.get("/api/meta/agents/:id", async (req, res) => {
 		console.error("[Meta-Agent] Get agent error:", error);
 		res.status(500).json({
 			success: false,
-			error: error.message
+			error: IS_PROD ? "Internal server error" : error.message
 		});
 	}
 });
@@ -858,7 +942,7 @@ app.post("/api/meta/analyze-gap", async (req, res) => {
 		console.error("[Meta-Agent] Gap analysis error:", error);
 		res.status(500).json({
 			success: false,
-			error: error.message
+			error: IS_PROD ? "Internal server error" : error.message
 		});
 	}
 });
@@ -930,7 +1014,7 @@ app.post("/api/meta/agents/:id/invoke", async (req, res) => {
 		console.error("[Meta-Agent] Invoke agent error:", error);
 		res.status(500).json({
 			success: false,
-			error: error.message
+			error: IS_PROD ? "Internal server error" : error.message
 		});
 	}
 });
@@ -1034,7 +1118,7 @@ app.post("/api/agents/search", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			agent: "SearchAgent",
 		});
 	}
@@ -1067,7 +1151,7 @@ app.post("/api/agents/search/fast", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			agent: "SearchAgent",
 		});
 	}
@@ -1126,7 +1210,7 @@ app.post("/api/agents/search/express", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			agent: "SearchAgent",
 		});
 	}
@@ -1156,7 +1240,7 @@ app.post("/api/agents/terminal", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			agent: "TerminalAgent",
 		});
 	}
@@ -1212,7 +1296,7 @@ app.post("/api/agents/terminal/express", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			agent: "TerminalAgent",
 		});
 	}
@@ -1242,7 +1326,7 @@ app.post("/api/agents/code", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			agent: "CodeGenerator",
 		});
 	}
@@ -1298,7 +1382,7 @@ app.post("/api/agents/code/express", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			agent: "CodeGenerator",
 		});
 	}
@@ -1328,7 +1412,7 @@ app.post("/api/agents/code/improve", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			agent: "CodeImprover",
 		});
 	}
@@ -1384,7 +1468,7 @@ app.post("/api/agents/code/improve/express", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			agent: "CodeImprover",
 		});
 	}
@@ -1415,7 +1499,7 @@ app.post("/api/agents/schema", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			agent: "SchemaAgent",
 		});
 	}
@@ -1511,7 +1595,7 @@ Respond with your routing decision and reasoning.`,
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			service: "IntelligentRouter",
 		});
 	}
@@ -1545,7 +1629,7 @@ app.post("/api/schema/register", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			service: "SchemaRegistry",
 		});
 	}
@@ -1569,7 +1653,7 @@ app.get("/api/schema/:name", (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			service: "SchemaRegistry",
 		});
 	}
@@ -1596,7 +1680,7 @@ app.post("/api/schema/search", (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			service: "SchemaRegistry",
 		});
 	}
@@ -1614,7 +1698,7 @@ app.get("/api/schema", (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			service: "SchemaRegistry",
 		});
 	}
@@ -1671,7 +1755,7 @@ app.post("/api/schema/translate", async (req, res) => {
 	} catch (error) {
 		res.status(500).json({
 			success: false,
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			service: "SchemaMediatorAgent",
 		});
 	}
@@ -1707,7 +1791,7 @@ app.post("/api/schema/infer", async (req, res) => {
 	} catch (error) {
 		res.status(500).json({
 			success: false,
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			service: "SchemaMediatorAgent",
 		});
 	}
@@ -1751,7 +1835,7 @@ app.post("/api/schema/mapping/bidirectional", async (req, res) => {
 	} catch (error) {
 		res.status(500).json({
 			success: false,
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			service: "SchemaMediatorAgent",
 		});
 	}
@@ -1804,7 +1888,7 @@ app.post("/api/schema/translate/retry", async (req, res) => {
 	} catch (error) {
 		res.status(500).json({
 			success: false,
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			service: "SchemaMediatorAgent",
 		});
 	}
@@ -1826,7 +1910,7 @@ app.get("/api/schema/mediator/stats", (req, res) => {
 	} catch (error) {
 		res.status(500).json({
 			success: false,
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			service: "SchemaMediatorAgent",
 		});
 	}
@@ -1848,7 +1932,7 @@ app.post("/api/schema/mediator/cache/clear", (req, res) => {
 	} catch (error) {
 		res.status(500).json({
 			success: false,
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			service: "SchemaMediatorAgent",
 		});
 	}
@@ -1888,7 +1972,7 @@ app.post("/api/custom-agent", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			service: "CustomAgent",
 		});
 	}
@@ -1943,7 +2027,7 @@ app.post("/api/agents/register", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(400).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			service: "AgentRegistration",
 		});
 	}
@@ -1988,7 +2072,7 @@ app.put("/api/agents/update", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(400).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			service: "AgentUpdate",
 		});
 	}
@@ -2030,7 +2114,7 @@ app.delete("/api/agents/delete", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(400).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			service: "AgentDeletion",
 		});
 	}
@@ -2061,7 +2145,7 @@ app.get("/api/agents/my-agents/:userId", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			service: "UserAgentRetrieval",
 		});
 	}
@@ -2091,7 +2175,7 @@ app.get("/api/agents/my-agents/:userId/:agentName", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			service: "UserAgentRetrieval",
 		});
 	}
@@ -2134,7 +2218,7 @@ app.post("/api/agents/invoke-user-agent", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(400).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			service: "UserAgentInvocation",
 		});
 	}
@@ -2171,7 +2255,7 @@ app.get("/api/admin/agents", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: error.message,
+			error: IS_PROD ? "Internal server error" : error.message,
 			service: "AdminAgentRetrieval",
 		});
 	}
@@ -2181,7 +2265,7 @@ app.get("/api/admin/agents", async (req, res) => {
 // START SERVER
 // ============================================================================
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
 	console.log("\n" + "=".repeat(80));
 	console.log("🌉 LUMEN BRIDGE - Self-Aware Agent API Server");
 	console.log("=".repeat(80));
@@ -2329,5 +2413,37 @@ app.get("/api/session/history", (req, res) => {
 		timestamp: new Date().toISOString(),
 	});
 });
+
+// 404 handler — must come after all routes
+app.use((req, res) => {
+	res.status(404).json({
+		success: false,
+		error: { code: "NOT_FOUND", message: "Route not found" },
+	});
+});
+
+// Centralized error handler — must be last
+app.use(errorHandler);
+
+// Graceful shutdown
+const shutdown = async (sig) => {
+	console.log(`\n${sig} received, shutting down gracefully...`);
+	server.close(async () => {
+		try {
+			if (dbService?.client?.close) await dbService.client.close();
+			else if (dbService?.close) await dbService.close();
+		} catch (err) {
+			console.error("Error closing DB:", err.message);
+		}
+		console.log("Shutdown complete.");
+		process.exit(0);
+	});
+	setTimeout(() => {
+		console.error("Forced exit after 10s timeout");
+		process.exit(1);
+	}, 10_000).unref();
+};
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
 
 export default app;

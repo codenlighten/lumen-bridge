@@ -1,15 +1,24 @@
-# Signature-Based Authentication
+# Authentication
 
-Lumen Bridge now supports cryptographic signature-based authentication using BSV ECDSA signatures and JWT tokens.
+Lumen Bridge supports two authentication paths, both producing the same JWT Bearer token:
+
+- **Signature-based** (BSV ECDSA challenge-response) — for clients that hold a private key
+- **Password-based** (email + password via `POST /api/users/login`) — for registered users
+
+Protected endpoints (e.g. `POST /api/meta/create-agent`) require a Bearer token via the
+`Authorization` header. Public endpoints (challenge, register, login, email verification,
+health) do not.
 
 ## Overview
 
-The authentication flow uses a challenge-response mechanism:
+The signature flow uses a challenge-response mechanism:
 
 1. Client requests a challenge from the server
 2. Client signs the challenge with their private key
 3. Server verifies the signature and issues a JWT token
 4. Client uses the JWT token for authenticated API requests
+
+The password flow is a single POST that returns the token directly.
 
 ## Authentication Flow
 
@@ -95,6 +104,32 @@ Include the JWT token in the `Authorization` header for subsequent API requests:
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
+Tokens are validated by the `requireAuth` middleware on protected routes. Missing or
+invalid tokens return `401 { success: false, error: { code: "UNAUTHORIZED", ... } }`.
+
+## Password-Based Login (alternative)
+
+**Endpoint:** `POST /api/users/login`
+
+**Request:**
+
+```json
+{ "email": "user@example.com", "password": "..." }
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "token": "eyJhbGciOiJIUzI1NiIs...",
+  "expiresIn": "1h",
+  "user": { "email": "...", "publicKey": "...", "tier": "free", ... }
+}
+```
+
+The returned `token` is interchangeable with the signature-flow token.
+
 ## Optional Signature Verification
 
 All API endpoints also support optional signature verification through the `SignatureVerifier` middleware:
@@ -145,7 +180,8 @@ Responses will include verification status:
 3. **Challenge Storage:** The current implementation uses in-memory storage. For production:
 
    - Use Redis or a database for distributed systems
-   - Implement rate limiting to prevent challenge spam
+   - Rate limiting on `/api/auth/*`, `/api/users/login`, `/api/users/register` is enforced
+     by `express-rate-limit` (configurable via `AUTH_RATE_LIMIT_MAX`, default 10 / 15 min / IP)
    - Monitor for suspicious authentication patterns
 
 4. **Token Management:**
@@ -268,6 +304,5 @@ class LumenBridgeClient {
 - [ ] Revocation list for compromised keys
 - [ ] Multi-signature support
 - [ ] OAuth2 integration
-- [ ] Rate limiting per public key
 - [ ] Persistent challenge storage (Redis/DB)
 - [ ] Audit logging for authentication events
