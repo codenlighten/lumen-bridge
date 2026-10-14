@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import SignatureVerifier from "./SignatureVerifier.js";
 
 export class AppError extends Error {
@@ -51,6 +52,30 @@ export function optionalAuth(req, res, next) {
 
 export function asyncHandler(fn) {
 	return (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+}
+
+// Accept admin key from X-Admin-Key header (preferred) or ?adminKey query (legacy).
+// Returns 403 if missing/invalid or if ADMIN_KEY env is unset.
+// Constant-time comparison; hashing first makes the lengths equal.
+function safeEqual(a, b) {
+	const ha = crypto.createHash("sha256").update(String(a)).digest();
+	const hb = crypto.createHash("sha256").update(String(b)).digest();
+	return crypto.timingSafeEqual(ha, hb);
+}
+
+export function requireAdmin(req, res, next) {
+	const expected = process.env.ADMIN_KEY;
+	const provided =
+		req.headers["x-admin-key"] ||
+		req.headers["X-Admin-Key"] ||
+		req.query?.adminKey;
+	if (!expected || !provided || !safeEqual(provided, expected)) {
+		return res.status(403).json({
+			success: false,
+			error: { code: "FORBIDDEN", message: "Admin credentials required" },
+		});
+	}
+	next();
 }
 
 export function errorHandler(err, req, res, _next) {

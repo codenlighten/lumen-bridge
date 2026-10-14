@@ -4,6 +4,9 @@ export const AUTH = {
 	BCRYPT_COST: 12,
 	JWT_EXPIRY: process.env.JWT_EXPIRES_IN || "1h",
 	CHALLENGE_EXPIRY_MS: 5 * 60 * 1000, // 5 minutes
+	MAX_PENDING_CHALLENGES: 10_000,
+	JWT_ISSUER: "lumenbridge",
+	JWT_AUDIENCE: "lumenbridge-api",
 	EMAIL_VERIFICATION_TTL_MS: 24 * 60 * 60 * 1000, // 24 hours
 };
 

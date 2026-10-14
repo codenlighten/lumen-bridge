@@ -14,9 +14,40 @@ class SignatureVerifier {
 	// In-memory challenge storage (use Redis/DB for production)
 	static challenges = new Map();
 	static CHALLENGE_EXPIRY = AUTH.CHALLENGE_EXPIRY_MS;
-	static JWT_SECRET =
-		process.env.JWT_SECRET || "lumenbridge-secret-key-change-in-production";
+	static MAX_PENDING_CHALLENGES = AUTH.MAX_PENDING_CHALLENGES;
 	static JWT_EXPIRY = AUTH.JWT_EXPIRY;
+	static JWT_ISSUER = AUTH.JWT_ISSUER;
+	static JWT_AUDIENCE = AUTH.JWT_AUDIENCE;
+	static JWT_ALGORITHM = "HS256";
+	static JWT_TOKEN_TYPES = ["signature-auth", "password-auth"];
+	static DEFAULT_JWT_SECRET = "lumenbridge-secret-key-change-in-production";
+
+	/**
+	 * Read lazily so the value never depends on when .env was loaded.
+	 * Production refuses to run on a missing or default secret.
+	 */
+	static get JWT_SECRET() {
+		const secret = process.env.JWT_SECRET;
+		const isDefault = !secret || secret === this.DEFAULT_JWT_SECRET;
+		if (isDefault && process.env.NODE_ENV === "production") {
+			throw new Error("JWT_SECRET is unset or default in production");
+		}
+		return secret || this.DEFAULT_JWT_SECRET;
+	}
+
+	/**
+	 * Sign an auth token. The only place tokens are minted, so issuer,
+	 * audience, algorithm and expiry cannot drift between login paths.
+	 */
+	static signToken(payload, subject) {
+		return jwt.sign(payload, this.JWT_SECRET, {
+			algorithm: this.JWT_ALGORITHM,
+			expiresIn: this.JWT_EXPIRY,
+			issuer: this.JWT_ISSUER,
+			audience: this.JWT_AUDIENCE,
+			subject,
+		});
+	}
 	/**
 	 * Verify a signed request
 	 * @param {string} jsonString - The JSON string that was signed
@@ -162,10 +193,12 @@ class SignatureVerifier {
 		};
 
 		// Store challenge
-		this.challenges.set(nonce, challenge);
-
-		// Clean up expired challenges
+		// Clean up expired challenges, then refuse to grow without bound
 		this.cleanExpiredChallenges();
+		if (this.challenges.size >= this.MAX_PENDING_CHALLENGES) {
+			return null;
+		}
+		this.challenges.set(nonce, challenge);
 
 		return {
 			challenge: nonce,
@@ -221,17 +254,9 @@ class SignatureVerifier {
 		this.challenges.delete(challenge);
 
 		// Generate JWT token
-		const token = jwt.sign(
-			{
-				publicKey,
-				type: "signature-auth",
-			},
-			this.JWT_SECRET,
-			{
-				expiresIn: this.JWT_EXPIRY,
-				issuer: "lumenbridge",
-				subject: publicKey,
-			}
+		const token = this.signToken(
+			{ publicKey, type: "signature-auth" },
+			publicKey
 		);
 
 		return {
@@ -250,7 +275,14 @@ class SignatureVerifier {
 	 */
 	static verifyToken(token) {
 		try {
-			return jwt.verify(token, this.JWT_SECRET);
+			const decoded = jwt.verify(token, this.JWT_SECRET, {
+				algorithms: [this.JWT_ALGORITHM],
+				issuer: this.JWT_ISSUER,
+				audience: this.JWT_AUDIENCE,
+			});
+			if (!this.JWT_TOKEN_TYPES.includes(decoded.type)) return null;
+			if (!decoded.publicKey || decoded.sub !== decoded.publicKey) return null;
+			return decoded;
 		} catch (error) {
 			return null;
 		}

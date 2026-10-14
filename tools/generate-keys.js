@@ -1,18 +1,22 @@
-import bsv from 'smartledger-bsv';
+import bsv from '@smartledger/bsv';
 
-function generateKeys() {
+// Library calls are silent: private keys must never reach server logs.
+// Only the CLI entry point below prints them.
+function generateKeys({ log = false } = {}) {
     const privateKey = bsv.PrivateKey.fromRandom();
     const publicKey = privateKey.toPublicKey();
     const address = bsv.Address.fromPublicKey(publicKey);
 
-    console.log("Private Key (WIF):", privateKey.toWIF());
-    console.log("Public Key:", publicKey.toString());
-    console.log("Address:", address.toString());
     const keys = {
         privateKey: privateKey.toWIF(),
         publicKey: publicKey.toString(),
         address: address.toString()
     };
+    if (log) {
+        console.log("Private Key (WIF):", keys.privateKey);
+        console.log("Public Key:", keys.publicKey);
+        console.log("Address:", keys.address);
+    }
     return keys;
 }
 
@@ -22,5 +26,5 @@ export default generateKeys;
 
 // Run when executed directly
 if (import.meta.url === `file://${process.argv[1]}`) {
-    generateKeys();
+    generateKeys({ log: true });
 }

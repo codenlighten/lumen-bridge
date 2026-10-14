@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import bsv from 'smartledger-bsv';
+import bsv from '@smartledger/bsv';
 import {
   signData,
   verifySignature,

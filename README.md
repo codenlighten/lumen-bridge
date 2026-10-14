@@ -1,13 +1,13 @@
 # 🌉 Lumen Bridge - Self-Aware Agent Platform
 
-**A revolutionary self-evolving AI agent system with cryptographic signatures, the Future Self Bridge architecture, and Synthetic Dev Teams**
+**A self-evolving AI agent system with signed responses, the Future Self Bridge architecture, and Synthetic Dev Teams**
 
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 
 ## 🎯 What is Lumen Bridge?
 
-Lumen Bridge is a **self-aware, self-evolving agent platform** that implements the revolutionary "Future Self Bridge" pattern and extends it to **"Future Team Bridge"** - where AI agents work as coordinated development teams. Unlike traditional AI systems that simply respond to prompts, Lumen Bridge agents:
+Lumen Bridge is a **self-aware, self-evolving agent platform** that implements the "Future Self Bridge" pattern and extends it to **"Future Team Bridge"** - where AI agents work as coordinated development teams. Unlike traditional AI systems that simply respond to prompts, Lumen Bridge agents:
 
 - **Plan their own response structures** (current self)
 - **Execute with schema-driven precision** (future self)
@@ -87,11 +87,17 @@ Lumen Bridge is a **self-aware, self-evolving agent platform** that implements t
 - **Conflict protection** - user agents can't override system agents
 
 ```javascript
+// All agent CRUD endpoints require a Bearer JWT; userId is derived from the token.
+const headers = {
+  'Content-Type': 'application/json',
+  Authorization: `Bearer ${jwt}`,
+};
+
 // Register your custom agent
 await fetch('/api/agents/register', {
   method: 'POST',
+  headers,
   body: JSON.stringify({
-    userId: 'user-alice',
     name: 'TravelAdvisor',
     description: 'Expert travel planning assistant',
     prompt: 'You are a professional travel advisor specializing in...'
@@ -101,15 +107,15 @@ await fetch('/api/agents/register', {
 // Invoke your agent
 const result = await fetch('/api/agents/invoke-user-agent', {
   method: 'POST',
+  headers,
   body: JSON.stringify({
-    userId: 'user-alice',
     agentName: 'TravelAdvisor',
     context: { userPrompt: 'Plan a 3-day Tokyo itinerary' }
   })
 });
 ```
 
-**[Read full documentation →](./USER-AGENTS.md)**
+**[Read full documentation →](./docs/USER-AGENTS.md)**
 
 ### 🤖 Synthetic Dev Team (NEW!)
 
@@ -132,7 +138,7 @@ const deliverable = await team.buildProject({
 // 6 files generated, 487 lines of code, 31 tests passing, ready to deploy!
 ```
 
-**[Read full documentation →](./SYNTHETIC-DEV-TEAM.md)**
+**[Read full documentation →](./docs/SYNTHETIC-DEV-TEAM.md)**
 
 ### 🏗️ Self-Iterating Builder Workflow (NEW!)
 
@@ -164,7 +170,7 @@ const result = await orchestrator.build(
 
 **Key Innovation**: Separates what (vision), when (DAG causality), and how (self-iterating execution) for efficient parallel building.
 
-**[Read full documentation →](./BUILDER-WORKFLOW.md)**
+**[Read full documentation →](./docs/BUILDER-WORKFLOW.md)**
 
 ### 🔄 Universal Schema Translation
 
@@ -180,11 +186,13 @@ const result = await orchestrator.build(
 
 ### 🔐 Cryptographic Foundation
 
-Every response includes a verifiable signature:
-- **Algorithm**: BSV-ECDSA-DER
-- **Hash**: SHA-256
-- **Fields**: Signature, address, public key, timestamp, agent identity
-- **Verification**: Tamper-proof, traceable, authentic
+Every response includes a signature (version 2):
+- **Algorithm**: BSV-ECDSA-DER over a SHA-256 hash of a canonical (sorted-key JSON) payload
+- **Signed**: the response body, timestamp, signing address and public key, a hash of the schema it was produced under, and a hash of the input it answers
+- **Not signed**: `_llm` metadata and the `agentIdentity` label
+- **What it shows**: the response was signed by the holder of the named key, and the signed fields were not altered afterwards. Verify with `verifyResponseSignature(response, { trustedPublicKeys: [...] })`; without a pinned key it only shows the response matches the key it names, not that the key is ours.
+- **What it does not show**: that the agent ran the plan it describes, that the content is correct, or that a log is complete. Whoever holds the private key can sign anything with any date. Independent timestamping is not yet implemented.
+- **Key custody**: set `PLATFORM_PRIVATE_KEY` (required in production). Without it a throwaway key is generated at every start.
 
 ### 🧠 Self-Awareness Features
 
@@ -238,7 +246,7 @@ PORT=3000
 node server.js
 ```
 
-Server runs on `http://localhost:3005`
+Server runs on `http://localhost:3000`
 
 ## 📡 API Endpoints
 
@@ -246,7 +254,7 @@ Server runs on `http://localhost:3005`
 
 #### SearchAgent - Intelligent Web Search
 ```bash
-curl -X POST http://localhost:3005/api/agents/search \
+curl -X POST http://localhost:3000/api/agents/search \
   -H "Content-Type: application/json" \
   -d '{
     "userQuery": "Latest TypeScript features 2024",
@@ -264,7 +272,7 @@ curl -X POST http://localhost:3005/api/agents/search \
 
 #### TerminalAgent - Command Generation
 ```bash
-curl -X POST http://localhost:3005/api/agents/terminal \
+curl -X POST http://localhost:3000/api/agents/terminal \
   -H "Content-Type: application/json" \
   -d '{
     "task": "Find all JavaScript files modified today"
@@ -273,7 +281,7 @@ curl -X POST http://localhost:3005/api/agents/terminal \
 
 #### CodeGenerator - Code Creation
 ```bash
-curl -X POST http://localhost:3005/api/agents/code \
+curl -X POST http://localhost:3000/api/agents/code \
   -H "Content-Type: application/json" \
   -d '{
     "prompt": "Create a React component for a user profile card",
@@ -283,7 +291,7 @@ curl -X POST http://localhost:3005/api/agents/code \
 
 #### SchemaAgent - JSON Schema Generation
 ```bash
-curl -X POST http://localhost:3005/api/agents/schema \
+curl -X POST http://localhost:3000/api/agents/schema \
   -H "Content-Type: application/json" \
   -d '{
     "userPrompt": "Schema for a blog post with title, content, author, tags, and publish date"
@@ -293,7 +301,7 @@ curl -X POST http://localhost:3005/api/agents/schema \
 #### SchemaMediatorAgent - Universal Schema Translation
 ```bash
 # Translate data between any two schemas
-curl -X POST http://localhost:3005/api/schema/translate \
+curl -X POST http://localhost:3000/api/schema/translate \
   -H "Content-Type: application/json" \
   -d '{
     "data": {"FirstName": "Jane", "LastName": "Smith", "Email": "jane@example.com"},
@@ -304,14 +312,14 @@ curl -X POST http://localhost:3005/api/schema/translate \
   }'
 
 # Infer schema from example data
-curl -X POST http://localhost:3005/api/schema/infer \
+curl -X POST http://localhost:3000/api/schema/infer \
   -H "Content-Type: application/json" \
   -d '{
     "data": {"id": 123, "name": "Product", "price": 29.99}
   }'
 
 # Get translation statistics
-curl http://localhost:3005/api/schema/mediator/stats
+curl http://localhost:3000/api/schema/mediator/stats
 ```
 
 **Key Features:**
@@ -325,7 +333,7 @@ curl http://localhost:3005/api/schema/mediator/stats
 ### Intelligent Router (Auto-Select Best Agent)
 
 ```bash
-curl -X POST http://localhost:3005/api/router \
+curl -X POST http://localhost:3000/api/router \
   -H "Content-Type: application/json" \
   -d '{
     "userPrompt": "What are the latest features in Node.js 22?"
@@ -341,7 +349,7 @@ The router automatically:
 ### Custom Agent Creation
 
 ```bash
-curl -X POST http://localhost:3005/api/custom-agent \
+curl -X POST http://localhost:3000/api/custom-agent \
   -H "Content-Type: application/json" \
   -d '{
     "agentName": "MathTutor",
@@ -525,13 +533,16 @@ Agents detect what they don't know:
 
 ### Cryptographic Signatures
 
-Every response is verifiable:
+Every response is signed:
 
 ```json
 {
   "_signature": {
     "signature": "3045022100d0d2cee...",
+    "version": 2,
     "responseHash": "0d2120246c18...",
+    "schemaHash": "9b1f...",
+    "queryHash": "41c7...",
     "address": "1HPnKqz9obieL7v3BxLG...",
     "publicKey": "02d97cdbc5b729...",
     "timestamp": "2025-11-24T11:25:43.606Z",
@@ -545,7 +556,7 @@ Every response is verifiable:
 
 - **Runtime**: Node.js 18+
 - **LLM Provider**: OpenAI (gpt-5-nano, with Llama fallback)
-- **Cryptography**: BSV-ECDSA-DER (smartledger-bsv)
+- **Cryptography**: BSV-ECDSA-DER (@smartledger/bsv)
 - **Web Server**: Express 5
 - **Search**: Google Custom Search API
 - **Database**: MongoDB (optional)
@@ -553,14 +564,14 @@ Every response is verifiable:
 
 ## 🌟 What Makes This Unique
 
-### 1. True Self-Awareness
-Agents know their capabilities and limitations. They ask questions when context is missing rather than guessing.
+### 1. Self-Reported Context Gaps
+Agents are prompted to list missing information (`missingContext`) and to ask follow-up questions instead of guessing. This is the model's own report and has not been measured yet; it can be wrong.
 
 ### 2. Schema-Driven Evolution
 Response structures aren't hardcoded—they're generated on-the-fly based on the task at hand.
 
-### 3. Cryptographic Verifiability
-Every response is signed, traceable, and tamper-proof. Audit trails are built-in.
+### 3. Signed Responses
+Every response is signed so later changes to the signed fields can be detected by anyone holding the public key. See the Cryptographic Foundation section for what a signature does and does not show.
 
 ### 4. Memory Integration
 Past interactions inform future responses. The system learns from its history.

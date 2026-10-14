@@ -55,7 +55,7 @@ Use your private key to sign the challenge nonce using DER encoding:
 
 ```javascript
 import { signData } from "./tools/der-signature.js";
-import bsv from "smartledger-bsv";
+import bsv from "@smartledger/bsv";
 
 const privateKey = bsv.PrivateKey.fromWIF("your-private-key-wif");
 const signature = signData(challenge, privateKey.toWIF());

@@ -15,8 +15,12 @@ function initializePlatformKeys() {
       publicKey: getPublicKeyFromPrivateKey(process.env.PLATFORM_PRIVATE_KEY),
       address: getAddressFromPrivateKey(process.env.PLATFORM_PRIVATE_KEY)
     };
+  } else if (process.env.NODE_ENV === 'production') {
+    // An ephemeral key would give every restart and replica a different
+    // identity, so earlier signatures could not be tied to a stable signer.
+    throw new Error('PLATFORM_PRIVATE_KEY is required in production');
   } else {
-    // Generate new keys if none exist
+    // Development only: generate a throwaway key (new identity every start)
     const keys = generateKeys();
     console.log('⚠️  Generated new platform keys. In production, save these securely!');
     console.log('Platform Address:', keys.address);

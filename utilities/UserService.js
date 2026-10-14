@@ -6,10 +6,9 @@
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
-import jwt from 'jsonwebtoken';
+import SignatureVerifier from './SignatureVerifier.js';
 import { AUTH, TIERS } from '../config/constants.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'lumenbridge-secret-key-change-in-production';
 
 class UserService {
   constructor(mongoService) {
@@ -303,10 +302,9 @@ class UserService {
         throw new Error('Invalid email or password');
       }
 
-      const token = jwt.sign(
+      const token = SignatureVerifier.signToken(
         { publicKey: user.publicKey, email: user.email, type: 'password-auth' },
-        JWT_SECRET,
-        { expiresIn: AUTH.JWT_EXPIRY, issuer: 'lumenbridge', subject: user.publicKey }
+        user.publicKey
       );
 
       return {

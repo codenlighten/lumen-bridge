@@ -222,7 +222,7 @@ console.log('Wallet addresses:', keyDetails.address);
 - Use `generateJWTSecret()` for session secrets, not key generation
 - Always validate inputs with `isValidPrivateKey()` and `isValidAddress()`
 - DER signatures are Bitcoin-standard and blockchain-compatible
-- All cryptographic operations use the `smartledger-bsv` library
+- All cryptographic operations use the `@smartledger/bsv` library
 
 ## License
 

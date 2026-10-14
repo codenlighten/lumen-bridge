@@ -1,8 +1,8 @@
 import { test, before, after, describe } from "node:test";
 import assert from "node:assert/strict";
-import bsv from "smartledger-bsv";
+import bsv from "@smartledger/bsv";
 import { signData } from "../tools/der-signature.js";
-import { startTestServer } from "./helpers/server.js";
+import { startTestServer, TEST_ADMIN_KEY } from "./helpers/server.js";
 
 let server;
 let base;
@@ -192,5 +192,124 @@ describe("ajv validation", () => {
 		assert.equal(r.status, 400);
 		const body = await r.json();
 		assert.equal(body.error.code, "VALIDATION_ERROR");
+	});
+});
+
+describe("agent endpoints require auth", () => {
+	test("POST /api/custom-agent without Bearer → 401", async () => {
+		const r = await fetch(`${base}/api/custom-agent`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ agentName: "X", userPrompt: "hi" }),
+		});
+		assert.equal(r.status, 401);
+		const body = await r.json();
+		assert.equal(body.error.code, "UNAUTHORIZED");
+	});
+
+	test("POST /api/agents/register without Bearer → 401", async () => {
+		const r = await fetch(`${base}/api/agents/register`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ name: "X", prompt: "p" }),
+		});
+		assert.equal(r.status, 401);
+	});
+
+	test("PUT /api/agents/update without Bearer → 401", async () => {
+		const r = await fetch(`${base}/api/agents/update`, {
+			method: "PUT",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ agentName: "X", updates: {} }),
+		});
+		assert.equal(r.status, 401);
+	});
+
+	test("DELETE /api/agents/delete without Bearer → 401", async () => {
+		const r = await fetch(`${base}/api/agents/delete`, {
+			method: "DELETE",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ agentName: "X" }),
+		});
+		assert.equal(r.status, 401);
+	});
+
+	test("POST /api/agents/invoke-user-agent without Bearer → 401", async () => {
+		const r = await fetch(`${base}/api/agents/invoke-user-agent`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ agentName: "X", context: {} }),
+		});
+		assert.equal(r.status, 401);
+	});
+
+	test("GET /api/agents/my-agents/:userId without Bearer → 401", async () => {
+		const r = await fetch(`${base}/api/agents/my-agents/someone-else`);
+		assert.equal(r.status, 401);
+	});
+});
+
+describe("agent endpoints reject overlong input", () => {
+	test("POST /api/agents/search with >4000-char query → 400 VALIDATION_ERROR", async () => {
+		const r = await fetch(`${base}/api/agents/search`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ userQuery: "x".repeat(4001) }),
+		});
+		assert.equal(r.status, 400);
+		const body = await r.json();
+		assert.equal(body.error.code, "VALIDATION_ERROR");
+	});
+
+	test("POST /api/agents/search missing userQuery → 400", async () => {
+		const r = await fetch(`${base}/api/agents/search`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({}),
+		});
+		assert.equal(r.status, 400);
+		const body = await r.json();
+		assert.equal(body.error.code, "VALIDATION_ERROR");
+	});
+
+	test("POST /api/router missing userPrompt → 400 VALIDATION_ERROR", async () => {
+		const r = await fetch(`${base}/api/router`, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({}),
+		});
+		assert.equal(r.status, 400);
+		const body = await r.json();
+		assert.equal(body.error.code, "VALIDATION_ERROR");
+	});
+});
+
+describe("admin endpoints accept X-Admin-Key header", () => {
+	test("POST /api/cache/clear without admin key → 403", async () => {
+		const r = await fetch(`${base}/api/cache/clear`, { method: "POST" });
+		assert.equal(r.status, 403);
+		const body = await r.json();
+		assert.equal(body.error.code, "FORBIDDEN");
+	});
+
+	test("POST /api/cache/clear with X-Admin-Key header → 200", async () => {
+		const r = await fetch(`${base}/api/cache/clear`, {
+			method: "POST",
+			headers: { "X-Admin-Key": TEST_ADMIN_KEY },
+		});
+		assert.equal(r.status, 200);
+	});
+
+	test("GET /api/sessions/all with X-Admin-Key header → 200", async () => {
+		const r = await fetch(`${base}/api/sessions/all`, {
+			headers: { "X-Admin-Key": TEST_ADMIN_KEY },
+		});
+		assert.equal(r.status, 200);
+	});
+
+	test("legacy ?adminKey= query still works for back-compat", async () => {
+		const key = TEST_ADMIN_KEY;
+		const r = await fetch(`${base}/api/sessions/all?adminKey=${encodeURIComponent(key)}`);
+		assert.equal(r.status, 200);
 	});
 });

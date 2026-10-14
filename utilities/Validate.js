@@ -89,4 +89,109 @@ export const schemas = {
 			options: { type: "object" },
 		},
 	},
+	search: {
+		type: "object",
+		required: ["userQuery"],
+		additionalProperties: true,
+		properties: {
+			userQuery: { type: "string", minLength: 1, maxLength: 4000 },
+			refinedQuery: { type: "string", maxLength: 4000 },
+			maxResults: { type: "integer", minimum: 1, maximum: 50 },
+		},
+	},
+	terminal: {
+		type: "object",
+		required: ["task"],
+		additionalProperties: true,
+		properties: {
+			task: { type: "string", minLength: 1, maxLength: 4000 },
+			context: { type: "object" },
+		},
+	},
+	codeGenerate: {
+		type: "object",
+		required: ["prompt"],
+		additionalProperties: true,
+		properties: {
+			prompt: { type: "string", minLength: 1, maxLength: 8000 },
+			context: { type: "object" },
+		},
+	},
+	codeImprove: {
+		type: "object",
+		required: ["code"],
+		additionalProperties: true,
+		properties: {
+			code: { type: "string", minLength: 1, maxLength: 50000 },
+			context: { type: "object" },
+		},
+	},
+	schemaGen: {
+		type: "object",
+		required: ["userPrompt"],
+		additionalProperties: true,
+		properties: {
+			userPrompt: { type: "string", minLength: 1, maxLength: 8000 },
+			context: { type: ["string", "object"] },
+			extraConstraints: { type: "string", maxLength: 4000 },
+		},
+	},
+	router: {
+		type: "object",
+		required: ["userPrompt"],
+		additionalProperties: true,
+		properties: {
+			userPrompt: { type: "string", minLength: 1, maxLength: 8000 },
+			context: { type: "object" },
+		},
+	},
+	customAgent: {
+		type: "object",
+		required: ["agentName", "userPrompt"],
+		additionalProperties: true,
+		properties: {
+			agentName: { type: "string", minLength: 1, maxLength: 100 },
+			systemPrompt: { type: "string", maxLength: 8000 },
+			userPrompt: { type: "string", minLength: 1, maxLength: 8000 },
+			schema: { type: "object" },
+		},
+	},
+	agentRegister: {
+		type: "object",
+		required: ["name", "prompt"],
+		additionalProperties: true,
+		properties: {
+			name: { type: "string", minLength: 1, maxLength: 100 },
+			description: { type: "string", maxLength: 1000 },
+			prompt: { type: "string", minLength: 1, maxLength: 8000 },
+			schema: { type: "object" },
+			metadata: { type: "object" },
+		},
+	},
+	agentUpdate: {
+		type: "object",
+		required: ["agentName", "updates"],
+		additionalProperties: true,
+		properties: {
+			agentName: { type: "string", minLength: 1, maxLength: 100 },
+			updates: { type: "object" },
+		},
+	},
+	agentDelete: {
+		type: "object",
+		required: ["agentName"],
+		additionalProperties: true,
+		properties: {
+			agentName: { type: "string", minLength: 1, maxLength: 100 },
+		},
+	},
+	agentInvoke: {
+		type: "object",
+		required: ["agentName", "context"],
+		additionalProperties: true,
+		properties: {
+			agentName: { type: "string", minLength: 1, maxLength: 100 },
+			context: { type: "object" },
+		},
+	},
 };

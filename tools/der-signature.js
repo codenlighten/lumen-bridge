@@ -1,4 +1,4 @@
-import bsv from 'smartledger-bsv';
+import bsv from '@smartledger/bsv';
 
 /**
  * Sign data with a private key using DER encoding
@@ -51,6 +51,15 @@ function getAddressFromPrivateKey(privateKeyWIF) {
 }
 
 /**
+ * Get address from a public key (hex)
+ * @param {string} publicKey - The public key in hex format
+ * @returns {string} The BSV address
+ */
+function getAddressFromPublicKey(publicKey) {
+  return bsv.Address.fromPublicKey(bsv.PublicKey.fromString(publicKey)).toString();
+}
+
+/**
  * Get public key from private key
  * @param {string} privateKeyWIF - Private key in WIF format
  * @returns {string} The public key in hex format
@@ -82,7 +91,7 @@ function createSignedResponse(data, privateKeyWIF) {
   };
 }
 
-export { signData, verifySignature, getAddressFromPrivateKey, getPublicKeyFromPrivateKey, createSignedResponse };
+export { signData, verifySignature, getAddressFromPrivateKey, getAddressFromPublicKey, getPublicKeyFromPrivateKey, createSignedResponse };
 
 // Example usage
 function example() {

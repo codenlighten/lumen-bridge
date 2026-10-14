@@ -54,7 +54,7 @@ export class SessionMemoryManager {
     }
 
     // Use IP + User-Agent as fallback (less reliable but better than nothing)
-    const ip = req.ip || req.connection.remoteAddress;
+    const ip = req.ip || req.socket?.remoteAddress || "unknown";
     const userAgent = req.headers['user-agent'] || 'unknown';
     const sessionKey = `${ip}_${userAgent}`;
     const hash = crypto.createHash('sha256').update(sessionKey).digest('hex');

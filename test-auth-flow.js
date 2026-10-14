@@ -8,7 +8,7 @@
  * 4. Use the JWT token for authenticated requests
  */
 
-import bsv from "smartledger-bsv";
+import bsv from "@smartledger/bsv";
 import { signData } from "./tools/der-signature.js";
 
 const SERVER_URL = process.env.SERVER_URL || "http://localhost:3000";

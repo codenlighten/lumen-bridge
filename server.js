@@ -48,6 +48,7 @@ import { globalCache } from "./utilities/ResponseCache.js";
 import {
 	requireAuth,
 	optionalAuth,
+	requireAdmin,
 	asyncHandler,
 	errorHandler,
 	AppError,
@@ -74,6 +75,7 @@ if (IS_PROD) {
 		problems.push("JWT_SECRET is unset or default");
 	if (!process.env.ADMIN_KEY || process.env.ADMIN_KEY === DEFAULT_ADMIN_KEY)
 		problems.push("ADMIN_KEY is unset or default");
+	if (!process.env.PLATFORM_PRIVATE_KEY) problems.push("PLATFORM_PRIVATE_KEY is unset");
 	if (!process.env.CORS_ORIGINS) problems.push("CORS_ORIGINS is unset");
 	if (!process.env.OPENAI_API_KEY) problems.push("OPENAI_API_KEY is unset");
 	if (problems.length) {
@@ -81,6 +83,10 @@ if (IS_PROD) {
 		problems.forEach((p) => console.error("  -", p));
 		process.exit(1);
 	}
+}
+
+if (!IS_PROD && (!process.env.JWT_SECRET || process.env.JWT_SECRET === DEFAULT_JWT_SECRET)) {
+	console.warn("WARNING: JWT_SECRET is unset or default; tokens are signed with a publicly known secret. Set NODE_ENV=production to enforce.");
 }
 
 // Trust proxy (needed for correct IPs behind CapRover/nginx for rate limiting)
@@ -145,6 +151,43 @@ app.use(sessionMemoryManager.middleware());
 
 // Populate req.user from Bearer token when present (non-blocking, global)
 app.use(optionalAuth);
+
+// LLM-backed routes spend provider credit. Anonymous callers get a tighter
+// per-IP budget than the global limiter; set REQUIRE_AUTH_FOR_LLM=true to
+// require a Bearer token on them outright.
+const LLM_ROUTE_PREFIXES = [
+	"/api/agents/search",
+	"/api/agents/terminal",
+	"/api/agents/code",
+	"/api/agents/schema",
+	"/api/router",
+	"/api/meta/analyze-gap",
+	"/api/meta/agents",
+	"/api/schema/translate",
+	"/api/schema/infer",
+	"/api/schema/mapping",
+];
+const llmLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000,
+	max: Number(process.env.LLM_RATE_LIMIT_MAX) || 30,
+	standardHeaders: true,
+	legacyHeaders: false,
+	skip: (req) => req.method !== "POST" || !!req.user,
+	message: {
+		success: false,
+		error: { code: "RATE_LIMITED", message: "Too many anonymous LLM requests; sign in for more" },
+	},
+});
+const llmGate = (req, res, next) => {
+	if (req.method === "POST" && process.env.REQUIRE_AUTH_FOR_LLM === "true" && !req.user) {
+		return res.status(401).json({
+			success: false,
+			error: { code: "UNAUTHORIZED", message: "Authentication required" },
+		});
+	}
+	next();
+};
+app.use(LLM_ROUTE_PREFIXES, llmGate, llmLimiter);
 
 // Initialize agents (singleton instances)
 const agents = {
@@ -470,6 +513,12 @@ app.post("/api/auth/challenge", validateBody(schemas.challenge), (req, res) => {
 		}
 
 		const challengeData = SignatureVerifier.generateChallenge(publicKey);
+		if (!challengeData) {
+			return res.status(503).json({
+				success: false,
+				error: { code: "CHALLENGES_BUSY", message: "Too many pending challenges, retry shortly" },
+			});
+		}
 
 		res.json({
 			success: true,
@@ -1096,15 +1145,9 @@ app.get("/api/agents", (req, res) => {
 });
 
 // SearchAgent endpoint
-app.post("/api/agents/search", async (req, res) => {
+app.post("/api/agents/search", validateBody(schemas.search), async (req, res) => {
 	try {
 		const { userQuery, maxResults, refinedQuery } = req.body;
-
-		if (!userQuery) {
-			return res.status(400).json({
-				error: "userQuery is required",
-			});
-		}
 
 		const result = await agents.search.search({
 			userQuery,
@@ -1127,15 +1170,9 @@ app.post("/api/agents/search", async (req, res) => {
 });
 
 // SearchAgent FAST endpoint (skips strategy planning)
-app.post("/api/agents/search/fast", async (req, res) => {
+app.post("/api/agents/search/fast", validateBody(schemas.search), async (req, res) => {
 	try {
 		const { userQuery, maxResults, refinedQuery } = req.body;
-
-		if (!userQuery) {
-			return res.status(400).json({
-				error: "userQuery is required",
-			});
-		}
 
 		const result = await agents.searchFast.search({
 			userQuery,
@@ -1160,15 +1197,9 @@ app.post("/api/agents/search/fast", async (req, res) => {
 });
 
 // SearchAgent EXPRESS endpoint (cached responses)
-app.post("/api/agents/search/express", async (req, res) => {
+app.post("/api/agents/search/express", validateBody(schemas.search), async (req, res) => {
 	try {
 		const { userQuery, maxResults, refinedQuery } = req.body;
-
-		if (!userQuery) {
-			return res.status(400).json({
-				error: "userQuery is required",
-			});
-		}
 
 		const cacheContext = { maxResults: maxResults || 10, refinedQuery };
 		
@@ -1219,15 +1250,9 @@ app.post("/api/agents/search/express", async (req, res) => {
 });
 
 // TerminalAgent endpoint
-app.post("/api/agents/terminal", async (req, res) => {
+app.post("/api/agents/terminal", validateBody(schemas.terminal), async (req, res) => {
 	try {
 		const { task, context } = req.body;
-
-		if (!task) {
-			return res.status(400).json({
-				error: "task is required",
-			});
-		}
 
 		const startTime = Date.now();
 		const result = await agents.terminal.generate(task, context || {});
@@ -1249,15 +1274,9 @@ app.post("/api/agents/terminal", async (req, res) => {
 });
 
 // TerminalAgent EXPRESS endpoint (with caching)
-app.post("/api/agents/terminal/express", async (req, res) => {
+app.post("/api/agents/terminal/express", validateBody(schemas.terminal), async (req, res) => {
 	try {
 		const { task, context } = req.body;
-
-		if (!task) {
-			return res.status(400).json({
-				error: "task is required",
-			});
-		}
 
 		const cacheContext = { context: context || {} };
 		
@@ -1305,15 +1324,9 @@ app.post("/api/agents/terminal/express", async (req, res) => {
 });
 
 // CodeGenerator endpoint
-app.post("/api/agents/code", async (req, res) => {
+app.post("/api/agents/code", validateBody(schemas.codeGenerate), async (req, res) => {
 	try {
 		const { prompt, context } = req.body;
-
-		if (!prompt) {
-			return res.status(400).json({
-				error: "prompt is required",
-			});
-		}
 
 		const startTime = Date.now();
 		const result = await agents.code.generate(prompt, context || {});
@@ -1335,15 +1348,9 @@ app.post("/api/agents/code", async (req, res) => {
 });
 
 // CodeGenerator EXPRESS endpoint (with caching)
-app.post("/api/agents/code/express", async (req, res) => {
+app.post("/api/agents/code/express", validateBody(schemas.codeGenerate), async (req, res) => {
 	try {
 		const { prompt, context } = req.body;
-
-		if (!prompt) {
-			return res.status(400).json({
-				error: "prompt is required",
-			});
-		}
 
 		const cacheContext = { context: context || {} };
 		
@@ -1391,15 +1398,9 @@ app.post("/api/agents/code/express", async (req, res) => {
 });
 
 // CodeImprover endpoint
-app.post("/api/agents/code/improve", async (req, res) => {
+app.post("/api/agents/code/improve", validateBody(schemas.codeImprove), async (req, res) => {
 	try {
 		const { code, context } = req.body;
-
-		if (!code) {
-			return res.status(400).json({
-				error: "code is required",
-			});
-		}
 
 		const startTime = Date.now();
 		const result = await agents.codeImprover.improve(code, context || {});
@@ -1421,15 +1422,9 @@ app.post("/api/agents/code/improve", async (req, res) => {
 });
 
 // CodeImprover EXPRESS endpoint (with caching)
-app.post("/api/agents/code/improve/express", async (req, res) => {
+app.post("/api/agents/code/improve/express", validateBody(schemas.codeImprove), async (req, res) => {
 	try {
 		const { code, context } = req.body;
-
-		if (!code) {
-			return res.status(400).json({
-				error: "code is required",
-			});
-		}
 
 		const cacheContext = { context: context || {} };
 		
@@ -1477,15 +1472,9 @@ app.post("/api/agents/code/improve/express", async (req, res) => {
 });
 
 // SchemaAgent endpoint
-app.post("/api/agents/schema", async (req, res) => {
+app.post("/api/agents/schema", validateBody(schemas.schemaGen), async (req, res) => {
 	try {
 		const { userPrompt, context, extraConstraints } = req.body;
-
-		if (!userPrompt) {
-			return res.status(400).json({
-				error: "userPrompt is required",
-			});
-		}
 
 		const result = await agents.schema.generateSchema({
 			userPrompt,
@@ -1511,15 +1500,9 @@ app.post("/api/agents/schema", async (req, res) => {
 // INTELLIGENT ROUTER API
 // ============================================================================
 
-app.post("/api/router", async (req, res) => {
+app.post("/api/router", validateBody(schemas.router), async (req, res) => {
 	try {
 		const { userPrompt, context } = req.body;
-
-		if (!userPrompt) {
-			return res.status(400).json({
-				error: "userPrompt is required",
-			});
-		}
 
 		// Create a simple routing agent
 		const router = new BaseMetaAgent({
@@ -1944,15 +1927,9 @@ app.post("/api/schema/mediator/cache/clear", (req, res) => {
 // CUSTOM AGENT CREATION API
 // ============================================================================
 
-app.post("/api/custom-agent", async (req, res) => {
+app.post("/api/custom-agent", requireAuth, validateBody(schemas.customAgent), async (req, res) => {
 	try {
 		const { agentName, systemPrompt, userPrompt, schema } = req.body;
-
-		if (!agentName || !userPrompt) {
-			return res.status(400).json({
-				error: "agentName and userPrompt are required",
-			});
-		}
 
 		// Create a custom agent on-the-fly
 		const customAgent = new BaseMetaAgent({
@@ -1997,21 +1974,10 @@ app.post("/api/custom-agent", async (req, res) => {
  *   "metadata": { ... }
  * }
  */
-app.post("/api/agents/register", async (req, res) => {
+app.post("/api/agents/register", requireAuth, validateBody(schemas.agentRegister), async (req, res) => {
 	try {
-		const { userId, name, description, prompt, schema, metadata } = req.body;
-
-		if (!userId || !name) {
-			return res.status(400).json({
-				error: "userId and name are required",
-			});
-		}
-
-		if (!prompt) {
-			return res.status(400).json({
-				error: "prompt is required - this defines how your agent behaves",
-			});
-		}
+		const { name, description, prompt, schema, metadata } = req.body;
+		const userId = req.user.email || req.user.publicKey;
 
 		const registeredAgent = await agentRegistry.registerUserAgent(userId, {
 			name,
@@ -2029,8 +1995,8 @@ app.post("/api/agents/register", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(400).json({
-			error: IS_PROD ? "Internal server error" : error.message,
-			service: "AgentRegistration",
+			success: false,
+			error: { code: "AGENT_REGISTER_FAILED", message: IS_PROD ? "Registration failed" : error.message },
 		});
 	}
 });
@@ -2050,15 +2016,10 @@ app.post("/api/agents/register", async (req, res) => {
  *   }
  * }
  */
-app.put("/api/agents/update", async (req, res) => {
+app.put("/api/agents/update", requireAuth, validateBody(schemas.agentUpdate), async (req, res) => {
 	try {
-		const { userId, agentName, updates } = req.body;
-
-		if (!userId || !agentName || !updates) {
-			return res.status(400).json({
-				error: "userId, agentName, and updates are required",
-			});
-		}
+		const { agentName, updates } = req.body;
+		const userId = req.user.email || req.user.publicKey;
 
 		const updatedAgent = await agentRegistry.updateUserAgent(
 			userId,
@@ -2074,8 +2035,8 @@ app.put("/api/agents/update", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(400).json({
-			error: IS_PROD ? "Internal server error" : error.message,
-			service: "AgentUpdate",
+			success: false,
+			error: { code: "AGENT_UPDATE_FAILED", message: IS_PROD ? "Update failed" : error.message },
 		});
 	}
 });
@@ -2090,22 +2051,17 @@ app.put("/api/agents/update", async (req, res) => {
  *   "agentName": "MyCustomAgent"
  * }
  */
-app.delete("/api/agents/delete", async (req, res) => {
+app.delete("/api/agents/delete", requireAuth, validateBody(schemas.agentDelete), async (req, res) => {
 	try {
-		const { userId, agentName } = req.body;
-
-		if (!userId || !agentName) {
-			return res.status(400).json({
-				error: "userId and agentName are required",
-			});
-		}
+		const { agentName } = req.body;
+		const userId = req.user.email || req.user.publicKey;
 
 		const deleted = await agentRegistry.deleteUserAgent(userId, agentName);
 
 		if (!deleted) {
 			return res.status(404).json({
-				error: `Agent '${agentName}' not found`,
-				service: "AgentDeletion",
+				success: false,
+				error: { code: "NOT_FOUND", message: `Agent '${agentName}' not found` },
 			});
 		}
 
@@ -2116,8 +2072,8 @@ app.delete("/api/agents/delete", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(400).json({
-			error: IS_PROD ? "Internal server error" : error.message,
-			service: "AgentDeletion",
+			success: false,
+			error: { code: "AGENT_DELETE_FAILED", message: IS_PROD ? "Delete failed" : error.message },
 		});
 	}
 });
@@ -2126,13 +2082,15 @@ app.delete("/api/agents/delete", async (req, res) => {
  * GET /api/agents/my-agents/:userId
  * Get all agents for a specific user
  */
-app.get("/api/agents/my-agents/:userId", async (req, res) => {
+app.get("/api/agents/my-agents/:userId", requireAuth, async (req, res) => {
 	try {
 		const { userId } = req.params;
+		const authUserId = req.user.email || req.user.publicKey;
 
-		if (!userId) {
-			return res.status(400).json({
-				error: "userId is required",
+		if (userId !== authUserId) {
+			return res.status(403).json({
+				success: false,
+				error: { code: "FORBIDDEN", message: "Cannot access agents of another user" },
 			});
 		}
 
@@ -2147,8 +2105,8 @@ app.get("/api/agents/my-agents/:userId", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: IS_PROD ? "Internal server error" : error.message,
-			service: "UserAgentRetrieval",
+			success: false,
+			error: { code: "INTERNAL_ERROR", message: IS_PROD ? "Internal server error" : error.message },
 		});
 	}
 });
@@ -2157,16 +2115,24 @@ app.get("/api/agents/my-agents/:userId", async (req, res) => {
  * GET /api/agents/my-agents/:userId/:agentName
  * Get a specific user agent
  */
-app.get("/api/agents/my-agents/:userId/:agentName", async (req, res) => {
+app.get("/api/agents/my-agents/:userId/:agentName", requireAuth, async (req, res) => {
 	try {
 		const { userId, agentName } = req.params;
+		const authUserId = req.user.email || req.user.publicKey;
+
+		if (userId !== authUserId) {
+			return res.status(403).json({
+				success: false,
+				error: { code: "FORBIDDEN", message: "Cannot access agents of another user" },
+			});
+		}
 
 		const agent = agentRegistry.getUserAgent(userId, agentName);
 
 		if (!agent) {
 			return res.status(404).json({
-				error: `Agent '${agentName}' not found for user ${userId}`,
-				service: "UserAgentRetrieval",
+				success: false,
+				error: { code: "NOT_FOUND", message: `Agent '${agentName}' not found` },
 			});
 		}
 
@@ -2177,8 +2143,8 @@ app.get("/api/agents/my-agents/:userId/:agentName", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: IS_PROD ? "Internal server error" : error.message,
-			service: "UserAgentRetrieval",
+			success: false,
+			error: { code: "INTERNAL_ERROR", message: IS_PROD ? "Internal server error" : error.message },
 		});
 	}
 });
@@ -2197,15 +2163,10 @@ app.get("/api/agents/my-agents/:userId/:agentName", async (req, res) => {
  *   }
  * }
  */
-app.post("/api/agents/invoke-user-agent", async (req, res) => {
+app.post("/api/agents/invoke-user-agent", requireAuth, validateBody(schemas.agentInvoke), async (req, res) => {
 	try {
-		const { userId, agentName, context } = req.body;
-
-		if (!userId || !agentName || !context) {
-			return res.status(400).json({
-				error: "userId, agentName, and context are required",
-			});
-		}
+		const { agentName, context } = req.body;
+		const userId = req.user.email || req.user.publicKey;
 
 		const result = await agentRegistry.invokeUserAgent(
 			userId,
@@ -2220,8 +2181,8 @@ app.post("/api/agents/invoke-user-agent", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(400).json({
-			error: IS_PROD ? "Internal server error" : error.message,
-			service: "UserAgentInvocation",
+			success: false,
+			error: { code: "AGENT_INVOKE_FAILED", message: IS_PROD ? "Invocation failed" : error.message },
 		});
 	}
 });
@@ -2233,18 +2194,8 @@ app.post("/api/agents/invoke-user-agent", async (req, res) => {
  * Query params:
  * - adminKey: Secret admin key for authentication
  */
-app.get("/api/admin/agents", async (req, res) => {
+app.get("/api/admin/agents", requireAdmin, async (req, res) => {
 	try {
-		const { adminKey } = req.query;
-
-		// Simple admin key check (in production, use proper auth)
-		if (adminKey !== process.env.ADMIN_KEY) {
-			return res.status(403).json({
-				error: "Forbidden: Invalid admin credentials",
-				service: "AdminAgentRetrieval",
-			});
-		}
-
 		const allUserAgents = agentRegistry.getAllUserAgents();
 		const stats = agentRegistry.getStats();
 
@@ -2257,11 +2208,93 @@ app.get("/api/admin/agents", async (req, res) => {
 		});
 	} catch (error) {
 		res.status(500).json({
-			error: IS_PROD ? "Internal server error" : error.message,
-			service: "AdminAgentRetrieval",
+			success: false,
+			error: { code: "INTERNAL_ERROR", message: IS_PROD ? "Internal server error" : error.message },
 		});
 	}
 });
+
+// ============================================================================
+// CACHE ENDPOINTS
+// ============================================================================
+
+// Cache statistics endpoint
+app.get("/api/cache/stats", (req, res) => {
+	res.json({
+		success: true,
+		stats: globalCache.getStats(),
+		timestamp: new Date().toISOString(),
+	});
+});
+
+// Clear cache endpoint (admin)
+app.post("/api/cache/clear", requireAdmin, (req, res) => {
+	globalCache.clear();
+	res.json({
+		success: true,
+		message: "Cache cleared",
+		timestamp: new Date().toISOString(),
+	});
+});
+
+// ============================================================================
+// SESSION MEMORY ENDPOINTS
+// ============================================================================
+
+// Get session memory statistics for current user
+app.get("/api/session/stats", (req, res) => {
+	const stats = sessionMemoryManager.getStatsForRequest(req);
+	res.json({
+		success: true,
+		session: stats,
+		timestamp: new Date().toISOString(),
+	});
+});
+
+// Get all session statistics (admin only)
+app.get("/api/sessions/all", requireAdmin, (req, res) => {
+	const allStats = sessionMemoryManager.getAllStats();
+	res.json({
+		success: true,
+		...allStats,
+		timestamp: new Date().toISOString(),
+	});
+});
+
+// Clear current session memory
+app.post("/api/session/clear", (req, res) => {
+	const cleared = sessionMemoryManager.clearSessionFromRequest(req);
+	res.json({
+		success: cleared,
+		message: cleared ? "Session memory cleared" : "No session found",
+		timestamp: new Date().toISOString(),
+	});
+});
+
+// Get conversation history for current session
+app.get("/api/session/history", (req, res) => {
+	const context = sessionMemoryManager.getContextForRequest(req);
+	const stats = sessionMemoryManager.getStatsForRequest(req);
+
+	res.json({
+		success: true,
+		sessionId: req.sessionId,
+		context,
+		stats,
+		timestamp: new Date().toISOString(),
+	});
+});
+
+// 404 handler — must come after all routes
+app.use((req, res) => {
+	res.status(404).json({
+		success: false,
+		error: { code: "NOT_FOUND", message: "Route not found" },
+	});
+});
+
+// Centralized error handler — must be last
+app.use(errorHandler);
 
 // ============================================================================
 // START SERVER
@@ -2295,7 +2328,7 @@ const server = app.listen(PORT, () => {
 	console.log(`   • CustomAgents: http://localhost:${PORT}/api/custom-agent`);
 	console.log("\n⚡ Performance Features:");
 	console.log(`   • Cache Statistics: GET http://localhost:${PORT}/api/cache/stats`);
-	console.log(`   • Clear Cache: POST http://localhost:${PORT}/api/cache/clear?adminKey=KEY`);
+	console.log(`   • Clear Cache: POST http://localhost:${PORT}/api/cache/clear  (header: X-Admin-Key)`);
 	console.log(`   • Fast Mode: Skip strategy planning for 50% speed improvement`);
 	console.log(`   • Express Mode: Cached responses (<1ms for cache hits)`);
 	console.log(`   • Response Time Headers: X-Response-Time, X-Cache-Status`);
@@ -2303,7 +2336,7 @@ const server = app.listen(PORT, () => {
 	console.log(`   • Current Session Stats: GET http://localhost:${PORT}/api/session/stats`);
 	console.log(`   • Session History: GET http://localhost:${PORT}/api/session/history`);
 	console.log(`   • Clear Session: POST http://localhost:${PORT}/api/session/clear`);
-	console.log(`   • All Sessions (admin): GET http://localhost:${PORT}/api/sessions/all?adminKey=KEY`);
+	console.log(`   • All Sessions (admin): GET http://localhost:${PORT}/api/sessions/all  (header: X-Admin-Key)`);
 	console.log("\n👤 User Agent Management:");
 	console.log(
 		`   • Register Agent: POST http://localhost:${PORT}/api/agents/register`
@@ -2321,7 +2354,7 @@ const server = app.listen(PORT, () => {
 		`   • Invoke User Agent: POST http://localhost:${PORT}/api/agents/invoke-user-agent`
 	);
 	console.log(
-		`   • Admin View All: GET http://localhost:${PORT}/api/admin/agents?adminKey=XXX`
+		`   • Admin View All: GET http://localhost:${PORT}/api/admin/agents  (header: X-Admin-Key)`
 	);
 	console.log(`\n📖 Documentation: http://localhost:${PORT}/api/docs`);
 	console.log("\n🎯 Use Cases:");
@@ -2332,100 +2365,6 @@ const server = app.listen(PORT, () => {
 	console.log("   5. Build autonomous AI assistants");
 	console.log("\n🌉 Future Self Bridge Architecture - Ready to serve!\n");
 });
-
-// Cache statistics endpoint
-app.get("/api/cache/stats", (req, res) => {
-	res.json({
-		success: true,
-		stats: globalCache.getStats(),
-		timestamp: new Date().toISOString(),
-	});
-});
-
-// Clear cache endpoint (admin)
-app.post("/api/cache/clear", (req, res) => {
-	const { adminKey } = req.query;
-	
-	if (!adminKey || adminKey !== process.env.ADMIN_KEY) {
-		return res.status(403).json({
-			error: "Admin key required",
-		});
-	}
-
-	globalCache.clear();
-	res.json({
-		success: true,
-		message: "Cache cleared",
-		timestamp: new Date().toISOString(),
-	});
-});
-
-// ============================================================================
-// SESSION MEMORY ENDPOINTS
-// ============================================================================
-
-// Get session memory statistics for current user
-app.get("/api/session/stats", (req, res) => {
-	const stats = sessionMemoryManager.getStatsForRequest(req);
-	res.json({
-		success: true,
-		session: stats,
-		timestamp: new Date().toISOString(),
-	});
-});
-
-// Get all session statistics (admin only)
-app.get("/api/sessions/all", (req, res) => {
-	const { adminKey } = req.query;
-	
-	if (!adminKey || adminKey !== process.env.ADMIN_KEY) {
-		return res.status(403).json({
-			error: "Admin key required",
-		});
-	}
-
-	const allStats = sessionMemoryManager.getAllStats();
-	res.json({
-		success: true,
-		...allStats,
-		timestamp: new Date().toISOString(),
-	});
-});
-
-// Clear current session memory
-app.post("/api/session/clear", (req, res) => {
-	const cleared = sessionMemoryManager.clearSessionFromRequest(req);
-	res.json({
-		success: cleared,
-		message: cleared ? "Session memory cleared" : "No session found",
-		timestamp: new Date().toISOString(),
-	});
-});
-
-// Get conversation history for current session
-app.get("/api/session/history", (req, res) => {
-	const context = sessionMemoryManager.getContextForRequest(req);
-	const stats = sessionMemoryManager.getStatsForRequest(req);
-	
-	res.json({
-		success: true,
-		sessionId: req.sessionId,
-		context,
-		stats,
-		timestamp: new Date().toISOString(),
-	});
-});
-
-// 404 handler — must come after all routes
-app.use((req, res) => {
-	res.status(404).json({
-		success: false,
-		error: { code: "NOT_FOUND", message: "Route not found" },
-	});
-});
-
-// Centralized error handler — must be last
-app.use(errorHandler);
 
 // Graceful shutdown
 const shutdown = async (sig) => {

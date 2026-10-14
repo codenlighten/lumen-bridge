@@ -2,7 +2,7 @@
   "name": "lumen-bridge-ai",
   "version": "1.0.0",
   "description": "Lumen-Bridge AI: An advanced multi-agent AI system with self-evolution capabilities, cryptographic verification, and schema negotiation, built on BSV blockchain technology.",
-  "main": "structured-json.js",
+  "main": "server.js",
   "type": "module",
   "scripts": {
     "test": "node --test '__tests__/**/*.test.js'",
@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/codenlighten/Lumen_Essence_AI#readme",
   "dependencies": {
+    "@smartledger/bsv": "^9.35.0",
     "ajv": "^8.17.1",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
@@ -40,7 +41,6 @@
     "mongodb": "^7.0.0",
     "nodemailer": "^7.0.10",
     "openai": "^6.9.1",
-    "smartledger-bsv": "^3.4.0",
     "validator": "^13.15.35"
   }
 }

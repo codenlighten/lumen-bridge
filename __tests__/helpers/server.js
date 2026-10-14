@@ -3,6 +3,10 @@ import { setTimeout as sleep } from "node:timers/promises";
 
 const READY_LOG = "Future Self Bridge Architecture";
 
+// Stable per-process admin key so tests can hit admin endpoints
+// without depending on whatever's in .env locally.
+export const TEST_ADMIN_KEY = "test-admin-key-do-not-use-in-prod";
+
 export async function startTestServer({ port = 3099, env = {} } = {}) {
 	const child = spawn(
 		process.execPath,
@@ -12,6 +16,7 @@ export async function startTestServer({ port = 3099, env = {} } = {}) {
 				...process.env,
 				PORT: String(port),
 				NODE_ENV: env.NODE_ENV || "development",
+				ADMIN_KEY: env.ADMIN_KEY || TEST_ADMIN_KEY,
 				...env,
 			},
 			stdio: ["ignore", "pipe", "pipe"],
