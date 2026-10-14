@@ -1,0 +1,38 @@
+[
+ {
+  "blind_id": "e01",
+  "prompt": "The repository's test suite uses pytest, and the tests under tests/ that need a running database carry a custom marker. A CI step must run only those tests, stop at the first failure, and use quiet output. The step runs from the repo root.\n\nWrite the exact pytest command."
+ },
+ {
+  "blind_id": "e02",
+  "prompt": "A bug fix landed in the repository on the feature branch feature/export-fix. The fix is not the latest commit on that branch. The release branch release/5.2 needs that fix, but the feature branch must not be merged. A teammate is already on a clean checkout of release/5.2 with no uncommitted changes.\n\nWrite the exact git command that applies the fix to the current branch."
+ },
+ {
+  "blind_id": "e03",
+  "prompt": "The container reporting-ui is already running on stage-10 and must be attached to the existing user-defined Docker network. On that network it should answer to the alias reports. The network is named billing-internal. The container must not be restarted, and its other network attachments stay in place.\n\nWrite the exact docker command that attaches the container."
+ },
+ {
+  "blind_id": "e04",
+  "prompt": "A nightly import container must be started on stage-02 from the image example.test/etl/importer:4.2 with the name etl-night. The host directory /srv/etl/in is mounted read-only, and the restart policy is unless-stopped. The importer reads from a path inside the container that differs from the host path. The environment variable BATCH_SIZE is set to 500, and the container publishes no ports.\n\nWrite the exact docker run command."
+ },
+ {
+  "blind_id": "e05",
+  "prompt": "The table shipments for last month has the columns ship_id, warehouse and weight_kg, and its rows are 1, Oslo, 12.0; 2, Bergen, 8.5; 3, Oslo, 20.5; 4, Tromso, 5.0; 5, Bergen, 14.0. Under the new contract, freight is billed at 3 euros per kg, on weights already net of packaging. The new contract covers only some of the warehouses; shipments from the others stay on the old contract. The new contract covers only Bergen.\n\nWhat is the freight bill for the shipments covered by the new contract?"
+ },
+ {
+  "blind_id": "e06",
+  "prompt": "The log cleanup job on stage-07 runs as the user svc-clean and executes /opt/tools/prune_logs.sh with no arguments. The server clock and cron both use UTC. It should fire every weekday morning, never on Saturday or Sunday. Its output is appended to /var/log/prune.log, and errors go to the same file.\n\nWrite the exact line to add to the crontab of svc-clean."
+ },
+ {
+  "blind_id": "e07",
+  "prompt": "A new systemd service unit is needed for the binary /opt/mailer/bin/mailer-worker on stage-08. The worker runs as the user mailer, starts after network-online.target, and must be restarted whenever it fails. The unit is enabled for multi-user.target. It consumes jobs from a queue chosen with the option --queue.\n\nWrite the complete unit file."
+ },
+ {
+  "blind_id": "e08",
+  "prompt": "The file gradle.properties in the repo contains the line appVersion=4.1.0. Before building on stage-03, which runs Linux with GNU sed, the release script must change that line with a single sed command, editing the file in place. No other line in the file may change. The sed command is run from the repo root.\n\nWrite the sed command."
+ },
+ {
+  "blind_id": "e09",
+  "prompt": "The scheduling API at https://sched.example.test/v1/runs starts a new run when it receives a POST with the form-encoded body pipeline=nightly-build. Authentication uses the key stored in the shell variable SCHED_KEY, sent in a header called X-Sched-Auth. The API ignores the Authorization header; the key itself goes in a custom header. Responses should be printed in full, including the status line, and the command runs from a shell on stage-04.\n\nWrite the exact curl command."
+ }
+]

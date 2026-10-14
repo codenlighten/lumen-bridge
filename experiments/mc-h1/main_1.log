@@ -1,0 +1,34 @@
+⚠️  Generated new platform keys. In production, save these securely!
+Platform Address: 189CRQ4GKBoewXXCUR3Rj5QG55HjhVX61f
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+split=main calls=540 manifest=bcc1b99a8a52 model=gpt-5-nano
+20/540 spent~$0.0124
+40/540 spent~$0.0291
+60/540 spent~$0.0435
+80/540 spent~$0.0594
+100/540 spent~$0.0719
+120/540 spent~$0.0839
+140/540 spent~$0.0965
+160/540 spent~$0.1096
+180/540 spent~$0.1200
+200/540 spent~$0.1358
+220/540 spent~$0.1483
+240/540 spent~$0.1653
+260/540 spent~$0.1805
+280/540 spent~$0.1938
+300/540 spent~$0.2155
+320/540 spent~$0.2267
+340/540 spent~$0.2422
+360/540 spent~$0.2532
+380/540 spent~$0.2650
+400/540 spent~$0.2789
+420/540 spent~$0.2897
+440/540 spent~$0.3048
+460/540 spent~$0.3215
+480/540 spent~$0.3347
+500/540 spent~$0.3485
+520/540 spent~$0.3638
+540/540 spent~$0.3866
+finished 540/540; estimated spend $0.3866 (assumed prices); output /home/greg/Documents/DEV3/LUMENBRIDGE/lumenbridge/experiments/mc-h1/raw/main_1.jsonl

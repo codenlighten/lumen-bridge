@@ -1,0 +1,14 @@
+[
+ {
+  "blind_id": "c01",
+  "prompt": "The sync service on stage-04 runs as the deployment billing-sync in the namespace payments. Each pod runs two containers: a log-shipper sidecar and the application container. The release pipeline has just pushed the image registry.example.test/billing/sync-worker:2.8.1, and the deployment must be updated to it without touching the sidecar.\n\nWrite the exact kubectl command that updates the deployment to the new image."
+ },
+ {
+  "blind_id": "c02",
+  "prompt": "The table shipments for last month has the columns ship_id, warehouse and weight_kg. Its rows are 1, Oslo, 12.0; 2, Bergen, 8.5; 3, Oslo, 20.5; 4, Tromso, 5.0; 5, Bergen, 14.0. Under the new contract, freight is billed at 3 euros per kg, on weights already net of packaging.\n\nWhat is the freight bill for the shipments covered by the new contract?"
+ },
+ {
+  "blind_id": "c03",
+  "prompt": "The table access_log has one row per request, with the columns req_id and hhmm, where hhmm is the time of the request on a 24-hour clock. Its rows are r1, 0905; r2, 0947; r3, 1012; r4, 1130; r5, 1204; r6, 1315. The maintenance window began at 10:00 and lasted until 12:00 that day.\n\nHow many requests happened during the maintenance window?"
+ }
+]

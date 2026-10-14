@@ -1,0 +1,21 @@
+{
+  "model": "gpt-5-nano",
+  "response_format": {
+    "type": "json_object"
+  },
+  "max_completion_tokens": 16000,
+  "temperature": "not set (model default; gpt-5-nano rejects any other value)",
+  "reasoning_effort": "not set (model default)",
+  "repeats": 3,
+  "order_seed": 20261016,
+  "cost_ceiling_usd": 5,
+  "assumed_price_usd_per_million_tokens": {
+    "input": 0.05,
+    "output": 0.4,
+    "note": "assumption for projection only; real cost is reported from usage"
+  },
+  "registration": "lumenbridge-mc-h2",
+  "arm_mapping": "E = envelope (unchanged from mc-h1); P = P2 (prose+example payload); N = N2",
+  "noise_run": "arm P only, 60 main items x 3 repeats = 180 calls, before the main run",
+  "main_run": "arms E, P, N on 60 main items x 3 repeats = 540 calls"
+}

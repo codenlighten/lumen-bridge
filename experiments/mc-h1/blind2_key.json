@@ -1,0 +1,17 @@
+[
+ {
+  "blind_id": "c01",
+  "item": "deploy-01-U",
+  "cls": "U"
+ },
+ {
+  "blind_id": "c02",
+  "item": "data-03-U",
+  "cls": "U"
+ },
+ {
+  "blind_id": "c03",
+  "item": "data-08-A",
+  "cls": "A"
+ }
+]

@@ -1,0 +1,62 @@
+[
+ {
+  "blind_id": "b01",
+  "item": "code-05-A",
+  "cls": "A"
+ },
+ {
+  "blind_id": "b02",
+  "item": "code-11-U",
+  "cls": "U"
+ },
+ {
+  "blind_id": "b03",
+  "item": "data-04-U",
+  "cls": "U"
+ },
+ {
+  "blind_id": "b04",
+  "item": "code-10-A",
+  "cls": "A"
+ },
+ {
+  "blind_id": "b05",
+  "item": "code-06-U",
+  "cls": "U"
+ },
+ {
+  "blind_id": "b06",
+  "item": "code-08-U",
+  "cls": "U"
+ },
+ {
+  "blind_id": "b07",
+  "item": "deploy-04-U",
+  "cls": "U"
+ },
+ {
+  "blind_id": "b08",
+  "item": "data-05-A",
+  "cls": "A"
+ },
+ {
+  "blind_id": "b09",
+  "item": "data-01-U",
+  "cls": "U"
+ },
+ {
+  "blind_id": "b10",
+  "item": "data-07-A",
+  "cls": "A"
+ },
+ {
+  "blind_id": "b11",
+  "item": "deploy-12-U",
+  "cls": "U"
+ },
+ {
+  "blind_id": "b12",
+  "item": "data-03-U",
+  "cls": "U"
+ }
+]

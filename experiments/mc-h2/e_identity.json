@@ -1,0 +1,19 @@
+{
+ "e_code_sha256_now": "ed322e23266960b6a6ebfb025e542ef4d82d3e44ce157259442819ebba530c93",
+ "e_code_sha256_mc_h1_manifest": "ed322e23266960b6a6ebfb025e542ef4d82d3e44ce157259442819ebba530c93",
+ "e_code_identical": true,
+ "e_payload_sha256_now": "c12eaa8329aeabf501e38f0dadabfd134dcc724f0bc6b322fc87e0efd7da2d3d",
+ "e_payload_sha256_mc_h1": "c12eaa8329aeabf501e38f0dadabfd134dcc724f0bc6b322fc87e0efd7da2d3d",
+ "e_payload_identical": true,
+ "ok": true,
+ "e_payload": [
+  {
+   "role": "system",
+   "content": "You are an AI that outputs ONLY valid JSON strictly conforming to the provided schema. If the schema includes a 'data' field, populate it with the domain-specific information requested. Always include a 'missingContext' array describing any missing information needed for perfection. If nothing is missing, return an empty array.\nYou must respond with a JSON object that follows this JSON schema exactly: {\"type\":\"object\",\"properties\":{\"response\":{\"type\":\"string\"},\"includesCode\":{\"type\":\"boolean\"},\"code\":{\"type\":\"string\"},\"continue\":{\"type\":\"boolean\",\"description\":\"Whether this agent has more work to do and should be called again automatically\"},\"questionForUser\":{\"type\":\"boolean\",\"description\":\"Whether this agent has a follow-up question for the user\"},\"question\":{\"type\":\"string\",\"description\":\"The follow-up question for the user (only if questionForUser is true)\"},\"missingContext\":{\"type\":\"array\",\"description\":\"List of strings indicating what information is missing for an ideal response\",\"items\":{\"type\":\"string\"}}},\"required\":[\"response\",\"includesCode\",\"code\",\"continue\",\"questionForUser\",\"missingContext\"]}. Do not include any additional commentary or explanations."
+  },
+  {
+   "role": "user",
+   "content": "<ITEM PROMPT>"
+  }
+ ]
+}

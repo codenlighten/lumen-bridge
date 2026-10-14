@@ -1,0 +1,138 @@
+{
+  "rawFile": "raw/main_1.jsonl",
+  "T": 0.20816659994661324,
+  "result": {
+    "arms": {
+      "N": {
+        "recall": null,
+        "falseAlarm": null,
+        "answeredAnyway": 0.9111111111111111,
+        "meanListLen": 0,
+        "invalid": 0,
+        "total": 180,
+        "invalidRate": 0,
+        "armInvalid": false
+      },
+      "P": {
+        "recall": 0.5222222222222223,
+        "falseAlarm": 0.02222222222222222,
+        "answeredAnyway": 0.3666666666666666,
+        "meanListLen": 0.40555555555555556,
+        "invalid": 0,
+        "total": 180,
+        "invalidRate": 0,
+        "armInvalid": false
+      },
+      "E": {
+        "recall": 0.5000000000000001,
+        "falseAlarm": 0.03333333333333333,
+        "answeredAnyway": 0.36666666666666664,
+        "meanListLen": 0.5555555555555556,
+        "invalid": 0,
+        "total": 180,
+        "invalidRate": 0,
+        "armInvalid": false
+      }
+    },
+    "d": -0.022222222222222143,
+    "FA": 0.011111111111111113,
+    "test": {
+      "m": 11,
+      "observedSum": -2,
+      "p": 0.70703125,
+      "pOpp": 0.42822265625,
+      "floor": 0.00048828125
+    },
+    "primaryOutcome": "4 NO DETECTABLE DIFFERENCE",
+    "outcomeAfterMatcherConstraint": "4 NO DETECTABLE DIFFERENCE"
+  },
+  "secondaryOldTermsNormalisationOnly": {
+    "outcome": "4 NO DETECTABLE DIFFERENCE",
+    "d": -0.0222222222222222,
+    "FA": 0.011111111111111113,
+    "p": 0.71337890625
+  },
+  "descriptives": {
+    "E": {
+      "recall_uncapped": 0.5,
+      "recall_without_weak": 0.52,
+      "recall_without_echo": 0.5,
+      "recall_on_cued_only": 0.6666666666666667,
+      "falseAlarm_without_weak": 0.04,
+      "byDomain": {
+        "deploy": {
+          "recall": 0.5,
+          "falseAlarm": 0.1
+        },
+        "data": {
+          "recall": 0.6333333333333334,
+          "falseAlarm": 0
+        },
+        "code": {
+          "recall": 0.36666666666666664,
+          "falseAlarm": 0
+        }
+      }
+    },
+    "P": {
+      "recall_uncapped": 0.5222222222222223,
+      "recall_without_weak": 0.5733333333333334,
+      "recall_without_echo": 0.5,
+      "recall_on_cued_only": 0.8,
+      "falseAlarm_without_weak": 0.026666666666666665,
+      "byDomain": {
+        "deploy": {
+          "recall": 0.4,
+          "falseAlarm": 0.06666666666666667
+        },
+        "data": {
+          "recall": 0.6333333333333333,
+          "falseAlarm": 0
+        },
+        "code": {
+          "recall": 0.5333333333333333,
+          "falseAlarm": 0
+        }
+      }
+    },
+    "N": {
+      "answeredAnyway": 0.9111111111111111
+    }
+  },
+  "pairedInvalidExcludedSensitivity": {
+    "rule": "drop every (item, repeat) cell where either E or P output is invalid; item mean over remaining repeats; items with no valid pair dropped",
+    "U_items": 30,
+    "U_cells_kept": 90,
+    "A_items": 30,
+    "A_cells_kept": 90,
+    "recallE": 0.5000000000000001,
+    "recallP": 0.5222222222222223,
+    "d": -0.022222222222222143,
+    "FA": 0.011111111111111113
+  },
+  "literalExampleMarkers": {
+    "E": {
+      "outputs": 180,
+      "answer_is_ellipsis": 0,
+      "gaps_entry_what_is_missing": 0,
+      "gaps_entry_what_is_missing_on_A": 0,
+      "note": "literal copying only; descriptive; not used for validity or scoring"
+    },
+    "P": {
+      "outputs": 180,
+      "answer_is_ellipsis": 0,
+      "gaps_entry_what_is_missing": 0,
+      "gaps_entry_what_is_missing_on_A": 0,
+      "note": "literal copying only; descriptive; not used for validity or scoring"
+    },
+    "N": {
+      "outputs": 180,
+      "answer_is_ellipsis": 0,
+      "gaps_entry_what_is_missing": 0,
+      "gaps_entry_what_is_missing_on_A": 0,
+      "note": "literal copying only; descriptive; not used for validity or scoring"
+    }
+  },
+  "invalidByArmAndClass": {},
+  "invalid": []
+}

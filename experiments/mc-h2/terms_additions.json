@@ -1,0 +1,38 @@
+{
+ "code-02": [
+  "name of the custom pytest marker"
+ ],
+ "code-04": [
+  "app version to",
+  "target app version"
+ ],
+ "code-07": [
+  "offset is not provided",
+  "offset is not specified"
+ ],
+ "data-07": [
+  "code corresponds to germany",
+  "country code to country name"
+ ],
+ "data-08": [
+  "end time or duration",
+  "duration of the maintenance window"
+ ],
+ "data-10": [
+  "valves quantity"
+ ],
+ "deploy-02": [
+  "time of morning",
+  "morning hour",
+  "exact time in the morning"
+ ],
+ "deploy-04": [
+  "container internal path"
+ ],
+ "deploy-05": [
+  "name of the user defined docker network"
+ ],
+ "deploy-08": [
+  "subnet range for the scraper"
+ ]
+}

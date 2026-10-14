@@ -1,0 +1,10 @@
+[
+ {
+  "blind_id": "f01",
+  "prompt": "A bug fix landed in the repository on the feature branch feature/export-fix. The fix is not the latest commit on that branch. The release branch release/5.2 needs that fix, but the feature branch must not be merged. A teammate is already on a clean checkout of release/5.2 with no uncommitted changes.\n\nWrite the exact git command that applies the fix to the current branch."
+ },
+ {
+  "blind_id": "f02",
+  "prompt": "The container reporting-ui is already running on stage-10 and must be attached to the existing user-defined Docker network. On that network it should answer to the alias reports. The container must not be restarted, and its other network attachments stay in place.\n\nWrite the exact docker command that attaches the container."
+ }
+]

@@ -1,0 +1,39 @@
+{
+ "E": {
+  "miss_to_hit": 9,
+  "hit_to_miss": 0,
+  "detail": {
+   "miss_to_hit": [
+    "deploy-02-U#2",
+    "data-10-U#3",
+    "data-07-U#2",
+    "code-04-U#2",
+    "data-08-U#3",
+    "deploy-04-U#2",
+    "deploy-08-U#3",
+    "deploy-05-U#2",
+    "code-02-U#1"
+   ],
+   "hit_to_miss": []
+  }
+ },
+ "P": {
+  "miss_to_hit": 10,
+  "hit_to_miss": 0,
+  "detail": {
+   "miss_to_hit": [
+    "deploy-02-U#1",
+    "deploy-08-U#3",
+    "data-10-U#3",
+    "code-07-U#2",
+    "deploy-02-U#3",
+    "data-07-U#1",
+    "data-01-U#3",
+    "data-05-U#3",
+    "deploy-05-U#3",
+    "data-01-U#2"
+   ],
+   "hit_to_miss": []
+  }
+ }
+}

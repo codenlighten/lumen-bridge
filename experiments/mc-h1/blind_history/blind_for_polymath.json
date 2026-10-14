@@ -1,0 +1,50 @@
+[
+ {
+  "blind_id": "b01",
+  "prompt": "A Python 3.12 script must read the connection limit from a TOML file at /etc/orders/limits.toml using the standard tomllib module. The limit is stored in the table [pool], under the key max_open. The script should print it as an integer and nothing else. The file is owned by root and is always present.\n\nWrite the complete script."
+ },
+ {
+  "blind_id": "b02",
+  "prompt": "A Dockerfile for the internal Python service must start from the company base image registry.example.test/base/python. Company policy requires the base image to be pinned to an exact tag. The rest of the Dockerfile is written separately, so only the opening line is needed here.\n\nWrite the FROM line."
+ },
+ {
+  "blind_id": "b03",
+  "prompt": "A latency benchmark for the search endpoint was run on stage-11 over several hours, against a warm cache and with one client thread and no other load on the host. The sample mean response time is 52.0 ms, and the sample standard deviation is 9.0 ms.\n\nWhat is the standard error of the mean?"
+ },
+ {
+  "blind_id": "b04",
+  "prompt": "The analytics database has a table page_views with the columns visit_id, path and viewed_at. All pages of the documentation section have paths that begin with /help/kb/. The report needs the number of views per path for the documentation section, most viewed first, using standard SQL. The table is large, so the query must be a single statement.\n\nWrite the SQL query for that report."
+ },
+ {
+  "blind_id": "b05",
+  "prompt": "The scheduling API at https://sched.example.test/v1/runs starts a new run when it receives a POST with the form-encoded body pipeline=nightly-build. Authentication uses the key stored in the shell variable SCHED_KEY. Responses should be printed in full, including the status line. The command runs from a shell on stage-04.\n\nWrite the exact curl command."
+ },
+ {
+  "blind_id": "b06",
+  "prompt": "A bug fix landed in the repository on a feature branch. The release branch release/5.2 needs that fix, but the feature branch must not be merged. A teammate is already on a clean checkout of release/5.2 with no uncommitted changes.\n\nWrite the exact git command that applies the fix to the current branch."
+ },
+ {
+  "blind_id": "b07",
+  "prompt": "A nightly import container must be started on stage-02 from the image example.test/etl/importer:4.2 with the name etl-night. The host directory /srv/etl/in is mounted read-only, and the restart policy is unless-stopped. The environment variable BATCH_SIZE is set to 500. The container publishes no ports.\n\nWrite the exact docker run command."
+ },
+ {
+  "blind_id": "b08",
+  "prompt": "The cohort table lists 250 users who signed up in January. Marketing counts a user as active if they logged in during the last 30 days, and at the end of March 140 users met that test. Churned accounts are not deleted from the table. No user appears in the table more than once.\n\nWhat percentage of the January cohort was active at the end of March?"
+ },
+ {
+  "blind_id": "b09",
+  "prompt": "The table orders, in which no row has ever been deleted, has the columns order_id, amount_eur and customer_tier. Its rows are A101, 120.00, gold; A102, 80.50, silver; A103, 200.00, gold. Reports for the sales team are always stated in dollars.\n\nWhat is the total order value in dollars for gold-tier customers?"
+ },
+ {
+  "blind_id": "b10",
+  "prompt": "The table users has the columns user_id and country_code, where countries are stored as internal numeric codes, and Germany is stored as 7. Its rows are 1, 7; 2, 4; 3, 7. The table purchases has the columns user_id and amount, with rows 1, 30; 2, 55; 3, 25; 1, 10.\n\nWhat is the total amount spent by users from Germany?"
+ },
+ {
+  "blind_id": "b11",
+  "prompt": "The certificate for api.example.test is stored at /etc/ssl/stage-08/api.pem on stage-08. A monitoring script there should exit with a non-zero status if the certificate expires soon. The check must use openssl and print nothing. The script is run from cron once a day.\n\nWrite the exact command the script should run."
+ },
+ {
+  "blind_id": "b12",
+  "prompt": "The table shipments for last month has the columns ship_id, warehouse and weight_kg. Its rows are 1, Oslo, 12.0; 2, Bergen, 8.5; 3, Oslo, 20.5; 4, Tromso, 5.0; 5, Bergen, 14.0. Under the new contract, freight is billed at 3 euros per kg, on weights already net of packaging.\n\nWhat is the freight bill for the shipments covered by the new contract?"
+ }
+]

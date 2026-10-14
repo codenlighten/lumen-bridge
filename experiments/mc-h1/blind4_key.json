@@ -1,0 +1,47 @@
+[
+ {
+  "blind_id": "e01",
+  "item": "code-02-U",
+  "cls": "U"
+ },
+ {
+  "blind_id": "e02",
+  "item": "code-08-U",
+  "cls": "U"
+ },
+ {
+  "blind_id": "e03",
+  "item": "deploy-05-A",
+  "cls": "A"
+ },
+ {
+  "blind_id": "e04",
+  "item": "deploy-04-U",
+  "cls": "U"
+ },
+ {
+  "blind_id": "e05",
+  "item": "data-03-A",
+  "cls": "A"
+ },
+ {
+  "blind_id": "e06",
+  "item": "deploy-02-U",
+  "cls": "U"
+ },
+ {
+  "blind_id": "e07",
+  "item": "deploy-10-U",
+  "cls": "U"
+ },
+ {
+  "blind_id": "e08",
+  "item": "code-04-U",
+  "cls": "U"
+ },
+ {
+  "blind_id": "e09",
+  "item": "code-06-A",
+  "cls": "A"
+ }
+]

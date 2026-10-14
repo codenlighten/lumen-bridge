@@ -1,0 +1,16 @@
+⚠️  Generated new platform keys. In production, save these securely!
+Platform Address: 156qFz9d12o4TnhrLo44gcgJfFHqonaSw2
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+split=noise calls=180 manifest=a0cff5074303 model=gpt-5-nano
+20/180 spent~$0.0097
+40/180 spent~$0.0200
+60/180 spent~$0.0322
+80/180 spent~$0.0475
+100/180 spent~$0.0572
+120/180 spent~$0.0700
+140/180 spent~$0.0840
+160/180 spent~$0.0959
+180/180 spent~$0.1094
+finished 180/180; estimated spend $0.1094 (assumed prices); output /home/greg/Documents/DEV3/LUMENBRIDGE/lumenbridge/experiments/mc-h2/raw/noise_1.jsonl

@@ -1,0 +1,188 @@
+{
+  "rawFile": "raw/main_1.jsonl",
+  "T": 0.5773502691896257,
+  "result": {
+    "arms": {
+      "N": {
+        "recall": 0,
+        "falseAlarm": 1,
+        "answeredAnyway": 0.9111111111111112,
+        "meanListLen": 0,
+        "invalid": 3,
+        "total": 180,
+        "invalidRate": 0.016666666666666666,
+        "armInvalid": false
+      },
+      "E": {
+        "recall": 0.4555555555555556,
+        "falseAlarm": 0.04444444444444444,
+        "answeredAnyway": 0.3111111111111111,
+        "meanListLen": 0.6333333333333334,
+        "invalid": 0,
+        "total": 180,
+        "invalidRate": 0,
+        "armInvalid": false
+      },
+      "P": {
+        "recall": 0.34444444444444444,
+        "falseAlarm": 0.06666666666666667,
+        "answeredAnyway": 0.3666666666666666,
+        "meanListLen": 0.5333333333333332,
+        "invalid": 10,
+        "total": 180,
+        "invalidRate": 0.05555555555555555,
+        "armInvalid": true
+      }
+    },
+    "d": 0.11111111111111116,
+    "FA": -0.022222222222222227,
+    "test": {
+      "m": 15,
+      "observedSum": 10,
+      "p": 0.014801025390625,
+      "pOpp": 0.996734619140625,
+      "floor": 0.000030517578125
+    },
+    "outcome": "INVALID ARM: comparison invalid"
+  },
+  "descriptives": {
+    "E": {
+      "recall_uncapped": 0.46666666666666673,
+      "recall_without_weak": 0.49333333333333335,
+      "recall_without_echo": 0.46153846153846145,
+      "recall_on_cued_only": 0.6666666666666667,
+      "falseAlarm_without_weak": 0.04,
+      "byDomain": {
+        "deploy": {
+          "recall": 0.4666666666666667,
+          "falseAlarm": 0.13333333333333333
+        },
+        "data": {
+          "recall": 0.5333333333333334,
+          "falseAlarm": 0
+        },
+        "code": {
+          "recall": 0.3666666666666667,
+          "falseAlarm": 0
+        }
+      }
+    },
+    "P": {
+      "recall_uncapped": 0.3555555555555557,
+      "recall_without_weak": 0.3866666666666667,
+      "recall_without_echo": 0.3461538461538462,
+      "recall_on_cued_only": 0.7333333333333334,
+      "falseAlarm_without_weak": 0.08,
+      "byDomain": {
+        "deploy": {
+          "recall": 0.30000000000000004,
+          "falseAlarm": 0.13333333333333333
+        },
+        "data": {
+          "recall": 0.36666666666666664,
+          "falseAlarm": 0.03333333333333333
+        },
+        "code": {
+          "recall": 0.36666666666666664,
+          "falseAlarm": 0.03333333333333333
+        }
+      }
+    },
+    "N": {
+      "answeredAnyway": 0.9111111111111112
+    }
+  },
+  "invalid": [
+    {
+      "item": "deploy-01-A",
+      "arm": "P",
+      "repeat": 3,
+      "finish": "stop",
+      "head": "{\"type\":\"object\",\"properties\":{\"answer\":{\"type\":\"string\"},\"gaps\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":"
+    },
+    {
+      "item": "code-02-U",
+      "arm": "P",
+      "repeat": 1,
+      "finish": "stop",
+      "head": "{\"type\":\"object\",\"properties\":{\"answer\":{\"type\":\"string\"},\"gaps\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":"
+    },
+    {
+      "item": "code-08-U",
+      "arm": "P",
+      "repeat": 1,
+      "finish": "stop",
+      "head": "{\"type\":\"object\",\"properties\":{\"answer\":{\"type\":\"string\"},\"gaps\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":"
+    },
+    {
+      "item": "deploy-06-U",
+      "arm": "P",
+      "repeat": 1,
+      "finish": "stop",
+      "head": "{\"type\":\"object\",\"properties\":{\"answer\":{\"type\":\"string\"},\"gaps\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":"
+    },
+    {
+      "item": "deploy-02-A",
+      "arm": "N",
+      "repeat": 1,
+      "finish": "stop",
+      "head": "{\"type\":\"object\",\"properties\":{\"answer\":\"15 2 * * 1-5 /opt/tools/prune_logs.sh >> /var/log/prune.log 2>&1\"},\"required\":["
+    },
+    {
+      "item": "data-03-A",
+      "arm": "P",
+      "repeat": 1,
+      "finish": "stop",
+      "head": "{\"type\":\"object\",\"properties\":{\"answer\":{\"type\":\"string\"},\"gaps\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":"
+    },
+    {
+      "item": "code-05-A",
+      "arm": "N",
+      "repeat": 2,
+      "finish": "stop",
+      "head": "{\"type\":\"object\",\"properties\":{\"answer\":{\"type\":\"string\"}},\"required\":[\"answer\"]}"
+    },
+    {
+      "item": "data-04-U",
+      "arm": "P",
+      "repeat": 3,
+      "finish": "stop",
+      "head": "{\"type\":\"object\",\"properties\":{\"answer\":{\"type\":\"string\"},\"gaps\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":"
+    },
+    {
+      "item": "deploy-05-A",
+      "arm": "P",
+      "repeat": 2,
+      "finish": "stop",
+      "head": "{\"type\":\"object\",\"properties\":{\"answer\":{\"type\":\"string\"},\"gaps\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":"
+    },
+    {
+      "item": "deploy-05-U",
+      "arm": "P",
+      "repeat": 1,
+      "finish": "stop",
+      "head": "{\"type\":\"object\",\"properties\":{\"answer\":{\"type\":\"string\"},\"gaps\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":"
+    },
+    {
+      "item": "code-05-U",
+      "arm": "P",
+      "repeat": 1,
+      "finish": "stop",
+      "head": "{\"type\":\"object\",\"properties\":{\"answer\":{\"type\":\"string\"},\"gaps\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":"
+    },
+    {
+      "item": "code-03-A",
+      "arm": "P",
+      "repeat": 1,
+      "finish": "stop",
+      "head": "{\"type\":\"object\",\"properties\":{\"answer\":{\"type\":\"string\"},\"gaps\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":"
+    },
+    {
+      "item": "code-05-U",
+      "arm": "N",
+      "repeat": 3,
+      "finish": "length",
+      "head": ""
+    }
+  ]
+}

@@ -1,0 +1,506 @@
+[
+ {
+  "id": "deploy-01-A",
+  "pair_id": "deploy-01",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "The sync service on stage-04 runs as the deployment billing-sync in the namespace payments. Each pod runs two containers: a log-shipper sidecar and the application container named sync-main. The release pipeline has just pushed the image registry.example.test/billing/sync-worker:2.8.1, and the deployment must be updated to it without touching the sidecar.\n\nWrite the exact kubectl command that updates the deployment to the new image."
+ },
+ {
+  "id": "deploy-01-U",
+  "pair_id": "deploy-01",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "The sync service on stage-04 runs as the deployment billing-sync in the namespace payments. Each pod runs two containers: a log-shipper sidecar and the application container. The release pipeline has just pushed the image registry.example.test/billing/sync-worker:2.8.1, and the deployment must be updated to it without touching the sidecar.\n\nWrite the exact kubectl command that updates the deployment to the new image."
+ },
+ {
+  "id": "deploy-02-A",
+  "pair_id": "deploy-02",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "The log cleanup job on stage-07 runs as the user svc-clean and executes /opt/tools/prune_logs.sh with no arguments. The server clock and cron both use UTC. It should fire at 02:15 every weekday morning, never on Saturday or Sunday. Its output is appended to /var/log/prune.log, and errors go to the same file.\n\nWrite the exact line to add to the crontab of svc-clean."
+ },
+ {
+  "id": "deploy-02-U",
+  "pair_id": "deploy-02",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "The log cleanup job on stage-07 runs as the user svc-clean and executes /opt/tools/prune_logs.sh with no arguments. The server clock and cron both use UTC. It should fire every weekday morning, never on Saturday or Sunday. Its output is appended to /var/log/prune.log, and errors go to the same file.\n\nWrite the exact line to add to the crontab of svc-clean."
+ },
+ {
+  "id": "deploy-03-A",
+  "pair_id": "deploy-03",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "The new reports api is running on stage-12 and must be published through the nginx proxy at reports.example.test over plain HTTP. The api process listens on port 8472 on that host. Requests under /v2/ are forwarded to it, and the path prefix must be preserved when forwarding. No other location in the server block needs to change.\n\nWrite the nginx location block that forwards those requests."
+ },
+ {
+  "id": "deploy-03-U",
+  "pair_id": "deploy-03",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "The new reports api is running on stage-12 and must be published through the nginx proxy at reports.example.test over plain HTTP. Requests under /v2/ are forwarded to it, and the path prefix must be preserved when forwarding. No other location in the server block needs to change.\n\nWrite the nginx location block that forwards those requests."
+ },
+ {
+  "id": "deploy-04-A",
+  "pair_id": "deploy-04",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "A nightly import container must be started on stage-02 from the image example.test/etl/importer:4.2 with the name etl-night. The host directory /srv/etl/in is mounted read-only at /data/in inside the container, and the restart policy is unless-stopped. The importer reads from a path inside the container that differs from the host path. The environment variable BATCH_SIZE is set to 500, and the container publishes no ports.\n\nWrite the exact docker run command."
+ },
+ {
+  "id": "deploy-04-U",
+  "pair_id": "deploy-04",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "A nightly import container must be started on stage-02 from the image example.test/etl/importer:4.2 with the name etl-night. The host directory /srv/etl/in is mounted read-only, and the restart policy is unless-stopped. The importer reads from a path inside the container that differs from the host path. The environment variable BATCH_SIZE is set to 500, and the container publishes no ports.\n\nWrite the exact docker run command."
+ },
+ {
+  "id": "deploy-05-A",
+  "pair_id": "deploy-05",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "The container reporting-ui is already running on stage-10 and must be attached to the existing user-defined Docker network. On that network it should answer to the alias reports. The network is named billing-internal. The container must not be restarted, and its other network attachments stay in place.\n\nWrite the exact docker command that attaches the container."
+ },
+ {
+  "id": "deploy-05-U",
+  "pair_id": "deploy-05",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "The container reporting-ui is already running on stage-10 and must be attached to the existing user-defined Docker network. On that network it should answer to the alias reports. The container must not be restarted, and its other network attachments stay in place.\n\nWrite the exact docker command that attaches the container."
+ },
+ {
+  "id": "deploy-06-A",
+  "pair_id": "deploy-06",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "The storefront deployment in the namespace shop-live on stage-09 is exposed through a load balancer. Friday's sale will bring far more traffic, so the deployment should be scaled to 18 replicas before noon. The horizontal autoscaler is disabled for the event, and nothing else in the namespace changes.\n\nWrite the exact command that does the scaling."
+ },
+ {
+  "id": "deploy-06-U",
+  "pair_id": "deploy-06",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "The storefront deployment in the namespace shop-live on stage-09 is exposed through a load balancer. Friday's sale will bring far more traffic, so the deployment should be scaled before noon. The horizontal autoscaler is disabled for the event, and nothing else in the namespace changes.\n\nWrite the exact command that does the scaling."
+ },
+ {
+  "id": "deploy-07-A",
+  "pair_id": "deploy-07",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "Uploaded files in /var/app/uploads on stage-03 must be copied every night to the backup host vault-01.example.test, into the directory /mnt/vault/uploads-copy. The copy runs from stage-03 over ssh as the user backup, preserves permissions and timestamps, and must never delete anything on the destination. Nothing is ever copied in the other direction.\n\nWrite the exact rsync command."
+ },
+ {
+  "id": "deploy-07-U",
+  "pair_id": "deploy-07",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "Uploaded files in /var/app/uploads on stage-03 must be copied every night to the backup host vault-01.example.test. The copy runs from stage-03 over ssh as the user backup, preserves permissions and timestamps, and must never delete anything on the destination. Nothing is ever copied in the other direction.\n\nWrite the exact rsync command."
+ },
+ {
+  "id": "deploy-08-A",
+  "pair_id": "deploy-08",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "The metrics exporter on stage-05 listens on TCP port 9310, and the host's firewall is managed with ufw. Only the scraper subnet 10.40.8.0/24 should be allowed to connect to that port, while connections from every other source stay blocked. The default incoming policy is already deny.\n\nWrite the exact ufw command that adds the rule."
+ },
+ {
+  "id": "deploy-08-U",
+  "pair_id": "deploy-08",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "The metrics exporter on stage-05 listens on TCP port 9310, and the host's firewall is managed with ufw. Only the scraper subnet should be allowed to connect to that port, while connections from every other source stay blocked. The default incoming policy is already deny.\n\nWrite the exact ufw command that adds the rule."
+ },
+ {
+  "id": "deploy-09-A",
+  "pair_id": "deploy-09",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "Application logs for the inventory daemon are written to /var/log/inventory/*.log on stage-06. A logrotate stanza is needed that rotates them daily, compresses the rotated files, and keeps a limited number of rotated files, 14 in total. After each rotation, the daemon is told to reopen its logs with systemctl reload inventory.\n\nWrite the complete logrotate stanza."
+ },
+ {
+  "id": "deploy-09-U",
+  "pair_id": "deploy-09",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "Application logs for the inventory daemon are written to /var/log/inventory/*.log on stage-06. A logrotate stanza is needed that rotates them daily, compresses the rotated files, and keeps a limited number of rotated files. After each rotation, the daemon is told to reopen its logs with systemctl reload inventory.\n\nWrite the complete logrotate stanza."
+ },
+ {
+  "id": "deploy-10-A",
+  "pair_id": "deploy-10",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "A new systemd service unit is needed for the binary /opt/mailer/bin/mailer-worker on stage-08. The worker runs as the user mailer, starts after network-online.target, and must be restarted whenever it fails. The unit is enabled for multi-user.target. It consumes jobs from a queue chosen with the option --queue, and this deployment uses the queue outbound-eu.\n\nWrite the complete unit file."
+ },
+ {
+  "id": "deploy-10-U",
+  "pair_id": "deploy-10",
+  "domain": "deploy",
+  "split": "main",
+  "prompt": "A new systemd service unit is needed for the binary /opt/mailer/bin/mailer-worker on stage-08. The worker runs as the user mailer, starts after network-online.target, and must be restarted whenever it fails. The unit is enabled for multi-user.target. It consumes jobs from a queue chosen with the option --queue.\n\nWrite the complete unit file."
+ },
+ {
+  "id": "deploy-11-A",
+  "pair_id": "deploy-11",
+  "domain": "deploy",
+  "split": "pilot",
+  "prompt": "Nightly database dumps on stage-06 are written to /backups/db as files ending in .sql.gz, together with a small checksum file for each dump. They must be uploaded with the mc client to the object store alias archive. The bucket for these dumps is db-dumps-archive. Only the .sql.gz files are sent, and they keep their file names.\n\nWrite the exact mc command that uploads them."
+ },
+ {
+  "id": "deploy-11-U",
+  "pair_id": "deploy-11",
+  "domain": "deploy",
+  "split": "pilot",
+  "prompt": "Nightly database dumps on stage-06 are written to /backups/db as files ending in .sql.gz, together with a small checksum file for each dump. They must be uploaded with the mc client to the object store alias archive. Only the .sql.gz files are sent, and they keep their file names.\n\nWrite the exact mc command that uploads them."
+ },
+ {
+  "id": "deploy-12-A",
+  "pair_id": "deploy-12",
+  "domain": "deploy",
+  "split": "pilot",
+  "prompt": "The certificate for api.example.test is stored at /etc/ssl/stage-08/api.pem on stage-08. A monitoring script there should exit with a non-zero status if the certificate expires soon, meaning within 21 days. The check must use openssl and print nothing. The script is run from cron once a day.\n\nWrite the exact command the script should run."
+ },
+ {
+  "id": "deploy-12-U",
+  "pair_id": "deploy-12",
+  "domain": "deploy",
+  "split": "pilot",
+  "prompt": "The certificate for api.example.test is stored at /etc/ssl/stage-08/api.pem on stage-08. A monitoring script there should exit with a non-zero status if the certificate expires soon. The check must use openssl and print nothing. The script is run from cron once a day.\n\nWrite the exact command the script should run."
+ },
+ {
+  "id": "data-01-A",
+  "pair_id": "data-01",
+  "domain": "data",
+  "split": "main",
+  "prompt": "The table orders, in which no row has ever been deleted, has the columns order_id, amount_eur and customer_tier. Its rows are A101, 120.00, gold; A102, 80.50, silver; A103, 200.00, gold. Reports for the sales team are always stated in dollars, and for this report one euro is worth 1.10 dollars.\n\nWhat is the total order value in dollars for gold-tier customers?"
+ },
+ {
+  "id": "data-01-U",
+  "pair_id": "data-01",
+  "domain": "data",
+  "split": "main",
+  "prompt": "The table orders, in which no row has ever been deleted, has the columns order_id, amount_eur and customer_tier. Its rows are A101, 120.00, gold; A102, 80.50, silver; A103, 200.00, gold. Reports for the sales team are always stated in dollars.\n\nWhat is the total order value in dollars for gold-tier customers?"
+ },
+ {
+  "id": "data-02-A",
+  "pair_id": "data-02",
+  "domain": "data",
+  "split": "main",
+  "prompt": "The table sensor_log holds one month of greenhouse readings and has the columns sensor_id, reading_ppm and taken_on. Its rows are S1, 41, March 3; S1, 55, March 9; S2, 62, March 4; S2, 38, March 12; S3, 70, March 10. Alerts are raised only for readings strictly above a limit of 60 ppm.\n\nWhich sensor IDs raise an alert?"
+ },
+ {
+  "id": "data-02-U",
+  "pair_id": "data-02",
+  "domain": "data",
+  "split": "main",
+  "prompt": "The table sensor_log holds one month of greenhouse readings and has the columns sensor_id, reading_ppm and taken_on. Its rows are S1, 41, March 3; S1, 55, March 9; S2, 62, March 4; S2, 38, March 12; S3, 70, March 10. Alerts are raised only for readings strictly above a limit.\n\nWhich sensor IDs raise an alert?"
+ },
+ {
+  "id": "data-03-A",
+  "pair_id": "data-03",
+  "domain": "data",
+  "split": "main",
+  "prompt": "The table shipments for last month has the columns ship_id, warehouse and weight_kg, and its rows are 1, Oslo, 12.0; 2, Bergen, 8.5; 3, Oslo, 20.5; 4, Tromso, 5.0; 5, Bergen, 14.0. Under the new contract, freight is billed at 3 euros per kg, on weights already net of packaging. The new contract covers only some of the warehouses; shipments from the others stay on the old contract. The new contract covers only Bergen.\n\nWhat is the freight bill for the shipments covered by the new contract?"
+ },
+ {
+  "id": "data-03-U",
+  "pair_id": "data-03",
+  "domain": "data",
+  "split": "main",
+  "prompt": "The table shipments for last month has the columns ship_id, warehouse and weight_kg, and its rows are 1, Oslo, 12.0; 2, Bergen, 8.5; 3, Oslo, 20.5; 4, Tromso, 5.0; 5, Bergen, 14.0. Under the new contract, freight is billed at 3 euros per kg, on weights already net of packaging. The new contract covers only some of the warehouses; shipments from the others stay on the old contract.\n\nWhat is the freight bill for the shipments covered by the new contract?"
+ },
+ {
+  "id": "data-04-A",
+  "pair_id": "data-04",
+  "domain": "data",
+  "split": "main",
+  "prompt": "A latency benchmark for the search endpoint was run on stage-11 over several hours, against a warm cache and with one client thread and no other load on the host. Exactly 36 independent measurements were recorded in that run. The sample mean response time is 52.0 ms, and the sample standard deviation is 9.0 ms.\n\nWhat is the standard error of the mean?"
+ },
+ {
+  "id": "data-04-U",
+  "pair_id": "data-04",
+  "domain": "data",
+  "split": "main",
+  "prompt": "A latency benchmark for the search endpoint was run on stage-11 over several hours, against a warm cache and with one client thread and no other load on the host. The sample mean response time is 52.0 ms, and the sample standard deviation is 9.0 ms.\n\nWhat is the standard error of the mean?"
+ },
+ {
+  "id": "data-05-A",
+  "pair_id": "data-05",
+  "domain": "data",
+  "split": "main",
+  "prompt": "The cohort table lists 250 users who signed up in January. Marketing counts a user as active if they logged in during the last 30 days, and at the end of March 140 users met that test. Churned accounts are not deleted from the table. No user appears in the table more than once.\n\nWhat percentage of the January cohort was active at the end of March?"
+ },
+ {
+  "id": "data-05-U",
+  "pair_id": "data-05",
+  "domain": "data",
+  "split": "main",
+  "prompt": "The cohort table lists 250 users who signed up in January. Marketing counts a user as active if they logged in during the last 30 days. Churned accounts are not deleted from the table. No user appears in the table more than once.\n\nWhat percentage of the January cohort was active at the end of March?"
+ },
+ {
+  "id": "data-06-A",
+  "pair_id": "data-06",
+  "domain": "data",
+  "split": "main",
+  "prompt": "The revenue table for the Delta product line shows Q1 4.2, Q2 4.8, Q3 5.1 and Q4 5.9, all in millions of dollars. Finance reports growth as the percentage change over the baseline quarter, which is Q2. Figures are final and have been audited.\n\nWhat growth figure should finance report for Q4?"
+ },
+ {
+  "id": "data-06-U",
+  "pair_id": "data-06",
+  "domain": "data",
+  "split": "main",
+  "prompt": "The revenue table for the Delta product line shows Q1 4.2, Q2 4.8, Q3 5.1 and Q4 5.9, all in millions of dollars. Finance reports growth as the percentage change over the baseline quarter. Figures are final and have been audited.\n\nWhat growth figure should finance report for Q4?"
+ },
+ {
+  "id": "data-07-A",
+  "pair_id": "data-07",
+  "domain": "data",
+  "split": "main",
+  "prompt": "The table users has the columns user_id and country_code, where countries are stored as internal numeric codes, and Germany is stored as 7. Its rows are 1, 7; 2, 4; 3, 7. The table purchases has the columns user_id and amount, with rows 1, 30; 2, 55; 3, 25; 1, 10.\n\nWhat is the total amount spent by users from Germany?"
+ },
+ {
+  "id": "data-07-U",
+  "pair_id": "data-07",
+  "domain": "data",
+  "split": "main",
+  "prompt": "The table users has the columns user_id and country_code, where countries are stored as internal numeric codes. Its rows are 1, 7; 2, 4; 3, 7. The table purchases has the columns user_id and amount, with rows 1, 30; 2, 55; 3, 25; 1, 10.\n\nWhat is the total amount spent by users from Germany?"
+ },
+ {
+  "id": "data-08-A",
+  "pair_id": "data-08",
+  "domain": "data",
+  "split": "main",
+  "prompt": "The table access_log has one row per request, with the columns req_id and hhmm, where hhmm is the time of the request on a 24-hour clock. Its rows are r1, 0905; r2, 0947; r3, 1012; r4, 1130; r5, 1204; r6, 1315. The maintenance window began at 10:00 and lasted until 12:00 that day.\n\nHow many requests happened during the maintenance window?"
+ },
+ {
+  "id": "data-08-U",
+  "pair_id": "data-08",
+  "domain": "data",
+  "split": "main",
+  "prompt": "The table access_log has one row per request, with the columns req_id and hhmm, where hhmm is the time of the request on a 24-hour clock. Its rows are r1, 0905; r2, 0947; r3, 1012; r4, 1130; r5, 1204; r6, 1315. The maintenance window began at 10:00.\n\nHow many requests happened during the maintenance window?"
+ },
+ {
+  "id": "data-09-A",
+  "pair_id": "data-09",
+  "domain": "data",
+  "split": "main",
+  "prompt": "The latency log for the checkout API holds these 10 request times in ms, already sorted: 18, 22, 25, 31, 34, 40, 47, 62, 95, 210. The team's service target is set on a single percentile of request time, the 90th. Percentiles are computed with the nearest-rank method.\n\nWhich request time does the service target apply to?"
+ },
+ {
+  "id": "data-09-U",
+  "pair_id": "data-09",
+  "domain": "data",
+  "split": "main",
+  "prompt": "The latency log for the checkout API holds these 10 request times in ms, already sorted: 18, 22, 25, 31, 34, 40, 47, 62, 95, 210. The team's service target is set on a single percentile of request time. Percentiles are computed with the nearest-rank method.\n\nWhich request time does the service target apply to?"
+ },
+ {
+  "id": "data-10-A",
+  "pair_id": "data-10",
+  "domain": "data",
+  "split": "main",
+  "prompt": "An invoice for a repeat customer in the Lakeview region has three lines: 4 widgets at 12.50 each, 10 washers at 3.20 each, and valves at 41.00 each. The customer ordered 2 valves. An 8 percent loyalty discount applies to the whole invoice, and flat shipping of 15.00 is added after the discount.\n\nWhat is the invoice total?"
+ },
+ {
+  "id": "data-10-U",
+  "pair_id": "data-10",
+  "domain": "data",
+  "split": "main",
+  "prompt": "An invoice for a repeat customer in the Lakeview region has three lines: 4 widgets at 12.50 each, 10 washers at 3.20 each, and valves at 41.00 each. An 8 percent loyalty discount applies to the whole invoice, and flat shipping of 15.00 is added after the discount.\n\nWhat is the invoice total?"
+ },
+ {
+  "id": "data-11-A",
+  "pair_id": "data-11",
+  "domain": "data",
+  "split": "pilot",
+  "prompt": "The staff table has the columns name, team and start_year. Its rows are Ines, Platform, 2019; Omar, Data, 2021; Pavel, Platform, 2023; Yuki, Data, 2018; Lena, Data, 2020. The long-service award goes to anyone who started in or before the cutoff year, 2020.\n\nWhich employees get the long-service award?"
+ },
+ {
+  "id": "data-11-U",
+  "pair_id": "data-11",
+  "domain": "data",
+  "split": "pilot",
+  "prompt": "The staff table has the columns name, team and start_year. Its rows are Ines, Platform, 2019; Omar, Data, 2021; Pavel, Platform, 2023; Yuki, Data, 2018; Lena, Data, 2020. The long-service award goes to anyone who started in or before the cutoff year.\n\nWhich employees get the long-service award?"
+ },
+ {
+  "id": "data-12-A",
+  "pair_id": "data-12",
+  "domain": "data",
+  "split": "pilot",
+  "prompt": "Sensor T9 recorded eight temperature readings in a row, numbered 1 to 8, with the values 21, 23, 24, 26, 25, 27, 22, 20. The first reading was taken at 08:00, and the readings were taken every 15 minutes after that. The probe was reset before the first reading and read correctly throughout.\n\nAt what clock time was the highest reading taken?"
+ },
+ {
+  "id": "data-12-U",
+  "pair_id": "data-12",
+  "domain": "data",
+  "split": "pilot",
+  "prompt": "Sensor T9 recorded eight temperature readings in a row, numbered 1 to 8, with the values 21, 23, 24, 26, 25, 27, 22, 20. The first reading was taken at 08:00. The probe was reset before the first reading and read correctly throughout.\n\nAt what clock time was the highest reading taken?"
+ },
+ {
+  "id": "code-01-A",
+  "pair_id": "code-01",
+  "domain": "code",
+  "split": "main",
+  "prompt": "The file config/service.yaml contains the lines `http:`, `  timeout_seconds: 10` and `  max_connections: 40`. The upstream call timeout has to be raised to 45 seconds because of the slow export endpoint, and the connection limit stays as it is. The file is loaded once at startup, and no other file overrides it.\n\nWhich line of the config should be changed and to what?"
+ },
+ {
+  "id": "code-01-U",
+  "pair_id": "code-01",
+  "domain": "code",
+  "split": "main",
+  "prompt": "The file config/service.yaml contains the lines `http:`, `  timeout_seconds: 10` and `  max_connections: 40`. The upstream call timeout has to be raised because of the slow export endpoint, and the connection limit stays as it is. The file is loaded once at startup, and no other file overrides it.\n\nWhich line of the config should be changed and to what?"
+ },
+ {
+  "id": "code-02-A",
+  "pair_id": "code-02",
+  "domain": "code",
+  "split": "main",
+  "prompt": "The repository's test suite uses pytest, and the tests under tests/ that need a running database carry a custom marker. A CI step must run only those tests, stop at the first failure, and use quiet output. The marker is called needs_pg. The step runs from the repo root.\n\nWrite the exact pytest command."
+ },
+ {
+  "id": "code-02-U",
+  "pair_id": "code-02",
+  "domain": "code",
+  "split": "main",
+  "prompt": "The repository's test suite uses pytest, and the tests under tests/ that need a running database carry a custom marker. A CI step must run only those tests, stop at the first failure, and use quiet output. The step runs from the repo root.\n\nWrite the exact pytest command."
+ },
+ {
+  "id": "code-03-A",
+  "pair_id": "code-03",
+  "domain": "code",
+  "split": "main",
+  "prompt": "The Node service reads its database host from an environment variable set in the Kubernetes manifest, called DB_HOST_PRIMARY. In the test suite the host must fall back to the string 'db.example.test' when the variable is unset. The code runs under Node 20 with CommonJS modules.\n\nWrite the one line of JavaScript that reads the host with that fallback."
+ },
+ {
+  "id": "code-03-U",
+  "pair_id": "code-03",
+  "domain": "code",
+  "split": "main",
+  "prompt": "The Node service reads its database host from an environment variable set in the Kubernetes manifest. In the test suite the host must fall back to the string 'db.example.test' when the variable is unset. The code runs under Node 20 with CommonJS modules.\n\nWrite the one line of JavaScript that reads the host with that fallback."
+ },
+ {
+  "id": "code-04-A",
+  "pair_id": "code-04",
+  "domain": "code",
+  "split": "main",
+  "prompt": "The file gradle.properties in the repo contains the line appVersion=4.1.0. Before building on stage-03, which runs Linux with GNU sed, the release script must change that line for the 4.2.0 release with a single sed command, editing the file in place. No other line in the file may change. The sed command is run from the repo root.\n\nWrite the sed command."
+ },
+ {
+  "id": "code-04-U",
+  "pair_id": "code-04",
+  "domain": "code",
+  "split": "main",
+  "prompt": "The file gradle.properties in the repo contains the line appVersion=4.1.0. Before building on stage-03, which runs Linux with GNU sed, the release script must change that line with a single sed command, editing the file in place. No other line in the file may change. The sed command is run from the repo root.\n\nWrite the sed command."
+ },
+ {
+  "id": "code-05-A",
+  "pair_id": "code-05",
+  "domain": "code",
+  "split": "main",
+  "prompt": "A Python 3.12 script must read the connection limit from a TOML file at /etc/orders/limits.toml using the standard tomllib module. The limit is stored in the table [pool], under the key max_open. The script should print it as an integer and nothing else. The file is owned by root and is always present.\n\nWrite the complete script."
+ },
+ {
+  "id": "code-05-U",
+  "pair_id": "code-05",
+  "domain": "code",
+  "split": "main",
+  "prompt": "A Python 3.12 script must read the connection limit from a TOML file at /etc/orders/limits.toml using the standard tomllib module. The limit is stored in the table [pool]. The script should print it as an integer and nothing else. The file is owned by root and is always present.\n\nWrite the complete script."
+ },
+ {
+  "id": "code-06-A",
+  "pair_id": "code-06",
+  "domain": "code",
+  "split": "main",
+  "prompt": "The scheduling API at https://sched.example.test/v1/runs starts a new run when it receives a POST with the form-encoded body pipeline=nightly-build. Authentication uses the key stored in the shell variable SCHED_KEY, sent in a header called X-Sched-Auth. The API ignores the Authorization header; the key itself goes in a custom header. Responses should be printed in full, including the status line, and the command runs from a shell on stage-04.\n\nWrite the exact curl command."
+ },
+ {
+  "id": "code-06-U",
+  "pair_id": "code-06",
+  "domain": "code",
+  "split": "main",
+  "prompt": "The scheduling API at https://sched.example.test/v1/runs starts a new run when it receives a POST with the form-encoded body pipeline=nightly-build. Authentication uses the key stored in the shell variable SCHED_KEY. The API ignores the Authorization header; the key itself goes in a custom header. Responses should be printed in full, including the status line, and the command runs from a shell on stage-04.\n\nWrite the exact curl command."
+ },
+ {
+  "id": "code-07-A",
+  "pair_id": "code-07",
+  "domain": "code",
+  "split": "main",
+  "prompt": "A Python module defines a constant OFFSET at the top, set to 12, and a function shift(n) that returns (n * 3 + OFFSET) % 10. The module is imported by the billing tests, and shift is never called with a negative number. Nothing else in the module changes OFFSET.\n\nWhat does shift(7) return?"
+ },
+ {
+  "id": "code-07-U",
+  "pair_id": "code-07",
+  "domain": "code",
+  "split": "main",
+  "prompt": "A Python module defines a constant OFFSET at the top, and a function shift(n) that returns (n * 3 + OFFSET) % 10. The module is imported by the billing tests, and shift is never called with a negative number. Nothing else in the module changes OFFSET.\n\nWhat does shift(7) return?"
+ },
+ {
+  "id": "code-08-A",
+  "pair_id": "code-08",
+  "domain": "code",
+  "split": "main",
+  "prompt": "A bug fix landed in the repository on the feature branch feature/export-fix as the single commit 9f3ac21. The fix is not the latest commit on that branch. The release branch release/5.2 needs that fix, but the feature branch must not be merged. A teammate is already on a clean checkout of release/5.2 with no uncommitted changes.\n\nWrite the exact git command that applies the fix to the current branch."
+ },
+ {
+  "id": "code-08-U",
+  "pair_id": "code-08",
+  "domain": "code",
+  "split": "main",
+  "prompt": "A bug fix landed in the repository on the feature branch feature/export-fix. The fix is not the latest commit on that branch. The release branch release/5.2 needs that fix, but the feature branch must not be merged. A teammate is already on a clean checkout of release/5.2 with no uncommitted changes.\n\nWrite the exact git command that applies the fix to the current branch."
+ },
+ {
+  "id": "code-09-A",
+  "pair_id": "code-09",
+  "domain": "code",
+  "split": "main",
+  "prompt": "A bash script runs /usr/local/bin/backup-now. If that command fails, the script must write the text backup failed to standard error and then stop. The monitoring system recognizes this failure by a dedicated status number, 42, which the script must return. The script runs under bash with no special options.\n\nWrite the failure-handling lines of the script."
+ },
+ {
+  "id": "code-09-U",
+  "pair_id": "code-09",
+  "domain": "code",
+  "split": "main",
+  "prompt": "A bash script runs /usr/local/bin/backup-now. If that command fails, the script must write the text backup failed to standard error and then stop. The monitoring system recognizes this failure by a dedicated status number, which the script must return. The script runs under bash with no special options.\n\nWrite the failure-handling lines of the script."
+ },
+ {
+  "id": "code-10-A",
+  "pair_id": "code-10",
+  "domain": "code",
+  "split": "main",
+  "prompt": "The analytics database has a table page_views with the columns visit_id, path and viewed_at. All pages of the documentation section have paths that begin with /help/kb/. The report needs the number of views per path for the documentation section, most viewed first, using standard SQL. The table is large, so the query must be a single statement.\n\nWrite the SQL query for that report."
+ },
+ {
+  "id": "code-10-U",
+  "pair_id": "code-10",
+  "domain": "code",
+  "split": "main",
+  "prompt": "The analytics database has a table page_views with the columns visit_id, path and viewed_at. The report needs the number of views per path for the documentation section, most viewed first, using standard SQL. The table is large, so the query must be a single statement.\n\nWrite the SQL query for that report."
+ },
+ {
+  "id": "code-11-A",
+  "pair_id": "code-11",
+  "domain": "code",
+  "split": "pilot",
+  "prompt": "A Dockerfile for the internal Python service must start from the company base image registry.example.test/base/python. Company policy requires the base image to be pinned to an exact tag, 3.12.4-slim. The rest of the Dockerfile is written separately, so only the opening line is needed here.\n\nWrite the FROM line."
+ },
+ {
+  "id": "code-11-U",
+  "pair_id": "code-11",
+  "domain": "code",
+  "split": "pilot",
+  "prompt": "A Dockerfile for the internal Python service must start from the company base image registry.example.test/base/python. Company policy requires the base image to be pinned to an exact tag. The rest of the Dockerfile is written separately, so only the opening line is needed here.\n\nWrite the FROM line."
+ },
+ {
+  "id": "code-12-A",
+  "pair_id": "code-12",
+  "domain": "code",
+  "split": "pilot",
+  "prompt": "A list called records holds dictionaries with the keys host, m1, m2 and m3. The dashboard shows the three hosts with the highest memory use, and memory use is stored under m2. Every dictionary has all four keys, and the values are plain numbers except for host.\n\nWrite the one-line Python expression that returns those three records."
+ },
+ {
+  "id": "code-12-U",
+  "pair_id": "code-12",
+  "domain": "code",
+  "split": "pilot",
+  "prompt": "A list called records holds dictionaries with the keys host, m1, m2 and m3. The dashboard shows the three hosts with the highest memory use. Every dictionary has all four keys, and the values are plain numbers except for host.\n\nWrite the one-line Python expression that returns those three records."
+ }
+]

@@ -1,0 +1,87 @@
+{
+  "labeller": "polymath-62 (independent session, labels its own, no model assistance)",
+  "rounds": [
+    {
+      "round": 1,
+      "file": "blind_history/blind_for_polymath.json",
+      "items": 12,
+      "class_agreement": "12/12",
+      "missing_fact_agreement_on_U": "7/8",
+      "mismatch": "b12 data-03 (reworded; later relabelled in round 4 as e05)",
+      "note": "drew from all 36 pairs, so b02 (code-11) and b11 (deploy-12) are pilot items; b05 code-06, b07 deploy-04 and b12 data-03 were later reworded",
+      "sha256_as_read_by_labeller": "f9957caa2dc3e98ca89b92d6b63e3d6983d2682fe635a6a4a586de82ae59f361",
+      "sha256_of_archived_copy": "2070fd0d612c48de52899f1168ec10eb9d56e69989eff961c24c572bf5916c25",
+      "archive_note": "archived after the data-03 reword changed prompt b12, so the archive differs from the file the labeller read (only b12 differs); the labeller's copy has the as-read hash"
+    },
+    {
+      "round": 2,
+      "file": "blind_history/blind2_for_polymath.json",
+      "items": 3,
+      "class_agreement": "3/3",
+      "missing_fact_agreement_on_U": "2/2",
+      "contaminated": [
+        "c01 deploy-01 (labeller had seen the A twin)",
+        "c02 data-03 (labeller knew the key)"
+      ],
+      "clean": [
+        "c03 data-08"
+      ],
+      "sha256": "bf6dd647627a58de59ecffbf71c4a291bd2dd392c4374839fdd6d8e969b21e18"
+    },
+    {
+      "round": 3,
+      "file": "blind_history/blind3_for_polymath.json",
+      "sha256": "c1b67bf022cd811b132ae5c7ec468f3ee1aa03a7f73813358a94837e0442d8bc",
+      "items": 1,
+      "class_agreement": "1/1",
+      "clean": [
+        "d01 deploy-09"
+      ]
+    },
+    {
+      "round": 4,
+      "file": "blind4_for_polymath.json",
+      "sha256": "1032e5661a350a1a2b9badc15fabbbd47f15490c8cc1664e5f2a1793cdf97f45",
+      "items": 9,
+      "class_agreement": "9/9",
+      "missing_fact_agreement_on_U": "6/6",
+      "clean": [
+        "e01",
+        "e03",
+        "e06",
+        "e07",
+        "e08"
+      ],
+      "not_blind": [
+        "e02 code-08",
+        "e04 deploy-04",
+        "e05 data-03",
+        "e09 code-06"
+      ],
+      "note": "relabel of every pair whose text changed after the Critic's part-2 review",
+      "superseded_pairs": [
+        "code-08 (e02) and deploy-05 (e03) were reworded again after round 4 and relabelled in round 5"
+      ]
+    },
+    {
+      "round": 5,
+      "file": "blind5_for_polymath.json",
+      "sha256": "7f70056264625ba44c6a0a534aa7c2472e4bbf06d197e69ed58a33c37043e0db",
+      "items": 2,
+      "class_agreement": "2/2",
+      "missing_fact_agreement_on_U": "2/2",
+      "not_blind": [
+        "f01 code-08",
+        "f02 deploy-05"
+      ],
+      "note": "relabel after the Critic's v3 re-check: code-08 lost the clause naming the commit hash; deploy-05 lost the billing-team cue"
+    }
+  ],
+  "clean_blind_main_labels_round_1_to_3": 12,
+  "deviations_from_prereg": [
+    "Round 1 drew from the 36 pairs (main and pilot), not only from the 60 main items; rounds 2-3 added main pairs to reach 12 clean main labels.",
+    "Items were written by a blind helper agent, not by lumenbridge-83; lumenbridge-83 wrote the envelope under test and the helper's spec (author bias recorded).",
+    "After the Critic's review 2 pairs were replaced and 7 reworded; all 9 changed pairs were relabelled in round 4, 4 of them not fully blind."
+  ],
+  "class_disagreements_all_rounds": 0
+}

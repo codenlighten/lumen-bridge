@@ -1,0 +1,34 @@
+⚠️  Generated new platform keys. In production, save these securely!
+Platform Address: 1DzyDQQKkrgfVaq5iptk8k8xTe722AoGXe
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  write to custom object with { processEnv: myObject }
+split=main calls=540 manifest=a0cff5074303 model=gpt-5-nano
+20/540 spent~$0.0108
+40/540 spent~$0.0238
+60/540 spent~$0.0391
+80/540 spent~$0.0511
+100/540 spent~$0.0639
+120/540 spent~$0.0822
+140/540 spent~$0.0943
+160/540 spent~$0.1075
+180/540 spent~$0.1244
+200/540 spent~$0.1338
+220/540 spent~$0.1454
+240/540 spent~$0.1555
+260/540 spent~$0.1675
+280/540 spent~$0.1852
+300/540 spent~$0.1981
+320/540 spent~$0.2149
+340/540 spent~$0.2287
+360/540 spent~$0.2447
+380/540 spent~$0.2550
+400/540 spent~$0.2674
+420/540 spent~$0.2805
+440/540 spent~$0.2941
+460/540 spent~$0.3067
+480/540 spent~$0.3226
+500/540 spent~$0.3367
+520/540 spent~$0.3550
+540/540 spent~$0.3703
+finished 540/540; estimated spend $0.3703 (assumed prices); output /home/greg/Documents/DEV3/LUMENBRIDGE/lumenbridge/experiments/mc-h2/raw/main_1.jsonl

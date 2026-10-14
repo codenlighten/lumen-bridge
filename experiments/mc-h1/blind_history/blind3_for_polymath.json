@@ -1,0 +1,6 @@
+[
+ {
+  "blind_id": "d01",
+  "prompt": "Application logs for the inventory daemon are written to /var/log/inventory/*.log on stage-06. A logrotate stanza is needed that rotates them daily, compresses the rotated files, and keeps a limited number of rotated files, 14 in total. After each rotation, the daemon is told to reopen its logs with systemctl reload inventory.\n\nWrite the complete logrotate stanza."
+ }
+]

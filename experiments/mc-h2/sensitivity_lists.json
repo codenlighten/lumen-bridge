@@ -1,0 +1,11 @@
+{
+  "note": "Descriptive only, outside the decision table. Written before the freeze. Pair ids; both members of a pair are excluded together.",
+  "weak_default_can_pass_as_answer": ["deploy-02", "deploy-03", "data-06", "code-02", "code-10", "deploy-12"],
+  "cued_missing_fact_named_in_both_members": ["data-02", "data-11", "code-09", "data-03", "code-06", "deploy-04"],
+  "echo_terms_term_appears_in_the_u_prompt": ["deploy-09", "data-06", "data-11", "code-09", "code-11", "data-03"],
+  "reading": {
+    "weak": "recall and false alarm recomputed without these pairs",
+    "cued": "report recall on these as 'cued missing fact', not as detection of an unmentioned omission",
+    "echo": "recall recomputed without these pairs"
+  }
+}

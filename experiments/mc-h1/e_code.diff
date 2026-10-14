@@ -1,0 +1,305 @@
+diff --git a/structured-json.js b/structured-json.js
+index 7f05059..5f08a5c 100644
+--- a/structured-json.js
++++ b/structured-json.js
+@@ -1,30 +1,44 @@
+ import dotenv from "dotenv";
+-import { signData, verifySignature, getPublicKeyFromPrivateKey, getAddressFromPrivateKey } from "./tools/der-signature.js";
++import { signData, verifySignature, getPublicKeyFromPrivateKey, getAddressFromPrivateKey, getAddressFromPublicKey } from "./tools/der-signature.js";
+ import { platformAddress, platformPublicKey, createAgentKeys, platformKeys } from "./tools/signature.js";
+ import { MemoryManager } from "./utilities/MemoryManager.js";
+ import { complete as llmComplete, LLMConfig } from "./llm-providers/index.js";
+ import crypto from "crypto";
++import { canonicalize, canonicalHash, sha256Hex } from "./tools/canonical.js";
+ 
+ dotenv.config();
+ 
+ // Legacy constants for backward compatibility
+ const OPENAI_MODEL = "gpt-5-nano";
+ 
+-/* ======================================================
+- * Cryptographically Signed Response Helper with Agent Identity
+- * ====================================================== */
+-export async function signedStructuredResponse({
++const SIGNATURE_VERSION = 2;
++
++// Hash of the canonical signed payload (v2). Every field here is covered by the signature.
++export function signedPayloadHash(body, { timestamp, address, publicKey, schemaHash, queryHash }) {
++  return canonicalHash({
++    v: SIGNATURE_VERSION,
++    body,
++    timestamp,
++    address,
++    publicKey,
++    schemaHash,
++    queryHash
++  });
++}
++
++const DEFAULT_SYSTEM_PROMPT = "You are an AI that outputs ONLY valid JSON strictly conforming to the provided schema. If the schema includes a 'data' field, populate it with the domain-specific information requested. Always include a 'missingContext' array describing any missing information needed for perfection. If nothing is missing, return an empty array.";
++
++/**
++ * Build the envelope prompt exactly as signedStructuredResponse sends it.
++ * Exported so experiments and tests use the same prompt, not a copy.
++ */
++export function buildEnvelopeMessages({
+   query,
+   schema,
+   context,
+-  model = OPENAI_MODEL,
+-  temperature = 0.2,
+-  systemPrompt = "You are an AI that outputs ONLY valid JSON strictly conforming to the provided schema. If the schema includes a 'data' field, populate it with the domain-specific information requested. Always include a 'missingContext' array describing any missing information needed for perfection. If nothing is missing, return an empty array.",
+-  agentKey = null, // New parameter for agent-specific signing
+-  provider = null, // LLM provider override (openai|llama|auto)
+-  nestUserSchema = false // New parameter: if true, nest user schema in 'data' field
++  systemPrompt = DEFAULT_SYSTEM_PROMPT,
++  nestUserSchema = false
+ } = {}) {
+-
+   // Default envelope schema with cryptographic fields and conversation control
+   const baseSchema = {
+     type: "object",
+@@ -102,7 +116,63 @@ export async function signedStructuredResponse({
+   if (query) {
+     messages.push({ role: "user", content: query });
+   }
+-  
++
++  return { messages, mergedSchema };
++}
++
++/**
++ * Sign a response body. Returns the _signature block (v2). The signed payload
++ * binds the canonical body to the schema it was produced under, the input it
++ * answers, the signing key/address and the signing time. Anything outside it
++ * (_llm, agentIdentity) is unsigned.
++ */
++export async function signResponseBody(body, { mergedSchema, query = null, context = null, agentKey = null } = {}) {
++  const timestamp = new Date().toISOString();
++  const schemaHash = canonicalHash(mergedSchema ?? null);
++  const queryHash = canonicalHash({ query: query ?? null, context: context ?? null });
++
++  let privateKey, address, publicKey;
++  if (agentKey && agentKey.privateKey) {
++    privateKey = agentKey.privateKey;
++    address = getAddressFromPrivateKey(privateKey);
++    publicKey = getPublicKeyFromPrivateKey(privateKey);
++  } else {
++    privateKey = platformKeys.privateKey;
++    address = platformKeys.address;
++    publicKey = platformKeys.publicKey;
++  }
++  const responseHash = signedPayloadHash(body, { timestamp, address, publicKey, schemaHash, queryHash });
++  const signature = await signData(responseHash, privateKey);
++  return {
++    signature,
++    version: SIGNATURE_VERSION,
++    responseHash,
++    schemaHash,
++    queryHash,
++    address,
++    publicKey,
++    timestamp,
++    algorithm: "BSV-ECDSA-DER"
++  };
++}
++
++/* ======================================================
++ * Cryptographically Signed Response Helper with Agent Identity
++ * ====================================================== */
++export async function signedStructuredResponse({
++  query,
++  schema,
++  context,
++  model = OPENAI_MODEL,
++  temperature = undefined, // undefined = provider default; some models (gpt-5-nano) reject other values
++  systemPrompt = DEFAULT_SYSTEM_PROMPT,
++  agentKey = null, // New parameter for agent-specific signing
++  provider = null, // LLM provider override (openai|llama|auto)
++  nestUserSchema = false // New parameter: if true, nest user schema in 'data' field
++} = {}) {
++
++  const { messages, mergedSchema } = buildEnvelopeMessages({ query, schema, context, systemPrompt, nestUserSchema });
++
+   // Use provider system instead of direct OpenAI client
+   const llmResponse = await llmComplete(messages, {
+     model,
+@@ -119,35 +189,15 @@ export async function signedStructuredResponse({
+       console.log(`[LLM] Provider: ${llmResponse.provider}, Model: ${llmResponse.model}, Elapsed: ${llmResponse.elapsed}ms`);
+     }
+     
+-    // Create cryptographic signature for the response (BEFORE adding metadata)
+-    const responseText = JSON.stringify(aiResponse);
+-    const responseHash = crypto.createHash('sha256').update(responseText).digest('hex');
+-    
+-    // Use agent-specific key if provided, otherwise use platform key
+-    let signature, signingAddress, publicKey;
+-    if (agentKey && agentKey.privateKey) {
+-      signature = await signData(responseHash, agentKey.privateKey);
+-      signingAddress = getAddressFromPrivateKey(agentKey.privateKey);
+-      publicKey = getPublicKeyFromPrivateKey(agentKey.privateKey);
+-    } else {
+-      // IMPORTANT: no shadowing; use the imported platformKeys
+-      signature = await signData(responseHash, platformKeys.privateKey);
+-      signingAddress = platformKeys.address;
+-      publicKey = platformKeys.publicKey;
+-    }
+-    
++    const sig = await signResponseBody(aiResponse, { mergedSchema, query, context, agentKey });
++
+     // Return signed response with cryptographic proof
+     return {
+       ...aiResponse,
+       _signature: {
+-        signature,
+-        responseHash,
+-        address: signingAddress,
+-        publicKey: publicKey,
+-        timestamp: new Date().toISOString(),
+-        algorithm: "BSV-ECDSA-DER",
++        ...sig,
+         encoding: "hex",
+-        agentIdentity: agentKey ? agentKey.agentName : "Platform"
++        agentIdentity: agentKey ? agentKey.agentName : "Platform" // label only, not signed
+       },
+       _llm: {
+         provider: llmResponse.provider,
+@@ -175,41 +225,109 @@ export async function signedStructuredResponse({
+ /* ======================================================
+  * Signature Verification Helper
+  * ====================================================== */
+-export async function verifyResponseSignature(signedResponse) {
+-  if (!signedResponse._signature) {
++/**
++ * Verify a signed response.
++ *   trustedPublicKeys  keys the caller accepts as signers. `verified` is true only
++ *                      when the signature is valid AND the signer is in this list;
++ *                      with no list, only `signatureValid` can be true (the response
++ *                      matches the key it names, which says nothing about who that is).
++ *   expectedSchemaHash / expectedQueryHash  reject a response signed for a different
++ *                      schema or input.
++ *   maxAgeMs           reject a response signed longer ago than this (freshness).
++ *   allowLegacy        accept v1 hash-only signatures (binds only the body; off by default).
++ */
++export async function verifyResponseSignature(signedResponse, {
++  trustedPublicKeys = null,
++  expectedSchemaHash = null,
++  expectedQueryHash = null,
++  maxAgeMs = null,
++  allowLegacy = false
++} = {}) {
++  if (!signedResponse || !signedResponse._signature) {
+     return { verified: false, error: "No signature found" };
+   }
+ 
+-  const { signature, responseHash, publicKey, timestamp, algorithm } = signedResponse._signature;
+-  
++  const sig = signedResponse._signature;
++  const { signature, responseHash, publicKey, timestamp, algorithm } = sig;
++
+   try {
+-    // Recreate response without signature AND metadata for verification
+-    const responseWithoutMeta = { ...signedResponse };
+-    delete responseWithoutMeta._signature;
+-    delete responseWithoutMeta._llm; // Also exclude LLM metadata
+-    const responseText = JSON.stringify(responseWithoutMeta);
+-    const computedHash = crypto.createHash('sha256').update(responseText).digest('hex');
+-    
+-    // Verify hash matches
++    if (algorithm !== "BSV-ECDSA-DER") {
++      return { verified: false, error: `Unsupported algorithm: ${algorithm}` };
++    }
++
++    // Recreate the signed body: everything except signature and LLM metadata
++    const body = { ...signedResponse };
++    delete body._signature;
++    delete body._llm;
++
++    let computedHash;
++    if (sig.version === SIGNATURE_VERSION) {
++      if (getAddressFromPublicKey(publicKey) !== sig.address) {
++        return { verified: false, error: "Address does not match public key" };
++      }
++      computedHash = signedPayloadHash(body, {
++        timestamp,
++        address: sig.address,
++        publicKey,
++        schemaHash: sig.schemaHash,
++        queryHash: sig.queryHash
++      });
++    } else if (sig.version === undefined) {
++      if (!allowLegacy) {
++        return { verified: false, error: "Legacy (v1) signatures are not accepted; pass allowLegacy to opt in" };
++      }
++      // Legacy (v1): hash of JSON.stringify(body) only. Binds nothing else.
++      computedHash = crypto.createHash('sha256').update(JSON.stringify(body)).digest('hex');
++    } else {
++      return { verified: false, error: `Unsupported signature version: ${sig.version}` };
++    }
++
+     if (computedHash !== responseHash) {
+-      return { 
+-        verified: false, 
++      return {
++        verified: false,
+         error: "Response hash mismatch",
+         expected: responseHash,
+         computed: computedHash
+       };
+     }
+-    
+-    // Verify signature
++
+     const isValid = await verifySignature(responseHash, signature, publicKey);
+-    
++
++    if (isValid && sig.version === SIGNATURE_VERSION) {
++      if (expectedSchemaHash && sig.schemaHash !== expectedSchemaHash) {
++        return { verified: false, signatureValid: true, error: "Signed for a different schema" };
++      }
++      if (expectedQueryHash && sig.queryHash !== expectedQueryHash) {
++        return { verified: false, signatureValid: true, error: "Signed for a different input" };
++      }
++      if (maxAgeMs !== null) {
++        const age = Date.now() - Date.parse(timestamp);
++        if (!(age >= -60_000 && age <= maxAgeMs)) {
++          return { verified: false, signatureValid: true, error: "Signature timestamp outside the allowed window" };
++        }
++      }
++    }
++
++    // Key pinning: without trustedPublicKeys this only shows the response was
++    // signed by the key it names, not that the key belongs to anyone we trust.
++    const pinned = Array.isArray(trustedPublicKeys);
++    const trusted = pinned ? trustedPublicKeys.includes(publicKey) : null;
++    const verified = isValid && trusted === true;
++
+     return {
+-      verified: isValid,
++      verified,
++      signatureValid: isValid,
++      trusted,
++      version: sig.version ?? 1,
+       publicKey,
+       timestamp,
+       algorithm,
+       responseHash,
+-      error: isValid ? null : "Signature verification failed"
++      error: verified
++        ? null
++        : isValid
++          ? (pinned ? "Signing key is not in the trusted set" : "Signature is valid for the key it names; no trusted key supplied")
++          : "Signature verification failed"
+     };
+   } catch (error) {
+     return {
+@@ -261,8 +379,7 @@ export async function chatWithMemory(userMessage, schema = null, context = null,
+     schema: schemaToUse,
+     context: contextMessages,
+     systemPrompt: systemPrompt, // Pass through the systemPrompt if provided
+-    model: OPENAI_MODEL,
+-    temperature: 0.4
++    model: OPENAI_MODEL
+   });
+ 
+   // Extract signature info for storage

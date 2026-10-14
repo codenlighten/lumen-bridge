@@ -1,0 +1,44 @@
+{
+  "model": "gpt-5-nano",
+  "response_format": {
+    "type": "json_object"
+  },
+  "max_completion_tokens": 16000,
+  "temperature": "not set (model default; gpt-5-nano rejects any other value)",
+  "reasoning_effort": "not set (model default)",
+  "repeats": 3,
+  "order_seed": 20261014,
+  "blind_sample_seed": 71014,
+  "cost_ceiling_usd": 5,
+  "assumed_price_usd_per_million_tokens": {
+    "input": 0.05,
+    "output": 0.4,
+    "note": "assumption for projection only; real cost is reported from usage"
+  },
+  "blind_sample_seed_round2": 71015,
+  "blind_sample_seed_round3": 71016,
+  "blind_contaminated_pairs_polymath": [
+    "deploy-01",
+    "code-06",
+    "deploy-04",
+    "deploy-12",
+    "data-03"
+  ],
+  "blind_sample_seed_round4": 71017,
+  "blind_relabel_pairs_round4": [
+    "deploy-05",
+    "code-02",
+    "code-08",
+    "deploy-02",
+    "code-04",
+    "code-06",
+    "deploy-04",
+    "deploy-10",
+    "data-03"
+  ],
+  "blind_sample_seed_round5": 71018,
+  "blind_relabel_pairs_round5": [
+    "code-08",
+    "deploy-05"
+  ]
+}
